@@ -1,18 +1,20 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X } from 'lucide-react';
 import { cn } from '../utils/cn';
 import DeadlineTimer from '../components/ui/DeadlineTimer';
 
 const StudentDashboard = () => {
-    const { students, notifications } = useApp();
+    const { students, notifications, removeNotification, competitions } = useApp();
+    const { user } = useAuth();
 
-    // Mock Logged-in User - Dynamic Fetch
-    const mockName = "Omar Tantawy";
-    const profile = students.find(s => s.name === mockName) || {
-        name: mockName,
+    // Use logged-in user name from auth context
+    const currentUserName = user?.name || "Omar Tantawy";
+    const profile = students.find(s => s.name === currentUserName) || {
+        name: currentUserName,
         grade: "10",
         clazz: "A",
         school: "WE School",
@@ -20,13 +22,17 @@ const StudentDashboard = () => {
     };
 
     // Filter registrations for this specific student
-    const myRegistrations = students.filter(s => s.name === mockName);
+    const myRegistrations = students.filter(s => s.name === currentUserName);
 
     // Get current student ID
-    const studentId = myRegistrations[0]?.id;
+    const studentId = myRegistrations[0]?.id || user?.id;
 
     // Filter notifications for this student or global ones
     const myNotifications = notifications.filter(n => n.studentId === studentId || !n.studentId);
+
+    // Get Science and Engineering Fair deadline
+    const scienceAndEngineeringFair = competitions.find(c => c.name === 'Science and Engineering Fair');
+    const submissionDeadline = scienceAndEngineeringFair?.endDate;
 
     const stats = [
         { 
@@ -70,7 +76,7 @@ const StudentDashboard = () => {
             </div>
 
             {/* Deadline Timer - Prominent Position */}
-            <DeadlineTimer title="Science and Engineering Fair Submission Deadline" />
+            <DeadlineTimer title="Science and Engineering Fair Submission Deadline" deadline={submissionDeadline} />
 
             {/* Personal Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
@@ -119,7 +125,7 @@ const StudentDashboard = () => {
                                 )}>
                                     {n.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                     <p className={cn(
                                         "text-sm font-medium",
                                         n.type === 'success' ? 'text-emerald-900 dark:text-emerald-100' :
@@ -128,6 +134,13 @@ const StudentDashboard = () => {
                                     )}>{n.text}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{n.date}</p>
                                 </div>
+                                <button
+                                    onClick={() => removeNotification(n.id)}
+                                    className="shrink-0 p-1 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded transition-colors"
+                                    title="Remove notification"
+                                >
+                                    <X className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                </button>
                             </div>
                         ))}
                     </div>

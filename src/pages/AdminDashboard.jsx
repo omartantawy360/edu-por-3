@@ -3,13 +3,13 @@ import { useApp } from '../context/AppContext';
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, BookOpen, MessageSquare, Send } from 'lucide-react';
+import { Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, BookOpen, MessageSquare, Send, FileText as FileTextIcon } from 'lucide-react';
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 const AdminDashboard = () => {
-    const { students, competitions, notifications, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
+    const { students, competitions, notifications, addNotification, removeNotification, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -148,9 +148,18 @@ const AdminDashboard = () => {
                                                 <div className="p-4 text-center text-xs text-slate-500">No new notifications</div>
                                             ) : (
                                                 notifications.map(n => (
-                                                    <div key={n.id} className="p-3 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                                        <p className="text-sm text-slate-800 dark:text-slate-100">{n.text}</p>
-                                                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{n.date}</p>
+                                                    <div key={n.id} className="p-3 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-start justify-between gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm text-slate-800 dark:text-slate-100 break-words">{n.text}</p>
+                                                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{n.date}</p>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => removeNotification(n.id)}
+                                                            className="shrink-0 p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                                                            title="Remove notification"
+                                                        >
+                                                            <X className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                                        </button>
                                                     </div>
                                                 ))
                                             )}

@@ -1,12 +1,14 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { Award, Download, Share2, Calendar } from 'lucide-react';
 
 const CertificateView = () => {
     const { getStudentCertificates } = useApp();
+    const { user } = useAuth();
     
-    // For demo: assume logged-in student is ST-001
-    const currentStudentId = 'ST-001';
+    // Use logged-in student ID from auth context
+    const currentStudentId = user?.id || 'ST-001';
     const certificates = getStudentCertificates(currentStudentId);
 
     // Inline styles to force black text in dark mode for certificates

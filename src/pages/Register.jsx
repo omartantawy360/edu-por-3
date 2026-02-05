@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
@@ -9,6 +10,7 @@ import { Badge } from '../components/ui/Badge';
 
 const Register = () => {
     const { competitions, registerStudent } = useApp();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -16,7 +18,7 @@ const Register = () => {
     const preSelectedCompetition = location.state?.selectedCompetition;
     
     const [formData, setFormData] = useState({
-        name: '',
+        name: user?.name || '',
         grade: '',
         clazz: '', 
         competition: preSelectedCompetition?.name || competitions[0]?.name || '',
@@ -65,6 +67,7 @@ const Register = () => {
                                         value={formData.name}
                                         onChange={handleChange}
                                         placeholder="E.g., Muhammad Ahmed"
+                                        disabled={!!user?.name}
                                         required
                                     />
                                     <div className="space-y-2">

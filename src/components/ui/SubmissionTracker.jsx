@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { CheckCircle, Clock, XCircle, Github, ExternalLink, Plus, Filter } from 'lucide-react';
 
 const SubmissionTracker = () => {
     const { submissions, competitions, addSubmission, getStudentSubmissions } = useApp();
+    const { user } = useAuth();
     const [showForm, setShowForm] = useState(false);
     const [filterCompetition, setFilterCompetition] = useState('all');
     const [formData, setFormData] = useState({
@@ -13,8 +15,8 @@ const SubmissionTracker = () => {
         competitionId: ''
     });
 
-    // For demo: assume logged-in student is ST-001
-    const currentStudentId = 'ST-001';
+    // Use logged-in student ID from auth context
+    const currentStudentId = user?.id || 'ST-001';
     const studentSubmissions = getStudentSubmissions(currentStudentId);
 
     const filteredSubmissions = studentSubmissions.filter(sub => {

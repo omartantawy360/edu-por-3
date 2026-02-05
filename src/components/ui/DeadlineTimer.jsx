@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Clock, AlertCircle } from 'lucide-react';
 
 const DeadlineTimer = ({ deadline = null, title = 'Competition Deadline' }) => {
   const defaultDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const targetDeadline = deadline || defaultDeadline;
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  function calculateTimeLeft() {
+  const calculateTimeLeft = useCallback(() => {
     const difference = new Date(targetDeadline) - new Date();
     if (difference > 0) {
       return {
@@ -19,12 +17,14 @@ const DeadlineTimer = ({ deadline = null, title = 'Competition Deadline' }) => {
       };
     }
     return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
-  }
+  }, [targetDeadline]);
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
     const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(timer);
-  }, [targetDeadline]);
+  }, [calculateTimeLeft]);
 
   const isUrgent = timeLeft.total > 0 && timeLeft.total < 24 * 60 * 60 * 1000;
   const isExpired = timeLeft.total <= 0;

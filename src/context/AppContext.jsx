@@ -178,6 +178,10 @@ export const AppProvider = ({ children }) => {
       setNotifications(prev => [{ id: Date.now(), text, type, date: new Date().toISOString().split('T')[0], studentId }, ...prev]);
   };
 
+  const removeNotification = (notificationId) => {
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  };
+
   const addCompetition = (data) => {
       const newCompetition = {
           id: Math.random().toString(36).substr(2, 9),
@@ -347,6 +351,7 @@ export const AppProvider = ({ children }) => {
       updateStudentStage,
       setStudentResult,
       addNotification,
+      removeNotification,
       setStudentFeedback,
       addSubmission,
       updateSubmissionStatus,

@@ -19,11 +19,20 @@ export const AuthProvider = ({ children }) => {
     // Simulate API delay
     return new Promise((resolve) => {
         setTimeout(() => {
-          setUser({
-            id: Math.random().toString(36).substr(2, 9),
-            name: role === 'admin' ? 'Admin User' : 'Student User',
-            role,
-          });
+          if (role === 'admin') {
+            setUser({
+              id: 'ADMIN-001',
+              name: 'Admin User',
+              role: 'admin',
+            });
+          } else {
+            // Default student is Omar Tantawy
+            setUser({
+              id: 'ST-001',
+              name: 'Omar Tantawy',
+              role: 'student',
+            });
+          }
           setLoading(false);
           resolve();
         }, 500);
