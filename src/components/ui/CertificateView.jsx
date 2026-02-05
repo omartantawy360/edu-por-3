@@ -88,7 +88,7 @@ const CertificateView = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Action Buttons */}}
+                                            {/* Action Buttons */}
                     <div className="px-6 py-5 flex gap-4 justify-center border-t border-border bg-slate-50/80 dark:bg-slate-800/50">
                         <button
                             onClick={handleDownload}
