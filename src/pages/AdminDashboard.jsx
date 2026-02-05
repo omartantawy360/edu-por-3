@@ -165,7 +165,7 @@ const AdminDashboard = () => {
                             )}
                         </div>
 
-                        <div className="flex p-1 bg-slate-100/80 rounded-lg w-full sm:w-auto grid grid-cols-3 sm:flex">
+                        <div className="flex p-1 bg-slate-100/80 dark:bg-slate-900 rounded-lg w-full sm:w-auto grid grid-cols-3 sm:flex">
                             <TabButton id="overview" label="Overview" icon={FileText} />
                             <TabButton id="students" label="Students" icon={Users} />
                             <TabButton id="competitions" label="Competitions" icon={Trophy} />

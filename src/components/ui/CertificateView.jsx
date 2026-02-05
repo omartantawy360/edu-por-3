@@ -50,45 +50,45 @@ const CertificateView = () => {
                         <div className="absolute bottom-0 right-0 w-24 h-24 border-b-4 border-r-4 border-primary-500 rounded-br-2xl"></div>
 
                         {/* Certificate Content */}
-                        <div className="text-center space-y-6 relative z-10">
-                            <div className="inline-block p-5 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50">
-                                <Award className="text-primary-600" size={48} />
-                            </div>
-                            
-                            <div>
-                                <p className="text-sm uppercase tracking-widest text-black font-semibold">Certificate of</p>
-                                <h1 className="text-4xl font-bold text-black mt-2">{cert.achievement}</h1>
-                            </div>
+                                                <div className="text-center space-y-6 relative z-10">
+                                                    <div className="inline-block p-5 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50">
+                                                        <Award className="text-amber-600" size={48} />
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <p className="text-sm uppercase tracking-widest text-black font-semibold">Certificate of</p>
+                                                        <h1 className="text-4xl font-bold text-black mt-2">{cert.achievement}</h1>
+                                                    </div>
 
-                            <div className="py-4">
-                                <p className="text-black mb-2">This certificate is proudly presented to</p>
-                                <h2 className="text-3xl font-bold text-black">{cert.studentName}</h2>
-                            </div>
+                                                    <div className="py-4">
+                                                        <p className="text-black mb-2">This certificate is proudly presented to</p>
+                                                        <h2 className="text-3xl font-bold text-black">{cert.studentName}</h2>
+                                                    </div>
 
-                            <div className="max-w-2xl mx-auto">
-                                <p className="text-black leading-relaxed">
-                                    For outstanding performance and achievement in the <span className="font-semibold text-black">{cert.competitionName}</span>
-                                </p>
-                            </div>
+                                                    <div className="max-w-2xl mx-auto">
+                                                        <p className="text-black leading-relaxed">
+                                                            For outstanding performance and achievement in the <span className="font-semibold text-black">{cert.competitionName}</span>
+                                                        </p>
+                                                    </div>
 
-                            <div className="flex justify-center items-center gap-12 pt-8">
-                                <div className="text-center">
-                                    <div className="w-40 border-t-2 border-black mb-2"></div>
-                                    <p className="text-sm text-black">Authorized Signature</p>
-                                    <p className="text-xs text-black mt-1">{cert.issuedBy}</p>
-                                </div>
-                                <div className="text-center">
-                                    <div className="flex items-center gap-2 text-black">
-                                        <Calendar size={16} />
-                                        <span className="text-sm">{cert.date}</span>
-                                    </div>
-                                    <p className="text-xs text-black mt-1">Date of Issue</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                                    <div className="flex justify-center items-center gap-12 pt-8">
+                                                        <div className="text-center">
+                                                            <div className="w-40 border-t-2 border-black mb-2"></div>
+                                                            <p className="text-sm text-black">Authorized Signature</p>
+                                                            <p className="text-xs text-black mt-1">{cert.issuedBy}</p>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <div className="flex items-center gap-2 text-black">
+                                                                <Calendar size={16} className="text-black" />
+                                                                <span className="text-sm text-black">{cert.date}</span>
+                                                            </div>
+                                                            <p className="text-xs text-black mt-1">Date of Issue</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                    {/* Action Buttons */}
+                                            {/* Action Buttons */}}
                     <div className="px-6 py-5 flex gap-4 justify-center border-t border-border bg-slate-50/80 dark:bg-slate-800/50">
                         <button
                             onClick={handleDownload}
