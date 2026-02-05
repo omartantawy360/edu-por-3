@@ -45,8 +45,8 @@ const Register = () => {
     return (
         <div className="max-w-6xl mx-auto space-y-8">
             <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50">Registration</h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Complete your competition registration</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50">Register</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Complete your registration for the competition</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -64,7 +64,7 @@ const Register = () => {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        placeholder="e.g. John Doe"
+                                        placeholder="E.g., Muhammad Ahmed"
                                         required
                                     />
                                     <div className="space-y-2">
@@ -210,7 +210,7 @@ const Register = () => {
                                 <CardContent className="p-4 flex gap-3">
                                     <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
                                     <p className="text-sm text-amber-800 dark:text-amber-200">
-                                        Please ensure all details are correct. Team registrations require approval from all members' guardians.
+                                        Please ensure all details are accurate. Team registration requires approval from parents of all members.
                                     </p>
                                 </CardContent>
                             </Card>

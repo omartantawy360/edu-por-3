@@ -36,19 +36,19 @@ export const AppProvider = ({ children }) => {
 
   // Mock Data
   const generateMockStudents = () => {
-    const firstNames = ["Alice", "Bob", "Charlie", "Diana", "Evan", "Fiona", "George", "Hannah", "Ian", "Jack", "Karen", "Leo", "Mona", "Nathan", "Olivia", "Peter", "Quinn", "Rachel", "Steve", "Tony"];
-    const lastNames = ["Johnson", "Smith", "Brown", "Prince", "Wright", "Gallagher", "Miller", "Montana", "Somerhalder", "Daniels", "Page", "Messi", "Lisa", "Drake", "Wilde", "Parker", "Fabray", "Green", "Rogers", "Stark"];
+    const firstNames = ["Omar", "Mohammed", "Ali", "Layla", "Ahmed", "Noor", "Hassan", "Zainab", "Sarah", "Fatima", "Shireen", "Kamal", "Rana", "Yasser", "Dina", "Khalid", "Amina", "Ibrahim", "Aisha", "Saleh"];
+    const lastNames = ["Tantawy", "Ali", "Hassan", "Saleh", "Deen", "Ghareeb", "Faraj", "Rashid", "Thamer", "Shemari", "Shibaani", "Enezi", "Dosari", "Qahtani", "Maliki", "Najjar", "Hajri", "Tareqi", "Ruwaili", "Suwalem"];
     
-    const schools = ["Lincoln High", "Washington Academy", "Roosevelt Prep", "Jefferson High", "Kennedy International"];
+    const schools = ["WE School"];
     const projectTitles = [
-        "Eco-Friendly Water Purification System", "AI-Driven Crop Disease Detection", "Renewable Energy from Algae", 
-        "Blockchain for Supply Chain Transparency", "Smart Traffic Management System", "Biodegradable Plastic from Corn Starch",
-        "Autonomous Drone for Search and Rescue", "Mental Health Analysis using NLP", "Vertical Farming Automation",
-        "Low-Cost Prosthetic Global Arm", "Solar-Powered Water Desalination", "Machine Learning for Early Wildfire Detection"
+        "Smart Water Purification System with AI", "Crop Disease Detection using Machine Learning", "Renewable Energy Management System",
+        "Blockchain Supply Chain Transparency", "Smart Traffic Management System", "Biodegradable Packaging Solutions",
+        "Autonomous Rescue Drone", "Mental Health Analysis using NLP", "Vertical Farming Automation",
+        "Low-Cost Prosthetic Limb", "Solar Water Desalination", "Wildfire Detection using AI"
     ];
-    const mentors = ["Dr. Alan Grant", "Prof. Minerva McGonagall", "Dr. Emmett Brown", "Mr. Miyagi", "Ms. Frizzle"];
+    const mentors = ["Dr. Omar Tantawy", "Prof. Mohammed Ali", "Dr. Ahmed Sheeba", "Prof. Sarah Najjar", "Dr. Khalid Rashid"];
     
-    const competitionsList = ['Math Olympiad', 'Science Fair', 'Coding Cup', 'Debate Championship', 'ISEF'];
+    const competitionsList = ['Technology Innovation Summit', 'Science and Engineering Fair', 'AI Programming Championship', 'Web Applications Challenge', 'International Robotics Olympiad'];
     const statuses = ['Approved', 'Pending', 'Rejected'];
     const results = ['Passed', 'Failed', '-'];
     
@@ -64,7 +64,7 @@ export const AppProvider = ({ children }) => {
         res = results[Math.floor(Math.random() * results.length)];
       }
 
-      const school = schools[i % schools.length];
+      const school = "WE School";
       const project = projectTitles[i % projectTitles.length];
       const mentor = mentors[i % mentors.length];
 
@@ -75,7 +75,7 @@ export const AppProvider = ({ children }) => {
       return {
         id: `ST-${(i + 1).toString().padStart(3, '0')}`,
         name: fullName,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${school.replace(/\s+/g, '').toLowerCase()}.edu`,
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@weschool.edu`,
         grade: (9 + (i % 4)).toString(),
         clazz: ['A', 'B', 'C'][i % 3],
         school: school,
@@ -85,8 +85,8 @@ export const AppProvider = ({ children }) => {
         stage: 'Registration',
         status: stat,
         result: res,
-        projectTitle: comp === 'Science Fair' || comp === 'ISEF' ? project : null,
-        mentor: comp === 'Science Fair' || comp === 'ISEF' ? mentor : null,
+        projectTitle: comp === 'Science and Engineering Fair' || comp === 'International Robotics Olympiad' ? project : null,
+        mentor: comp === 'Science and Engineering Fair' || comp === 'International Robotics Olympiad' ? mentor : null,
         abstract: "This project aims to explore the viability of using advanced algorithms to solve daily problems efficiently.",
         feedback: res === 'Failed' ? "Great effort, but the methodology lacks control variables." : res === 'Passed' ? "Excellent work! The presentation was very persuasive." : null
       };
@@ -99,79 +99,79 @@ export const AppProvider = ({ children }) => {
   const [competitions, setCompetitions] = useState([
     { 
         id: 'c1', 
-        name: 'Math Olympiad', 
-        stages: ['Stage 1', 'Stage 2', 'Final'],
-        description: 'Annual mathematics competition for high school students.',
+        name: 'Technology and Innovation Summit', 
+        stages: ['Stage 1', 'Stage 2', 'Finals'],
+        description: 'Annual competition in technological innovation for high school students.',
         type: 'Internal',
-        startDate: '2023-09-01',
-        endDate: '2023-12-15',
+        startDate: '2026-09-01',
+        endDate: '2026-12-15',
         maxParticipants: 100
     },
     { 
         id: 'c2', 
-        name: 'Science Fair', 
-        stages: ['Submission', 'Final'],
-        description: 'Showcase of innovative science projects.',
+        name: 'Science and Engineering Fair', 
+        stages: ['Submission', 'Finals'],
+        description: 'Display of innovative science and engineering projects.',
         type: 'Internal',
-        startDate: '2023-10-01',
-        endDate: '2024-02-20',
+        startDate: '2026-10-01',
+        endDate: '2026-02-20',
         maxParticipants: 50
     },
     { 
         id: 'c3', 
-        name: 'Coding Cup', 
-        stages: ['Qualifiers', 'Final'],
-        description: 'Competitive programming contest.',
+        name: 'AI Programming Championship', 
+        stages: ['Preliminaries', 'Finals'],
+        description: 'Programming competition specialized in artificial intelligence and machine learning.',
         type: 'Internal',
-        startDate: '2023-11-15',
-        endDate: '2024-01-30',
+        startDate: '2026-11-15',
+        endDate: '2026-01-30',
         maxParticipants: 200
     },
     { 
         id: 'c4', 
-        name: 'Debate Championship', 
-        stages: ['Round 1', 'Round 2', 'Final'],
-        description: 'Inter-school debate tournament.',
+        name: 'Web Applications Challenge', 
+        stages: ['Round 1', 'Round 2', 'Finals'],
+        description: 'Competition in web application and static application development.',
         type: 'Internal',
-        startDate: '2024-01-10',
-        endDate: '2024-03-15',
+        startDate: '2026-01-10',
+        endDate: '2026-03-15',
         maxParticipants: 32
     },
     { 
         id: 'c5', 
-        name: 'ISEF', 
-        stages: ['Local Qualifier', 'Regional', 'International Final'], 
-        description: 'International Science and Engineering Fair - The world\'s largest international pre-college science competition.', 
+        name: 'International Robotics Olympiad', 
+        stages: ['Local Qualification', 'Regional', 'International Finals'], 
+        description: 'First international robotics competition - the largest pre-university research and innovation competition in the world.', 
         type: 'Outer',
-        startDate: '2024-05-11',
-        endDate: '2024-05-17',
+        startDate: '2026-05-11',
+        endDate: '2026-05-17',
         maxParticipants: 1000
     }
   ]);
 
   // NEW: Submissions tracking
   const [submissions, setSubmissions] = useState([
-    { id: 'sub-001', studentId: 'ST-001', competitionId: 'c2', title: 'Water Purification Project', url: 'https://github.com/alice/water-project', type: 'github', status: 'approved', date: '2024-01-15', feedback: 'Excellent research methodology!' },
-    { id: 'sub-002', studentId: 'ST-002', competitionId: 'c3', title: 'Algorithm Optimizer', url: 'https://github.com/bob/algo', type: 'github', status: 'pending', date: '2024-01-20', feedback: null },
-    { id: 'sub-003', studentId: 'ST-003', competitionId: 'c2', title: 'Solar Energy Research', url: 'https://docs.google.com/document', type: 'link', status: 'rejected', date: '2024-01-18', feedback: 'Needs more data analysis' },
+    { id: 'sub-001', studentId: 'ST-001', competitionId: 'c2', title: 'Water Purification Project', url: 'https://github.com/ali/water-project', type: 'github', status: 'approved', date: '2026-01-15', feedback: 'Excellent research methodology!' },
+    { id: 'sub-002', studentId: 'ST-002', competitionId: 'c3', title: 'Algorithm Optimizer', url: 'https://github.com/omar/algo', type: 'github', status: 'pending', date: '2026-01-20', feedback: null },
+    { id: 'sub-003', studentId: 'ST-003', competitionId: 'c2', title: 'Solar Energy Research', url: 'https://docs.google.com/document', type: 'link', status: 'rejected', date: '2026-01-18', feedback: 'Needs more data analysis' },
   ]);
 
   // NEW: Certificates tracking
   const [certificates, setCertificates] = useState([
-    { id: 'cert-001', studentId: 'ST-001', studentName: 'Alice Johnson', competitionId: 'c2', competitionName: 'Science Fair', achievement: 'First Place', date: '2024-02-01', issuedBy: 'Dr. John Smith' },
+    { id: 'cert-001', studentId: 'ST-001', studentName: 'Omar Tantawy', competitionId: 'c2', competitionName: 'Science and Engineering Fair', achievement: 'First Place', date: '2026-02-01', issuedBy: 'Dr. Mohammed Hassan' },
   ]);
 
   // NEW: Achievements/Badges tracking
   const [achievements, setAchievements] = useState([
-    { id: 'ach-001', studentId: 'ST-001', badge: 'First Submission', description: 'Submitted first project', icon: '🎯', date: '2024-01-15', color: 'blue' },
-    { id: 'ach-002', studentId: 'ST-001', badge: 'Team Player', description: 'Collaborated with 5+ team members', icon: '🤝', date: '2024-01-20', color: 'green' },
+    { id: 'ach-001', studentId: 'ST-001', badge: 'First Submission', description: 'Submitted your first project', icon: '🎯', date: '2026-01-15', color: 'blue' },
+    { id: 'ach-002', studentId: 'ST-001', badge: 'Team Player', description: 'Collaborated with more than 5 team members', icon: '🤝', date: '2026-01-20', color: 'green' },
   ]);
 
   const [notifications, setNotifications] = useState([
-    { id: 1, text: "New registration guidelines for ISEF 2024 available.", type: "info", date: "2024-02-01", studentId: "ST-001" },
-    { id: 2, text: "System maintenance scheduled for this weekend.", type: "warning", date: "2024-01-28" },
-    { id: 3, text: 'Welcome to the competition platform!', type: 'info', date: '2024-02-01', studentId: 'ST-001' },
-    { id: 4, text: 'Your abstract for Science Fair was reviewed.', type: 'success', date: '2024-02-02', studentId: 'ST-001' },
+    { id: 1, text: "New registration guidelines for the 2026 Robotics Olympiad are now available.", type: "info", date: "2026-02-01", studentId: "ST-001" },
+    { id: 2, text: "System maintenance is scheduled for the end of this week.", type: "warning", date: "2026-01-28" },
+    { id: 3, text: 'Welcome to the competitions platform!', type: 'info', date: '2026-02-01', studentId: 'ST-001' },
+    { id: 4, text: 'Your abstract for the Science and Engineering Fair has been reviewed.', type: 'success', date: '2026-02-02', studentId: 'ST-001' },
   ]);
 
   const addNotification = (text, type = "info", studentId = null) => {
@@ -200,7 +200,7 @@ export const AppProvider = ({ children }) => {
       status: 'Pending',
       result: '-',
       projectTitle: null,
-      school: 'Lincoln High',
+      school: 'WE School',
       email: `${data.name.split(' ')[0].toLowerCase()}@school.edu`
     };
     setStudents((prev) => [...prev, newStudent]);

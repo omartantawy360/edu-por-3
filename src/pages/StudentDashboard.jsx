@@ -10,13 +10,13 @@ const StudentDashboard = () => {
     const { students, notifications } = useApp();
 
     // Mock Logged-in User - Dynamic Fetch
-    const mockName = "Alice Johnson";
+    const mockName = "Omar Tantawy";
     const profile = students.find(s => s.name === mockName) || {
         name: mockName,
         grade: "10",
         clazz: "A",
-        school: "Lincoln High",
-        email: "alice.johnson@lincoln.edu"
+        school: "WE School",
+        email: "omar.tantawy@weschool.edu"
     };
 
     // Filter registrations for this specific student
@@ -55,33 +55,33 @@ const StudentDashboard = () => {
     return (
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
             {/* Header / Welcome Profile */}
-            <div className="flex flex-col md:flex-row items-center md:items-center gap-4 sm:gap-6 bg-card text-card-foreground p-4 sm:p-6 md:p-8 rounded-2xl border border-border shadow-soft text-center md:text-left">
-                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg">
-                    <User className="h-10 sm:h-12 w-10 sm:w-12" />
+            <div className="flex flex-col md:flex-row items-center md:items-center gap-4 sm:gap-6 bg-card text-card-foreground p-4 sm:p-6 md:p-8 rounded-2xl border border-border shadow-soft text-center md:text-left transition-all duration-300 hover:shadow-soft-md dark:shadow-md dark:hover:shadow-lg animate-fade-down">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg transition-transform duration-300 hover:scale-110 dark:shadow-xl">
+                    <User className="h-10 sm:h-12 w-10 sm:w-12 animate-float" />
                 </div>
                 <div className="space-y-1 w-full md:w-auto">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Welcome back, {profile.name}!</h1>
-                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center md:justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                        <span className="flex items-center justify-center sm:justify-start gap-1.5"><School className="h-4 w-4" /> {profile.school}</span>
-                        <span className="hidden sm:flex items-center gap-1.5"><Mail className="h-4 w-4" /> {profile.email}</span>
-                        <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-primary font-semibold text-xs">Class {profile.clazz} • Grade {profile.grade}</span>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground animate-fade-in">Welcome back, {profile.name}!</h1>
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center md:justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground animate-fade-in" style={{animationDelay: '100ms'}}>
+                        <span className="flex items-center justify-center sm:justify-start gap-1.5 transition-colors duration-200"><School className="h-4 w-4" /> {profile.school}</span>
+                        <span className="hidden sm:flex items-center gap-1.5 transition-colors duration-200"><Mail className="h-4 w-4" /> {profile.email}</span>
+                        <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-primary font-semibold text-xs transition-all duration-200 hover:bg-primary/20">Class {profile.clazz} • Grade {profile.grade}</span>
                     </div>
                 </div>
             </div>
 
             {/* Deadline Timer - Prominent Position */}
-            <DeadlineTimer title="Science Fair Submission Deadline" />
+            <DeadlineTimer title="Science and Engineering Fair Submission Deadline" />
 
             {/* Personal Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                 {stats.map((stat, i) => (
-                    <Card key={i} className="border-border card-hover">
+                    <Card key={i} className="border-border card-hover animate-fade-up" style={{animationDelay: `${i * 100}ms`}}>
                         <CardContent className="p-6 flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-semibold text-muted-foreground">{stat.label}</p>
                                 <p className="text-3xl font-bold text-foreground mt-2">{stat.value}</p>
                             </div>
-                            <div className={cn("p-4 rounded-2xl", stat.bg, stat.color)}>
+                            <div className={cn("p-4 rounded-2xl transition-transform duration-300 hover:scale-110", stat.bg, stat.color)}>
                                 <stat.icon className="h-6 w-6" />
                             </div>
                         </CardContent>

@@ -253,7 +253,7 @@ const AdminDashboard = () => {
                                         filteredStudents.map((student) => {
                                             const competition = competitions.find(c => c.name === student.competition);
                                             return (
-                                                <tr key={student.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800 transition-colors">
+                                                <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-50">
                                                         <div>{student.name}</div>
                                                         <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{student.id}</div>

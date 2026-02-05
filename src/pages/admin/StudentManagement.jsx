@@ -78,7 +78,7 @@ const StudentManagement = () => {
                                 const certificates = getStudentCertificates(student.id);
                                 
                                 return (
-                                    <tr key={student.id} className="hover:bg-slate-50">
+                                    <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div>
                                                 <div className="font-medium text-slate-900 dark:text-slate-50">{student.name}</div>
@@ -111,7 +111,7 @@ const StudentManagement = () => {
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => setSelectedStudent(student)}
-                                                    className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                                    className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
                                                     title="View Details"
                                                 >
                                                     <Eye size={16} />
@@ -121,7 +121,7 @@ const StudentManagement = () => {
                                                         setSelectedStudent(student);
                                                         setShowCertificateModal(true);
                                                     }}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
                                                     title="Issue Certificate"
                                                 >
                                                     <Award size={16} />
@@ -131,7 +131,7 @@ const StudentManagement = () => {
                                                         setSelectedStudent(student);
                                                         setShowAchievementModal(true);
                                                     }}
-                                                    className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                                    className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
                                                     title="Add Achievement"
                                                 >
                                                     <Sparkles size={16} />

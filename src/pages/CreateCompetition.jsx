@@ -75,7 +75,7 @@ const CreateCompetition = () => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
-                                placeholder="e.g., National Science Fair 2024"
+                                placeholder="E.g., Science and Engineering Fair 2026"
                                 required
                             />
                         </div>
@@ -215,7 +215,7 @@ const CreateCompetition = () => {
                                 value={formData.stages}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
-                                placeholder="e.g., Registration, Submission, Judging, Final"
+                                placeholder="E.g., Registration, Submission, Evaluation, Finals"
                                 required
                             />
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Separate stages with commas</p>

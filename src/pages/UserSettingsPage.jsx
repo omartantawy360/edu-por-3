@@ -68,7 +68,7 @@ const UserSettingsPage = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {isAdmin ? 'Users list' : 'My registrations'}
+            {isAdmin ? 'Users List' : 'My Registrations'}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
