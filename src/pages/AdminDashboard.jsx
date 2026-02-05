@@ -112,24 +112,19 @@ const AdminDashboard = () => {
     );
 
     return (
-        <div className="space-y-6 relative">
+        <div className="space-y-4 sm:space-y-6 relative">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between md:justify-start">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Admin Dashboard</h1>
-                    {/* Mobile Notification Bell moved here for better access or keep it in the main bar? 
-                        Let's keep the user's design but center things. 
-                        Actually, typical mobile design: Title on left, actions on right?
-                        Or stacked. The previous design stacked.
-                    */}
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-50">Admin Dashboard</h1>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                    <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full">
+                    <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-3 sm:gap-4">
                          {/* Notifications */}
-                                <div className="relative shrink-0">
+                        <div className="relative shrink-0">
                             <button 
-                                className="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative"
+                                className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full relative transition-colors"
                                 onClick={() => setShowNotifications(!showNotifications)}
                             >
                                 <Bell className="h-5 w-5" />
@@ -165,7 +160,7 @@ const AdminDashboard = () => {
                             )}
                         </div>
 
-                        <div className="flex p-1 bg-slate-100/80 dark:bg-slate-900 rounded-lg w-full sm:w-auto grid grid-cols-3 sm:flex">
+                        <div className="flex p-1 bg-slate-100/80 dark:bg-slate-900 rounded-lg w-full sm:w-auto grid-cols-3 gap-1">
                             <TabButton id="overview" label="Overview" icon={FileText} />
                             <TabButton id="students" label="Students" icon={Users} />
                             <TabButton id="competitions" label="Competitions" icon={Trophy} />
@@ -176,8 +171,8 @@ const AdminDashboard = () => {
 
             {/* Overview Tab */}
             {activeTab === 'overview' && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                          {stats.map((stat, i) => (
                             <Card key={i}>
                                 <CardContent className="p-6 flex items-center justify-between">
@@ -197,7 +192,7 @@ const AdminDashboard = () => {
 
             {/* Students Tab */}
             {activeTab === 'students' && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                      <Card>
                         <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
                             <div className="flex items-center justify-between">

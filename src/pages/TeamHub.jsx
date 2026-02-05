@@ -23,13 +23,13 @@ export default function TeamHub() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-50">Team Collaboration Hub</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Team: <span className="font-semibold text-primary-600">{team.name}</span></p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-50">Team Collaboration Hub</h1>
+                    <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Team: <span className="font-semibold text-primary-600">{team.name}</span></p>
                 </div>
-                <div className="flex lg:hidden -space-x-2">
+                <div className="flex sm:hidden -space-x-2">
                     {team.members.map(member => (
                         <div key={member.id} className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center border-2 border-white text-xs font-bold text-primary-700" title={member.name}>
                             {member.avatar}
@@ -38,9 +38,9 @@ export default function TeamHub() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Chat Section */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[500px]">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[400px] sm:h-[500px]">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                         <h2 className="font-semibold text-slate-800 dark:text-slate-100">Team Chat</h2>
                         <span className="text-xs text-slate-400 dark:text-slate-500">Live</span>
@@ -99,7 +99,7 @@ export default function TeamHub() {
                     </div>
 
                     {/* Resources Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 flex flex-col h-[300px]">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 flex flex-col h-[250px] sm:h-[300px]">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="font-semibold text-slate-800 dark:text-slate-100">Shared Resources</h2>
                             <button 

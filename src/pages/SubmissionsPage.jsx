@@ -4,9 +4,9 @@ import SubmissionTracker from '../components/ui/SubmissionTracker';
 const SubmissionsPage = () => {
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-50">My Submissions</h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Track and manage your project submissions</p>
+            <div className="mb-4 sm:mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-50">My Submissions</h1>
+                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-1">Track and manage your project submissions</p>
             </div>
             <SubmissionTracker />
         </div>

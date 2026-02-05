@@ -46,21 +46,21 @@ const CreateCompetition = () => {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary-100 rounded-xl">
-                        <Sparkles className="text-primary-600" size={28} />
+            <div className="mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-3 mb-2">
+                    <div className="p-2 sm:p-3 bg-primary-100 rounded-xl shrink-0">
+                        <Sparkles className="text-primary-600" size={24} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-50">Create New Competition</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">Design an engaging competition for students</p>
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-50">Create New Competition</h1>
+                        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-1">Design an engaging competition for students</p>
                     </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Basic Information Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-8">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8">
                     <div className="flex items-center gap-2 mb-6">
                         <Trophy className="text-primary-600" size={20} />
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-50">Basic Information</h2>

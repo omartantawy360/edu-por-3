@@ -49,7 +49,7 @@ const Register = () => {
                 <p className="text-slate-500 dark:text-slate-400 mt-1">Complete your competition registration</p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {/* Form Section */}
                 <div className="lg:col-span-2">
                     <Card className="h-full">
@@ -162,7 +162,7 @@ const Register = () => {
                 {/* Details Section */}
                 <div className="lg:col-span-1">
                     {selectedComp ? (
-                        <div className="space-y-6 sticky top-6">
+                        <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-6">
                             <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-xl">
                                 <CardContent className="p-6 space-y-6">
                                     <div>

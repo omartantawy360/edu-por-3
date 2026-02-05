@@ -53,18 +53,18 @@ const StudentDashboard = () => {
     ];
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
             {/* Header / Welcome Profile */}
-            <div className="flex flex-col md:flex-row items-center md:items-center gap-6 bg-card text-card-foreground p-8 rounded-2xl border border-border shadow-soft text-center md:text-left">
-                <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg">
-                    <User className="h-12 w-12" />
+            <div className="flex flex-col md:flex-row items-center md:items-center gap-4 sm:gap-6 bg-card text-card-foreground p-4 sm:p-6 md:p-8 rounded-2xl border border-border shadow-soft text-center md:text-left">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg">
+                    <User className="h-10 sm:h-12 w-10 sm:w-12" />
                 </div>
-                <div className="space-y-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, {profile.name}!</h1>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1.5"><School className="h-4 w-4" /> {profile.school}</span>
-                        <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" /> {profile.email}</span>
-                        <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-primary font-semibold">Class {profile.clazz} • Grade {profile.grade}</span>
+                <div className="space-y-1 w-full md:w-auto">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Welcome back, {profile.name}!</h1>
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center md:justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                        <span className="flex items-center justify-center sm:justify-start gap-1.5"><School className="h-4 w-4" /> {profile.school}</span>
+                        <span className="hidden sm:flex items-center gap-1.5"><Mail className="h-4 w-4" /> {profile.email}</span>
+                        <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-primary font-semibold text-xs">Class {profile.clazz} • Grade {profile.grade}</span>
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@ const StudentDashboard = () => {
             <DeadlineTimer title="Science Fair Submission Deadline" />
 
             {/* Personal Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                 {stats.map((stat, i) => (
                     <Card key={i} className="border-border card-hover">
                         <CardContent className="p-6 flex items-center justify-between">
