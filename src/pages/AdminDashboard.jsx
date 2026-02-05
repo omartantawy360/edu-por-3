@@ -135,8 +135,8 @@ const AdminDashboard = () => {
                             
                             {showNotifications && (
                                 <>
-                                    <div className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none" onClick={() => setShowNotifications(false)}></div>
-                                    <div className="fixed top-20 left-4 right-4 z-[100] lg:absolute lg:top-auto lg:left-auto lg:right-0 lg:mt-2 lg:w-80 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-top-2 lg:slide-in-from-top-1">
+                                    <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none" onClick={() => setShowNotifications(false)}></div>
+                                    <div className="fixed top-20 left-4 right-4 z-[10000] lg:absolute lg:top-10 lg:right-0 lg:w-80 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-top-2 lg:slide-in-from-top-1">
                                         <div className="p-3 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 font-medium text-sm text-slate-700 dark:text-slate-200 flex justify-between items-center">
                                             Notifications
                                             <button onClick={() => setShowNotifications(false)} className="lg:hidden p-1 hover:bg-slate-200 rounded">
