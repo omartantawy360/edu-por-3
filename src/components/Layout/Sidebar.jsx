@@ -66,9 +66,9 @@ const Sidebar = ({ isOpen, onClose }) => {
               EduComp
             </span>
           </div>
-          <div className="flex items-center gap-1 md:hidden">
+          <div className="flex items-center gap-1">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden" onClick={onClose}>
               <LogOut className="h-4 w-4 rotate-180" />
             </Button>
           </div>
