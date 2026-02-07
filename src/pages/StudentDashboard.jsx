@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X, FileText } from 'lucide-react';
 import { cn } from '../utils/cn';
 import DeadlineTimer from '../components/ui/DeadlineTimer';
 
@@ -35,207 +35,282 @@ const StudentDashboard = () => {
     const submissionDeadline = scienceAndEngineeringFair?.endDate;
 
     const stats = [
-        { 
-            label: 'My Applications', 
-            value: myRegistrations.length, 
-            icon: Trophy, 
-            color: 'text-blue-600', 
-            bg: 'bg-blue-50' 
+        {
+            label: 'My Applications',
+            value: myRegistrations.length,
+            icon: Trophy,
+            color: 'text-blue-600',
+            bg: 'bg-blue-50'
         },
-        { 
-            label: 'Pending', 
-            value: myRegistrations.filter(s => s.status === 'Pending').length, 
-            icon: Clock, 
-            color: 'text-amber-600', 
-            bg: 'bg-amber-50' 
+        {
+            label: 'Pending',
+            value: myRegistrations.filter(s => s.status === 'Pending').length,
+            icon: Clock,
+            color: 'text-amber-600',
+            bg: 'bg-amber-50'
         },
-        { 
-            label: 'Approved', 
-            value: myRegistrations.filter(s => s.status === 'Approved').length, 
-            icon: CheckCircle, 
-            color: 'text-emerald-600', 
-            bg: 'bg-emerald-50' 
+        {
+            label: 'Approved',
+            value: myRegistrations.filter(s => s.status === 'Approved').length,
+            icon: CheckCircle,
+            color: 'text-emerald-600',
+            bg: 'bg-emerald-50'
         }
     ];
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+        <div className="max-w-5xl mx-auto space-y-8 pb-10">
             {/* Header / Welcome Profile */}
-            <div className="flex flex-col md:flex-row items-center md:items-center gap-4 sm:gap-6 bg-card text-card-foreground p-4 sm:p-6 md:p-8 rounded-2xl border border-border shadow-soft text-center md:text-left transition-all duration-300 hover:shadow-soft-md dark:shadow-md dark:hover:shadow-lg animate-fade-down">
-                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg transition-transform duration-300 hover:scale-110 dark:shadow-xl">
-                    <User className="h-10 sm:h-12 w-10 sm:w-12 animate-float" />
-                </div>
-                <div className="space-y-1 w-full md:w-auto">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground animate-fade-in">Welcome back, {profile.name}!</h1>
-                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center md:justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground animate-fade-in" style={{animationDelay: '100ms'}}>
-                        <span className="flex items-center justify-center sm:justify-start gap-1.5 transition-colors duration-200"><School className="h-4 w-4" /> {profile.school}</span>
-                        <span className="hidden sm:flex items-center gap-1.5 transition-colors duration-200"><Mail className="h-4 w-4" /> {profile.email}</span>
-                        <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-primary font-semibold text-xs transition-all duration-200 hover:bg-primary/20">Class {profile.clazz} • Grade {profile.grade}</span>
+            <div className="relative overflow-hidden rounded-3xl border border-white/20 shadow-soft-xl animate-fade-down group">
+                {/* Dynamic Background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/90 via-purple-600/90 to-indigo-600/90 dark:from-violet-900/90 dark:to-indigo-900/90 z-0"></div>
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0 mix-blend-overlay"></div>
+
+                {/* Decorative Shapes */}
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl group-hover:bg-purple-400/30 transition-all duration-700"></div>
+
+                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 p-8 text-white">
+                    <div className="relative">
+                        <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                            <User className="h-12 w-12 sm:h-14 sm:w-14 drop-shadow-lg" />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 bg-emerald-500 border-4 border-purple-600 dark:border-purple-900 h-6 w-6 rounded-full"></div>
+                    </div>
+
+                    <div className="space-y-2 text-center md:text-left w-full">
+                        <div className="space-y-1">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-sm animate-fade-in">
+                                Welcome back, {profile.name}!
+                            </h1>
+                            <p className="text-purple-100 text-sm sm:text-base font-medium max-w-2xl animate-fade-in delay-75">
+                                Ready to continue your journey? You have upcoming deadlines to check.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs sm:text-sm pt-2 animate-fade-in delay-100">
+                            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                                <School className="h-3.5 w-3.5" /> {profile.school}
+                            </span>
+                            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                                <Mail className="h-3.5 w-3.5" /> {profile.email}
+                            </span>
+                            <span className="px-3 py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 text-emerald-100 font-semibold text-xs">
+                                Class {profile.clazz} • Grade {profile.grade}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Deadline Timer - Prominent Position */}
-            <DeadlineTimer title="Science and Engineering Fair Submission Deadline" deadline={submissionDeadline} />
+            <div className="transform hover:-translate-y-1 transition-transform duration-300">
+                <DeadlineTimer title="Science and Engineering Fair Deadline" deadline={submissionDeadline} />
+            </div>
 
             {/* Personal Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                 {stats.map((stat, i) => (
-                    <Card key={i} className="border-border card-hover animate-fade-up" style={{animationDelay: `${i * 100}ms`}}>
-                        <CardContent className="p-6 flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-semibold text-muted-foreground">{stat.label}</p>
-                                <p className="text-3xl font-bold text-foreground mt-2">{stat.value}</p>
+                    <Card key={i} className="border-0 shadow-soft hover:shadow-soft-xl transition-all duration-300 hover:-translate-y-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm overflow-hidden group">
+                        <div className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform group-hover:scale-110 ${stat.color}`}>
+                            <stat.icon className="w-24 h-24 -mr-8 -mt-8" />
+                        </div>
+                        <CardContent className="p-6 relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={cn("p-3 rounded-xl transition-colors duration-300", stat.bg, stat.color)}>
+                                    <stat.icon className="h-6 w-6" />
+                                </div>
+                                <span className={cn("text-xs font-bold px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-white group-hover:shadow-sm transition-all")}>
+                                    This Year
+                                </span>
                             </div>
-                            <div className={cn("p-4 rounded-2xl transition-transform duration-300 hover:scale-110", stat.bg, stat.color)}>
-                                <stat.icon className="h-6 w-6" />
+                            <div>
+                                <p className="text-4xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight group-hover:scale-105 transition-transform origin-left">{stat.value}</p>
+                                <p className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</p>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            {/* Notifications Section */}
-            <div className="space-y-4">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-primary" />
-                    Recent Notifications
-                </h2>
-                
-                {myNotifications.length === 0 ? (
-                    <Card className="bg-muted border-dashed">
-                        <CardContent className="py-8 text-center text-muted-foreground text-sm">
-                            No notifications to show.
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid grid-cols-1 gap-3">
-                        {myNotifications.slice(0, 3).map((n) => (
-                            <div key={n.id} className={cn(
-                                "flex items-start gap-3 p-4 rounded-xl border transition-all",
-                                n.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-100 dark:border-emerald-800' :
-                                n.type === 'warning' ? 'bg-amber-50 dark:bg-amber-950 border-amber-100 dark:border-amber-800' :
-                                'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-                            )}>
-                                <div className={cn(
-                                    "p-2 rounded-lg shrink-0",
-                                    n.type === 'success' ? 'bg-emerald-100 text-emerald-600' :
-                                    n.type === 'warning' ? 'bg-amber-100 text-amber-600' :
-                                    'bg-primary-100 text-primary-600'
-                                )}>
-                                    {n.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Notifications Section */}
+                <div className="lg:col-span-1 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                            <Bell className="h-5 w-5 text-violet-500" />
+                            Notifications
+                        </h2>
+                        {myNotifications.length > 0 && (
+                            <Badge variant="secondary" className="bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300">
+                                {myNotifications.length} New
+                            </Badge>
+                        )}
+                    </div>
+
+                    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border shadow-sm p-4 h-full max-h-[500px] overflow-y-auto sidebar-scroll">
+                        {myNotifications.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground">
+                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-3">
+                                    <Bell className="h-6 w-6 text-slate-400" />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className={cn(
-                                        "text-sm font-medium",
-                                        n.type === 'success' ? 'text-emerald-900 dark:text-emerald-100' :
-                                        n.type === 'warning' ? 'text-amber-900 dark:text-amber-100' :
-                                        'text-slate-900 dark:text-slate-100'
-                                    )}>{n.text}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{n.date}</p>
-                                </div>
-                                <button
-                                    onClick={() => removeNotification(n.id)}
-                                    className="shrink-0 p-1 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded transition-colors"
-                                    title="Remove notification"
-                                >
-                                    <X className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                                </button>
+                                <p className="text-sm">You're all caught up!</p>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* My Competitions List */}
-            <div className="space-y-4">
-                <h2 className="text-xl font-bold text-foreground">My Competitions</h2>
-                
-                {myRegistrations.length === 0 ? (
-                    <Card className="bg-muted border-dashed">
-                        <CardContent className="py-12 text-center text-muted-foreground">
-                            <Trophy className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                            <p>You haven't registered for any competitions yet.</p>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid gap-6">
-                        {myRegistrations.map((reg) => (
-                            <Card key={reg.id} className="card-hover group overflow-hidden">
-                                <CardContent className="p-0">
-                                    {/* Project Header */}
-                                    <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-primary-600 transition-colors">
-                                                    {reg.competition}
-                                                </h3>
-                                                <Badge variant="outline" className="text-xs">
-                                                    {reg.type}
-                                                </Badge>
+                        ) : (
+                            <div className="space-y-3">
+                                {myNotifications.slice(0, 5).map((n) => (
+                                    <div key={n.id} className={cn(
+                                        "relative group p-4 rounded-xl border transition-all duration-300 hover:shadow-md",
+                                        n.type === 'success' ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900' :
+                                            n.type === 'warning' ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900' :
+                                                'bg-white/80 dark:bg-slate-800/80 border-slate-100 dark:border-slate-700'
+                                    )}>
+                                        <div className="flex gap-3">
+                                            <div className={cn(
+                                                "mt-1 p-2 rounded-full h-8 w-8 flex items-center justify-center shrink-0 shadow-sm",
+                                                n.type === 'success' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' :
+                                                    n.type === 'warning' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400' :
+                                                        'bg-violet-100 text-violet-600 dark:bg-violet-900 dark:text-violet-400'
+                                            )}>
+                                                {n.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                                             </div>
-                                            <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar className="h-3.5 w-3.5" />
-                                                    Current Stage: <span className="font-semibold text-slate-700 dark:text-slate-300 ml-1">{reg.stage}</span>
-                                                </span>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={cn(
+                                                    "text-sm font-semibold mb-0.5",
+                                                    n.type === 'success' ? 'text-emerald-900 dark:text-emerald-100' :
+                                                        n.type === 'warning' ? 'text-amber-900 dark:text-amber-100' :
+                                                            'text-slate-900 dark:text-slate-100'
+                                                )}>{n.text}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{n.date}</p>
                                             </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-3">
-                                            <div className="text-right mr-2">
-                                                <div className="text-xs text-slate-500">Result</div>
-                                                 <span className={cn(
-                                                    "font-bold",
-                                                    reg.result === 'Passed' ? 'text-emerald-600' :
-                                                    reg.result === 'Failed' ? 'text-red-600' : 'text-slate-400'
-                                                )}>
-                                                    {reg.result}
-                                                </span>
-                                            </div>
-                                            <Badge className="h-8 px-3 text-sm" variant={
-                                                reg.status === 'Approved' ? 'success' :
-                                                reg.status === 'Rejected' ? 'destructive' : 'warning'
-                                            }>
-                                                {reg.status}
-                                            </Badge>
+                                            <button
+                                                onClick={() => removeNotification(n.id)}
+                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 rounded-full transition-all"
+                                                title="Dismiss"
+                                            >
+                                                <X className="h-3.5 w-3.5 text-slate-400" />
+                                            </button>
                                         </div>
                                     </div>
-
-                                    {/* Expanded Details */}
-                                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 space-y-4">
-                                        {/* Project Info */}
-                                        {reg.projectTitle && (
-                                            <div className="flex gap-4">
-                                                <div className="mt-1"><BookOpen className="h-5 w-5 text-primary-500" /></div>
-                                                <div className="space-y-1">
-                                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">Project: {reg.projectTitle}</h4>
-                                                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{reg.abstract}</p>
-                                                    {reg.mentor && <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Mentor: {reg.mentor}</p>}
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {/* Feedback Info */}
-                                        {reg.feedback && (
-                                            <div className="flex gap-4 p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-100 dark:border-amber-800">
-                                                <div className="mt-1"><MessageSquare className="h-5 w-5 text-amber-500 dark:text-amber-400" /></div>
-                                                <div className="space-y-1">
-                                                    <h4 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">Judge Feedback</h4>
-                                                    <p className="text-sm text-amber-800 dark:text-amber-200 italic">"{reg.feedback}"</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {!reg.projectTitle && !reg.feedback && (
-                                            <div className="text-sm text-slate-400 dark:text-slate-500 italic pl-9">No additional details available for this entry.</div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+
+                {/* My Competitions List */}
+                <div className="lg:col-span-2 space-y-4">
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <Trophy className="h-5 w-5 text-amber-500" />
+                        My Competitions
+                    </h2>
+
+                    {myRegistrations.length === 0 ? (
+                        <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center bg-slate-50/50 dark:bg-slate-900/50">
+                            <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Trophy className="h-8 w-8 text-slate-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No competitions yet</h3>
+                            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2 mb-6">You haven't registered for any competitions. Check out the available competitions to get started!</p>
+                            <a href="#" className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20">
+                                Browse Competitions
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {myRegistrations.map((reg) => (
+                                <div key={reg.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-900 transition-all duration-300 overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Badge variant="outline" className="bg-white/80 backdrop-blur-sm shadow-sm">{reg.type}</Badge>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <div className="flex flex-col md:flex-row gap-6">
+                                            {/* Status Indicator Bar */}
+                                            <div className="hidden md:block w-1.5 self-stretch rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                                <div className={cn(
+                                                    "w-full h-full transition-all duration-500",
+                                                    reg.status === 'Approved' ? 'bg-emerald-500' :
+                                                        reg.status === 'Rejected' ? 'bg-red-500' : 'bg-amber-500'
+                                                )} style={{ height: '100%' }}></div>
+                                            </div>
+
+                                            <div className="flex-1 space-y-4">
+                                                <div className="flex flex-wrap items-start justify-between gap-4">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-violet-600 transition-colors">
+                                                                {reg.competition}
+                                                            </h3>
+                                                            <div className="md:hidden h-2.5 w-2.5 rounded-full" style={{
+                                                                backgroundColor: reg.status === 'Approved' ? '#10b981' : reg.status === 'Rejected' ? '#ef4444' : '#f59e0b'
+                                                            }}></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                                                            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 font-medium">
+                                                                <Calendar className="h-3.5 w-3.5" />
+                                                                {reg.stage}
+                                                            </span>
+                                                            {reg.projectTitle && (
+                                                                <span className="flex items-center gap-1.5">
+                                                                    <BookOpen className="h-3.5 w-3.5" />
+                                                                    {reg.projectTitle}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="text-right">
+                                                            <Badge className={cn("px-3 py-1 text-sm font-semibold capitalize shadow-sm",
+                                                                reg.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' :
+                                                                    reg.status === 'Rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' :
+                                                                        'bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200'
+                                                            )}>
+                                                                {reg.status}
+                                                            </Badge>
+                                                            {reg.result && reg.result !== 'Pending' && (
+                                                                <div className={cn(
+                                                                    "text-xs font-bold mt-1 text-right uppercase tracking-wider",
+                                                                    reg.result === 'Passed' ? 'text-emerald-600' : 'text-red-600'
+                                                                )}>
+                                                                    {reg.result}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Expanded Details Section */}
+                                                {(reg.abstract || reg.feedback) && (
+                                                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid gap-4">
+                                                        {reg.abstract && (
+                                                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                                                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                    <FileText className="h-3 w-3" /> Abstract
+                                                                </h4>
+                                                                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">"{reg.abstract}"</p>
+                                                            </div>
+                                                        )}
+
+                                                        {reg.feedback && (
+                                                            <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                                                                <h4 className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                    <MessageSquare className="h-3 w-3" /> Latest Feedback
+                                                                </h4>
+                                                                <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">"{reg.feedback}"</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

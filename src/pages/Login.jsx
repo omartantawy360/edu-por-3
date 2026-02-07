@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { User, ShieldCheck } from 'lucide-react';
+import DotGrid from '../components/ui/DotGrid';
 
 const Login = () => {
   const { login, loading, user } = useAuth();
@@ -22,11 +23,24 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 gradient-bg-subtle relative overflow-hidden">
       {/* Decorative gradient orbs - Hidden on small screens */}
-      <div className="hidden sm:block absolute top-10 sm:top-20 left-5 sm:left-10 w-40 sm:w-72 h-40 sm:h-72 bg-violet-400/20 rounded-full blur-3xl" />
-      <div className="hidden md:block absolute -bottom-10 md:bottom-20 -right-20 md:right-10 w-56 md:w-96 h-56 md:h-96 bg-purple-500/15 rounded-full blur-3xl" />
-      <div className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 lg:w-[500px] h-80 lg:h-[500px] bg-blue-400/10 rounded-full blur-3xl" />
+      <div />
+      <div />
+      <div />
+      <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+        <DotGrid
+          dotSize={5}
+          gap={15}
+          baseColor="#271E37"
+          activeColor="#5227FF"
+          proximity={120}
+          shockRadius={250}
+          shockStrength={5}
+          resistance={750}
+          returnDuration={1.5}
+        />
+      </div>
 
-      <Card className="w-full max-w-sm sm:max-w-md relative z-10 shadow-soft-xl border-0 glass animate-scale-in">
+      <Card className="w-full max-w-sm sm:max-w-md absolute z-10 shadow-soft-xl border-0 glass animate-scale-in">
         <CardHeader className="text-center pb-3 sm:pb-2 px-4 sm:px-6">
           <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-extrabold gradient-text">
             EduComp
@@ -58,7 +72,7 @@ const Login = () => {
             <button
               onClick={() => handleLogin('admin')}
               disabled={loading}
-              className="w-full flex flex-col sm:flex-row items-center sm:items-stretch justify-center sm:justify-start gap-3 sm:gap-5 h-auto sm:h-24 p-4 sm:p-6 rounded-2xl bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:border-primary-200/50 dark:hover:border-primary-700/50 shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1 dark:shadow-md dark:hover:shadow-lg group disabled:opacity-50 disabled:pointer-events-none animate-fade-up" style={{animationDelay: '100ms'}}
+              className="w-full flex flex-col sm:flex-row items-center sm:items-stretch justify-center sm:justify-start gap-3 sm:gap-5 h-auto sm:h-24 p-4 sm:p-6 rounded-2xl bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:border-primary-200/50 dark:hover:border-primary-700/50 shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1 dark:shadow-md dark:hover:shadow-lg group disabled:opacity-50 disabled:pointer-events-none animate-fade-up" style={{ animationDelay: '100ms' }}
             >
               <div className="flex h-14 sm:h-14 w-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0">
                 <ShieldCheck className="h-7 w-7 group-hover:animate-pulse-glow" />
