@@ -14,6 +14,7 @@ const SubmissionTracker = () => {
         type: 'github',
         competitionId: ''
     });
+    const [errors, setErrors] = useState({});
 
     // Use logged-in student ID from auth context
     const currentStudentId = user?.id || 'ST-001';
@@ -24,14 +25,49 @@ const SubmissionTracker = () => {
         return sub.competitionId === filterCompetition;
     });
 
+    const handleInputChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: null }));
+        }
+    };
+
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.competitionId) newErrors.competitionId = 'Please select a competition';
+        if (!formData.title.trim()) {
+            newErrors.title = 'Project title is required';
+        } else if (formData.title.length < 3) {
+            newErrors.title = 'Title must be at least 3 characters';
+        }
+        
+        if (!formData.url.trim()) {
+            newErrors.url = 'Project URL is required';
+        } else {
+            try {
+                new URL(formData.url);
+                if (formData.type === 'github' && !formData.url.includes('github.com')) {
+                    newErrors.url = 'Please provide a valid GitHub URL';
+                }
+            } catch (e) {
+                newErrors.url = 'Please provide a valid URL';
+            }
+        }
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        addSubmission({
-            ...formData,
-            studentId: currentStudentId
-        });
-        setFormData({ title: '', url: '', type: 'github', competitionId: '' });
-        setShowForm(false);
+        if (validate()) {
+            addSubmission({
+                ...formData,
+                studentId: currentStudentId
+            });
+            setFormData({ title: '', url: '', type: 'github', competitionId: '' });
+            setShowForm(false);
+        }
     };
 
     const getCompetitionName = (competitionId) => {
@@ -108,9 +144,9 @@ const SubmissionTracker = () => {
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Competition</label>
                                 <select
-                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all ${errors.competitionId ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:ring-violet-500'}`}
                                     value={formData.competitionId}
-                                    onChange={(e) => setFormData({ ...formData, competitionId: e.target.value })}
+                                    onChange={(e) => handleInputChange('competitionId', e.target.value)}
                                     required
                                 >
                                     <option value="">Select Competition</option>
@@ -118,13 +154,14 @@ const SubmissionTracker = () => {
                                         <option key={comp.id} value={comp.id}>{comp.name}</option>
                                     ))}
                                 </select>
+                                {errors.competitionId && <p className="text-xs text-red-500 mt-1.5">{errors.competitionId}</p>}
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Submission Type</label>
                                 <select
                                     className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                                     value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                    onChange={(e) => handleInputChange('type', e.target.value)}
                                 >
                                     <option value="github">GitHub Repository</option>
                                     <option value="link">Project Link / Demo</option>
@@ -136,12 +173,13 @@ const SubmissionTracker = () => {
                             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Project Title</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all placeholder:text-slate-400"
+                                className={`w-full px-4 py-3 border rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all placeholder:text-slate-400 ${errors.title ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:ring-violet-500'}`}
                                 value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                onChange={(e) => handleInputChange('title', e.target.value)}
                                 placeholder="e.g. EcoTracker App"
                                 required
                             />
+                            {errors.title && <p className="text-xs text-red-500 mt-1.5">{errors.title}</p>}
                         </div>
 
                         <div>
@@ -154,13 +192,14 @@ const SubmissionTracker = () => {
                                 )}
                                 <input
                                     type="url"
-                                    className="w-full pl-11 pr-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all placeholder:text-slate-400"
+                                    className={`w-full pl-11 pr-4 py-3 border rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all placeholder:text-slate-400 ${errors.url ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:ring-violet-500'}`}
                                     value={formData.url}
-                                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                                    onChange={(e) => handleInputChange('url', e.target.value)}
                                     placeholder={formData.type === 'github' ? "https://github.com/username/repo" : "https://your-project-demo.com"}
                                     required
                                 />
                             </div>
+                            {errors.url && <p className="text-xs text-red-500 mt-1.5">{errors.url}</p>}
                         </div>
 
                         <div className="flex justify-end pt-4">

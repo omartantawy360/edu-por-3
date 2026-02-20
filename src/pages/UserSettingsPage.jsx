@@ -7,16 +7,23 @@ import { Badge } from '../components/ui/Badge';
 
 const UserSettingsPage = () => {
   const { user } = useAuth();
-  const { students } = useApp();
+  const { students, submissions } = useApp();
   const [activeTab, setActiveTab] = useState('profile');
 
   if (!user) return null;
 
   const isAdmin = user.role === 'admin';
 
-  // Simple derived data for admin user list
-  const usersList = isAdmin ? students : students.filter((s) => s.name === user.name);
-  const registrations = isAdmin ? [] : students.filter(s => s.name === user.name);
+  // Derived data
+  const usersList = isAdmin
+    ? students
+    : (submissions || []).map((reg) => ({
+        id: reg.id,
+        name: user.name,
+        role: 'student',
+        school: user.school,
+        status: reg.status ? reg.status.charAt(0).toUpperCase() + reg.status.slice(1) : 'Pending',
+      }));
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
@@ -111,16 +118,16 @@ const UserSettingsPage = () => {
                       {user.name}
                     </div>
                   </div>
-                  <div>
+                    <div>
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
                     <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-medium flex items-center gap-2">
                       <Mail size={16} className="text-slate-400" />
-                      user@example.com
+                      {user.email}
                     </div>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Bio</label>
-                    <textarea disabled className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-medium resize-none" rows="3" defaultValue="Passionate learner and tech enthusiast. Always ready for a new challenge!"></textarea>
+                    <textarea disabled className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-medium resize-none" rows="3" defaultValue={user.bio || "Passionate learner and tech enthusiast. Always ready for a new challenge!"}></textarea>
                   </div>
                 </div>
 

@@ -7,6 +7,7 @@ import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Calendar, Users, Trophy, BookOpen, AlertCircle } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
+import { cn } from '../utils/cn';
 
 const Register = () => {
     const { competitions, registerStudent } = useApp();
@@ -27,6 +28,7 @@ const Register = () => {
     });
 
     const [selectedComp, setSelectedComp] = useState(preSelectedCompetition || competitions[0]);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         const comp = competitions.find(c => c.name === formData.competition);
@@ -36,12 +38,30 @@ const Register = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
+    };
+
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.name.trim()) newErrors.name = 'Full name is required';
+        if (!formData.grade) newErrors.grade = 'Please select your grade';
+        if (!formData.clazz.trim()) newErrors.clazz = 'Class is required';
+        if (formData.type === 'Team' && !formData.members.trim()) {
+            newErrors.members = 'Please list your team members';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        registerStudent(formData);
-        navigate('/student');
+        if (validate()) {
+            registerStudent(formData);
+            navigate('/student');
+        }
     };
 
     return (
@@ -68,6 +88,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         placeholder="E.g., Muhammad Ahmed"
                                         disabled={!!user?.name}
+                                        error={errors.name}
                                         required
                                     />
                                     <div className="space-y-2">
@@ -77,12 +98,16 @@ const Register = () => {
                                                 name="grade"
                                                 value={formData.grade}
                                                 onChange={handleChange}
-                                                className="w-full flex h-11 items-center justify-between rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400/50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100 transition-all"
+                                                className={cn(
+                                                    "w-full flex h-11 items-center justify-between rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400/50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100 transition-all",
+                                                    errors.grade && "border-destructive focus:ring-destructive"
+                                                )}
                                                 required
                                             >
                                                 <option value="">Select Grade</option>
                                                 {[9, 10, 11, 12].map(g => <option key={g} value={g}>{g}th Grade</option>)}
                                             </select>
+                                            {errors.grade && <span className="text-xs text-destructive mt-1.5 block animate-fade-in">{errors.grade}</span>}
                                         </div>
                                     </div>
                                     <Input
@@ -91,6 +116,7 @@ const Register = () => {
                                         value={formData.clazz}
                                         onChange={handleChange}
                                         placeholder="e.g. A"
+                                        error={errors.clazz}
                                         required
                                     />
                                     <div className="space-y-2">
@@ -143,6 +169,7 @@ const Register = () => {
                                                 value={formData.members}
                                                 onChange={handleChange}
                                                 placeholder="Enter full names, separated by commas"
+                                                error={errors.members}
                                                 required
                                             />
                                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

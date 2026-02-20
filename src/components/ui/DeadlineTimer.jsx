@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Clock, AlertCircle } from 'lucide-react';
 
-const DeadlineTimer = ({ deadline = null, title = 'Competition Deadline' }) => {
-  const defaultDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const targetDeadline = deadline || defaultDeadline;
+const DeadlineTimer = ({ deadline, title = 'Competition Deadline' }) => {
+  // If no real deadline is provided, don't render a fake/test countdown
+  if (!deadline) {
+    return null;
+  }
+
+  const targetDeadline = new Date(deadline);
 
   const calculateTimeLeft = useCallback(() => {
     const difference = new Date(targetDeadline) - new Date();

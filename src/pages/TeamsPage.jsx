@@ -6,49 +6,59 @@ import { Search, Filter, Plus, Users, Shield, Sparkles } from 'lucide-react';
 import TeamCard from '../components/ui/TeamCard';
 
 export default function TeamsPage() {
-    const { teams, userTeams, requestToJoinTeam, getUserRequests, isTeamMember } = useTeam();
-    const { competitions } = useApp();
+    const { teams, userTeams, requestToJoinTeam, getUserRequests, isTeamMember, createTeam } = useTeam();
+    const { competitions, addNotification } = useApp();
     const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filterCompetition, setFilterCompetition] = useState('all');
-    const [showJoinModal, setShowJoinModal] = useState(false);
-    const [selectedTeam, setSelectedTeam] = useState(null);
-    const [joinMessage, setJoinMessage] = useState('');
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newTeam, setNewTeam] = useState({ name: '', description: '', competitionId: '' });
 
-    const userRequests = getUserRequests();
-
-    // Filter teams
+    // Filter logic
     const filteredTeams = teams.filter(team => {
-        const matchesSearch = team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            team.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = team.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            team.description.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = filterCompetition === 'all' || team.competitionId === filterCompetition;
-        return matchesSearch && matchesFilter;
+        return matchesSearch && matchesFilter && !isTeamMember(team.id);
     });
 
+    const isPending = (teamId) => {
+        const requests = getUserRequests();
+        return requests.some(r => r.teamId === teamId && r.status === 'pending');
+    };
+
     const handleViewTeam = (team) => {
-        navigate(`/student/team/${team.id}`);
+        navigate(`/teams/${team.id}`);
     };
 
     const handleRequestToJoin = (team) => {
+        // Implementation for join request modal
         setSelectedTeam(team);
         setShowJoinModal(true);
     };
 
-    const submitJoinRequest = () => {
-        if (!selectedTeam) return;
+    const [showJoinModal, setShowJoinModal] = useState(false);
+    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [joinMessage, setJoinMessage] = useState('');
 
-        const result = requestToJoinTeam(selectedTeam.id, joinMessage);
-        if (result) {
-            alert('Join request sent successfully!');
+    const submitJoinRequest = async () => {
+        if (selectedTeam) {
+            await requestToJoinTeam(selectedTeam.id, joinMessage);
             setShowJoinModal(false);
-            setSelectedTeam(null);
             setJoinMessage('');
+            addNotification(`Request sent to ${selectedTeam.name}`, 'success');
         }
     };
 
-    const isPending = (teamId) => {
-        return userRequests.some(req => req.teamId === teamId);
+    const handleCreateTeam = async (e) => {
+        e.preventDefault();
+        const res = await createTeam(newTeam);
+        if (res) {
+            setShowCreateModal(false);
+            setNewTeam({ name: '', description: '', competitionId: '' });
+            addNotification('Team created successfully!', 'success');
+        }
     };
 
     return (
@@ -75,7 +85,7 @@ export default function TeamsPage() {
                         </p>
                     </div>
                     <button
-                        onClick={() => alert('Create team feature coming soon!')}
+                        onClick={() => setShowCreateModal(true)}
                         className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl hover:bg-indigo-50 hover:scale-105 transition-all font-bold shadow-lg"
                     >
                         <Plus size={20} />
@@ -83,6 +93,56 @@ export default function TeamsPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Create Team Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20 animate-scale-in">
+                        <div className="text-center mb-6">
+                            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Create New Team</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Start a new squad and invite others to join.</p>
+                        </div>
+                        <form onSubmit={handleCreateTeam} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Team Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700"
+                                    value={newTeam.name}
+                                    onChange={e => setNewTeam({...newTeam, name: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Description</label>
+                                <textarea
+                                    required
+                                    className="w-full px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700 resize-none"
+                                    rows={3}
+                                    value={newTeam.description}
+                                    onChange={e => setNewTeam({...newTeam, description: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Competition</label>
+                                <select
+                                    required
+                                    className="w-full px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700"
+                                    value={newTeam.competitionId}
+                                    onChange={e => setNewTeam({...newTeam, competitionId: e.target.value})}
+                                >
+                                    <option value="">Select a competition</option>
+                                    {competitions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex gap-3 mt-6">
+                                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 px-4 py-2 border rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800">Cancel</button>
+                                <button type="submit" className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-bold">Create Team</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* My Teams Section */}
             {userTeams.length > 0 && (

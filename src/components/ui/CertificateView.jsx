@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Award, Download, Share2, Calendar, ShieldCheck, Sparkles } from 'lucide-react';
 
 const CertificateView = () => {
-    const { getStudentCertificates } = useApp();
+    const { getStudentCertificates, addNotification } = useApp();
     const { user } = useAuth();
 
     // Use logged-in student ID from auth context
@@ -22,11 +22,11 @@ const CertificateView = () => {
     `;
 
     const handleDownload = () => {
-        alert('Certificate download feature - In production, this would generate a PDF');
+        addNotification('Certificate download feature will be available shortly after verification.', 'info');
     };
 
     const handleShare = () => {
-        alert('Certificate sharing feature - In production, this would share via social media or email');
+        addNotification('Certificate sharing feature will be available shortly.', 'info');
     };
 
     if (certificates.length === 0) {

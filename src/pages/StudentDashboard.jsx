@@ -8,31 +8,39 @@ import { cn } from '../utils/cn';
 import DeadlineTimer from '../components/ui/DeadlineTimer';
 
 const StudentDashboard = () => {
-    const { students, notifications, removeNotification, competitions } = useApp();
+    const { submissions, notifications, removeNotification, competitions } = useApp();
     const { user } = useAuth();
 
-    // Use logged-in user name from auth context
-    const currentUserName = user?.name || "Omar Tantawy";
-    const profile = students.find(s => s.name === currentUserName) || {
-        name: currentUserName,
-        grade: "10",
-        clazz: "A",
-        school: "WE School",
-        email: "omar.tantawy@weschool.edu"
+    // Use logged-in user data
+    const profile = {
+        name: user?.name || "Student",
+        email: user?.email || "",
+        grade: user?.grade || "-",
+        clazz: user?.clazz || "-",
+        school: user?.school || "Student Account"
     };
 
-    // Filter registrations for this specific student
-    const myRegistrations = students.filter(s => s.name === currentUserName);
+    // Use submissions from context
+    const myRegistrations = submissions || [];
 
     // Get current student ID
-    const studentId = myRegistrations[0]?.id || user?.id;
+    const studentId = user?._id;
 
     // Filter notifications for this student or global ones
-    const myNotifications = notifications.filter(n => n.studentId === studentId || !n.studentId);
+    const myNotifications = (notifications || []).filter(n => n.studentId === studentId || !n.studentId);
 
-    // Get Science and Engineering Fair deadline
-    const scienceAndEngineeringFair = competitions.find(c => c.name === 'Science and Engineering Fair');
-    const submissionDeadline = scienceAndEngineeringFair?.endDate;
+    // Pick the nearest upcoming competition deadline (if any)
+    const now = new Date();
+    const upcomingCompetitions = (competitions || [])
+        .map(c => ({
+            ...c,
+            deadlineDate: c.endDate ? new Date(c.endDate) : null,
+        }))
+        .filter(c => c.deadlineDate && c.deadlineDate.getTime() > now.getTime())
+        .sort((a, b) => a.deadlineDate.getTime() - b.deadlineDate.getTime());
+
+    const nextCompetition = upcomingCompetitions[0];
+    const submissionDeadline = nextCompetition?.endDate;
 
     const stats = [
         {
@@ -44,14 +52,14 @@ const StudentDashboard = () => {
         },
         {
             label: 'Pending',
-            value: myRegistrations.filter(s => s.status === 'Pending').length,
+            value: myRegistrations.filter(s => s.status === 'pending').length,
             icon: Clock,
             color: 'text-amber-600',
             bg: 'bg-amber-50'
         },
         {
             label: 'Approved',
-            value: myRegistrations.filter(s => s.status === 'Approved').length,
+            value: myRegistrations.filter(s => s.status === 'approved').length,
             icon: CheckCircle,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50'
@@ -105,7 +113,10 @@ const StudentDashboard = () => {
 
             {/* Deadline Timer - Prominent Position */}
             <div className="transform hover:-translate-y-1 transition-transform duration-300">
-                <DeadlineTimer title="Science and Engineering Fair Deadline" deadline={submissionDeadline} />
+                <DeadlineTimer
+                    title={nextCompetition ? `${nextCompetition.name} Deadline` : 'Next Competition Deadline'}
+                    deadline={submissionDeadline}
+                />
             </div>
 
             {/* Personal Stats */}
@@ -230,8 +241,8 @@ const StudentDashboard = () => {
                                             <div className="hidden md:block w-1.5 self-stretch rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                                                 <div className={cn(
                                                     "w-full h-full transition-all duration-500",
-                                                    reg.status === 'Approved' ? 'bg-emerald-500' :
-                                                        reg.status === 'Rejected' ? 'bg-red-500' : 'bg-amber-500'
+                                                    reg.status === 'approved' ? 'bg-emerald-500' :
+                                                        reg.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'
                                                 )} style={{ height: '100%' }}></div>
                                             </div>
 
@@ -243,7 +254,7 @@ const StudentDashboard = () => {
                                                                 {reg.competition}
                                                             </h3>
                                                             <div className="md:hidden h-2.5 w-2.5 rounded-full" style={{
-                                                                backgroundColor: reg.status === 'Approved' ? '#10b981' : reg.status === 'Rejected' ? '#ef4444' : '#f59e0b'
+                                                            backgroundColor: reg.status === 'approved' ? '#10b981' : reg.status === 'rejected' ? '#ef4444' : '#f59e0b'
                                                             }}></div>
                                                         </div>
                                                         <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
@@ -263,8 +274,8 @@ const StudentDashboard = () => {
                                                     <div className="flex items-center gap-3">
                                                         <div className="text-right">
                                                             <Badge className={cn("px-3 py-1 text-sm font-semibold capitalize shadow-sm",
-                                                                reg.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' :
-                                                                    reg.status === 'Rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' :
+                                                                reg.status === 'approved' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' :
+                                                                    reg.status === 'rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' :
                                                                         'bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200'
                                                             )}>
                                                                 {reg.status}

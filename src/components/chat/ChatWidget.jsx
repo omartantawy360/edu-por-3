@@ -13,8 +13,8 @@ export default function ChatWidget() {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    const messages = getMyConversation();
-    const unreadCount = getUnreadCount();
+    const messages = getMyConversation ? getMyConversation() : [];
+    const unreadCount = getUnreadCount ? getUnreadCount() : 0;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

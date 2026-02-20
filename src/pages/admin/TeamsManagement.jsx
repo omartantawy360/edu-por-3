@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { useTeam } from '../../context/TeamContext';
+import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Users, Search, Filter, Plus, UserPlus, CheckCircle, XCircle, Edit, Trash2, Shield, TrendingUp, AlertCircle } from 'lucide-react';
+import { Plus, Users, UserPlus, Shield, TrendingUp, Search, Filter, Edit, Trash2, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import api from '../../services/api';
 
 export default function TeamsManagement() {
-    const { teams, joinRequests, approveJoinRequest, rejectJoinRequest, createTeam } = useTeam();
+    const { teams, joinRequests, approveJoinRequest, rejectJoinRequest, createTeam, fetchTeams } = useTeam();
+    const { addNotification, competitions } = useApp();
     const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filterCompetition, setFilterCompetition] = useState('all');
     const [activeTab, setActiveTab] = useState('teams'); // 'teams', 'requests'
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'warning'
+    });
     const [newTeam, setNewTeam] = useState({
         name: '',
         description: '',
@@ -28,14 +39,6 @@ export default function TeamsManagement() {
         return matchesSearch && matchesFilter;
     });
 
-    const competitions = [
-        { id: 'c1', name: 'Technology and Innovation Summit' },
-        { id: 'c2', name: 'Science and Engineering Fair' },
-        { id: 'c3', name: 'AI Programming Championship' },
-        { id: 'c4', name: 'Web Applications Challenge' },
-        { id: 'c5', name: 'International Robotics Olympiad' }
-    ];
-
     const handleApproveRequest = (requestId) => {
         approveJoinRequest(requestId);
     };
@@ -44,16 +47,18 @@ export default function TeamsManagement() {
         rejectJoinRequest(requestId);
     };
 
-    const handleCreateTeam = (e) => {
+    const handleCreateTeam = async (e) => {
         e.preventDefault();
         const competition = competitions.find(c => c.id === newTeam.competitionId);
-        createTeam({
+        const res = await createTeam({
             ...newTeam,
             competitionName: competition?.name || ''
         });
-        setShowCreateModal(false);
-        setNewTeam({ name: '', description: '', competitionId: '', competitionName: '' });
-        alert('Team created successfully!');
+        if (res) {
+            setShowCreateModal(false);
+            setNewTeam({ name: '', description: '', competitionId: '', competitionName: '' });
+            addNotification('Team created successfully!', 'success');
+        }
     };
 
     const getTeamStatusColor = (team) => {
@@ -249,7 +254,23 @@ export default function TeamsManagement() {
                                                         <Edit size={16} />
                                                     </button>
                                                     <button
-                                                        onClick={() => alert('Delete team feature coming soon!')}
+                                                        onClick={() => {
+                                                            setConfirmDialog({
+                                                                isOpen: true,
+                                                                title: 'Delete Team',
+                                                                message: `Are you sure you want to delete "${team.name}"? This action cannot be undone and all members will be removed.`,
+                                                                onConfirm: async () => {
+                                                                    try {
+                                                                        await api.delete(`/teams/${team.id}`);
+                                                                        fetchTeams();
+                                                                        addNotification(`Team "${team.name}" deleted`, "info");
+                                                                    } catch (err) {
+                                                                        addNotification("Failed to delete team", "error");
+                                                                    }
+                                                                },
+                                                                type: 'danger'
+                                                            });
+                                                        }}
                                                         className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                                                         title="Delete Team"
                                                     >
@@ -381,6 +402,17 @@ export default function TeamsManagement() {
                     </div>
                 </div>
             )}
+            {/* Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={confirmDialog.isOpen}
+                onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+                onConfirm={confirmDialog.onConfirm}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                type={confirmDialog.type}
+                confirmText="Confirm Action"
+                cancelText="Cancel"
+            />
         </div>
     );
 }

@@ -26,6 +26,7 @@ import TeamsManagement from './pages/admin/TeamsManagement';
 import TeamDetails from './pages/admin/TeamDetails';
 import MessagesInbox from './pages/admin/MessagesInbox';
 import UserSettingsPage from './pages/UserSettingsPage';
+import Landing from './pages/Landing';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -47,8 +48,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
 
       {/* Student Routes */}
       <Route path="/student" element={
@@ -99,7 +100,7 @@ function AppRoutes() {
 
 const ThemedApp = () => {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter>
       <AppRoutes />
     </BrowserRouter>
   );

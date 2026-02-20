@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTeam } from '../../context/TeamContext';
 import { useAuth } from '../../context/AuthContext';
-import { ArrowLeft, Users, Crown, Mail, Calendar, Trophy, MessageSquare, FileText, Settings, UserMinus, UserPlus, Shield, TrendingUp, Award } from 'lucide-react';
+import { ArrowLeft, Users, Crown, Mail, Calendar, Trophy, MessageSquare, FileText, Settings, UserMinus, UserPlus, Shield, TrendingUp, Award, X } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import api from '../../services/api';
 
 export default function TeamDetails() {
     const { teamId } = useParams();
@@ -14,15 +17,32 @@ export default function TeamDetails() {
         teamResources,
         approveJoinRequest,
         rejectJoinRequest,
-        joinRequests
+        joinRequests,
+        fetchTeamMessages,
+        fetchTeamResources
     } = useTeam();
 
+    const { addNotification } = useApp();
     const [activeTab, setActiveTab] = useState('overview');
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'warning'
+    });
 
     const team = getTeamById(teamId);
     const messages = teamMessages[teamId] || [];
     const resources = teamResources[teamId] || [];
     const teamRequests = joinRequests.filter(r => r.teamId === teamId && r.status === 'pending');
+
+    useEffect(() => {
+        if (teamId) {
+            fetchTeamMessages(teamId);
+            fetchTeamResources(teamId);
+        }
+    }, [teamId]);
 
     if (!team) {
         return (
@@ -40,16 +60,41 @@ export default function TeamDetails() {
         );
     }
 
-    const handleRemoveMember = (memberId) => {
-        if (confirm('Remove this member from the team?')) {
-            alert('Member removal feature coming soon!');
-        }
+    const handleRemoveMember = (memberId, memberName) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Remove Member',
+            message: `Are you sure you want to remove ${memberName} from the team?`,
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/teams/${teamId}/members/${memberId}`);
+                    addNotification(`${memberName} removed from team`, "info");
+                    // Refresh or update local state
+                    window.location.reload(); // Quick way for now
+                } catch (err) {
+                    addNotification("Failed to remove member", "error");
+                }
+            },
+            type: 'danger'
+        });
     };
 
-    const handleChangeLeader = (memberId) => {
-        if (confirm('Transfer team leadership to this member?')) {
-            alert('Transfer leadership feature coming soon!');
-        }
+    const handleChangeLeader = (memberId, memberName) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Transfer Leadership',
+            message: `Are you sure you want to transfer leadership to ${memberName}?`,
+            onConfirm: async () => {
+                try {
+                    await api.put(`/teams/${teamId}/leader`, { newLeaderId: memberId });
+                    addNotification(`Leadership transferred to ${memberName}`, "success");
+                    window.location.reload();
+                } catch (err) {
+                    addNotification("Failed to transfer leadership", "error");
+                }
+            },
+            type: 'warning'
+        });
     };
 
     const getGradient = () => {
@@ -89,7 +134,7 @@ export default function TeamDetails() {
                             </div>
                         </div>
                         <button
-                            onClick={() => alert('Team settings feature coming soon!')}
+                            onClick={() => addNotification('Team settings will be available in the next update.', 'info')}
                             className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all"
                         >
                             <Settings size={20} />
@@ -279,14 +324,14 @@ export default function TeamDetails() {
                                             {member.name !== team.leaderName && (
                                                 <>
                                                     <button
-                                                        onClick={() => handleChangeLeader(member.id)}
+                                                        onClick={() => handleChangeLeader(member.id, member.name)}
                                                         className="flex items-center gap-1 px-2 py-1 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-all"
                                                     >
                                                         <Crown size={12} />
                                                         Make Leader
                                                     </button>
                                                     <button
-                                                        onClick={() => handleRemoveMember(member.id)}
+                                                        onClick={() => handleRemoveMember(member.id, member.name)}
                                                         className="flex items-center gap-1 px-2 py-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
                                                     >
                                                         <UserMinus size={12} />
@@ -382,6 +427,17 @@ export default function TeamDetails() {
                     </div>
                 </div>
             )}
+            {/* Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={confirmDialog.isOpen}
+                onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+                onConfirm={confirmDialog.onConfirm}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                type={confirmDialog.type}
+                confirmText="Confirm Action"
+                cancelText="Cancel"
+            />
         </div>
     );
 }

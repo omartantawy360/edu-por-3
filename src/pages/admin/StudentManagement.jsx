@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Search, Award, Eye, Filter, Sparkles } from 'lucide-react';
 import AddAchievementModal from '../../components/ui/AddAchievementModal';
 
 const StudentManagement = () => {
-    const { students, competitions, getStudentSubmissions, getStudentCertificates, issueCertificate } = useApp();
+    const { students, schoolStudents, competitions, getStudentSubmissions, getStudentCertificates, issueCertificate } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showCertificateModal, setShowCertificateModal] = useState(false);
@@ -14,7 +14,25 @@ const StudentManagement = () => {
         achievement: 'Participation'
     });
 
-    const filteredStudents = students.filter(student =>
+    // Merge school student list (all approved) with latest registration info from submissions
+    const mergedStudents = useMemo(() => {
+        if (!schoolStudents || schoolStudents.length === 0) return [];
+
+        return schoolStudents.map(student => {
+            const registration = students.find(s => s.studentId === student.id);
+            return {
+                ...student,
+                competition: registration?.competition || 'Not registered',
+                type: registration?.participationType || '',
+                status: registration?.status || 'Approved',
+                result: registration?.result || '-',
+                projectTitle: registration?.projectTitle,
+                abstract: registration?.abstract
+            };
+        });
+    }, [schoolStudents, students]);
+
+    const filteredStudents = mergedStudents.filter(student =>
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -23,9 +41,9 @@ const StudentManagement = () => {
         if (!selectedStudent || !certificateForm.competitionId) return;
         
         const competition = competitions.find(c => c.id === certificateForm.competitionId);
-        
+
         issueCertificate({
-            studentId: selectedStudent.id,
+            studentId: selectedStudent.id, // this is user id from schoolStudents
             studentName: selectedStudent.name,
             competitionId: certificateForm.competitionId,
             competitionName: competition?.name || '',
@@ -74,9 +92,6 @@ const StudentManagement = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                             {filteredStudents.map((student) => {
-                                const submissions = getStudentSubmissions(student.id);
-                                const certificates = getStudentCertificates(student.id);
-                                
                                 return (
                                     <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-6 py-4">

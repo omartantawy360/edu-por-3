@@ -15,38 +15,7 @@ export const ChatProvider = ({ children }) => {
     const { user } = useAuth();
 
     // All messages between students and admins
-    const [messages, setMessages] = useState([
-        {
-            id: 'msg1',
-            senderId: 's1',
-            senderName: 'Alex Johnson',
-            senderRole: 'student',
-            recipientId: 'admin',
-            text: 'Hello! I have a question about the upcoming competition deadline.',
-            timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-            read: true
-        },
-        {
-            id: 'msg2',
-            senderId: 'admin',
-            senderName: 'Admin',
-            senderRole: 'admin',
-            recipientId: 's1',
-            text: 'Hi Alex! The deadline is February 15th at 11:59 PM. Let me know if you need any other help!',
-            timestamp: new Date(Date.now() - 3000000), // 50 min ago
-            read: true
-        },
-        {
-            id: 'msg3',
-            senderId: 's2',
-            senderName: 'Maria Garcia',
-            senderRole: 'student',
-            recipientId: 'admin',
-            text: 'Can you help me with the submission guidelines?',
-            timestamp: new Date(Date.now() - 1800000), // 30 min ago
-            read: false
-        },
-    ]);
+    const [messages, setMessages] = useState([]);
 
     // Send a new message
     const sendMessage = (text, recipientId = 'admin') => {

@@ -15,8 +15,8 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [teamsExpanded, setTeamsExpanded] = useState(true);
 
-  const teamRequests = getMyTeamRequests();
-  const unreadMessages = getUnreadCount();
+  const teamRequests = getMyTeamRequests ? getMyTeamRequests() : [];
+  const unreadMessages = getUnreadCount ? getUnreadCount() : 0;
 
   const links = user?.role === 'admin'
     ? [
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-72 flex-col transition-all duration-300 ease-in-out md:static md:translate-x-0 border-r border-white/20 shadow-2xl md:shadow-none",
+        "fixed inset-y-0 left-0 z-50 flex w-72 flex-col transition-all duration-300 ease-in-out md:static md:translate-x-0 md:z-0 border-r border-white/20 shadow-2xl md:shadow-none",
         "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
@@ -131,7 +131,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </button>
 
                 <div className={cn("space-y-1 overflow-hidden transition-all duration-300", teamsExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0")}>
-                  {userTeams.map((team) => (
+                  {userTeams && userTeams.map((team) => (
                     <button
                       key={team.id}
                       onClick={() => {
@@ -177,13 +177,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 p-[1px] shadow-sm group-hover:shadow-md transition-all">
                   <div className="h-full w-full rounded-[11px] bg-white dark:bg-slate-900 flex items-center justify-center">
                     <span className="font-bold text-transparent bg-clip-text bg-gradient-to-br from-violet-500 to-purple-600">
-                      {user.name.charAt(0)}
+                      {user?.name?.charAt(0)}
                     </span>
                   </div>
                 </div>
                 <div className="min-w-0 text-left flex-1">
-                  <p className="text-sm font-bold truncate text-slate-900 dark:text-slate-100 group-hover:text-violet-600 transition-colors">{user.name}</p>
-                  <p className="text-xs capitalize text-slate-500 dark:text-slate-400">{user.role}</p>
+                  <p className="text-sm font-bold truncate text-slate-900 dark:text-slate-100 group-hover:text-violet-600 transition-colors">{user?.name}</p>
+                  <p className="text-xs capitalize text-slate-500 dark:text-slate-400">{user?.role}</p>
                 </div>
                 <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
               </button>

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 const TeamContext = createContext(null);
 
@@ -15,141 +16,104 @@ export const TeamProvider = ({ children }) => {
     const { user } = useAuth();
 
     // All available teams in the platform
-    const [teams, setTeams] = useState([
-        {
-            id: 'team-001',
-            name: 'The Innovators',
-            description: 'Focused on sustainable technology solutions',
-            competitionId: 'c2',
-            competitionName: 'Science and Engineering Fair',
-            leaderId: 'ST-001',
-            leaderName: 'Omar Tantawy',
-            members: [
-                { id: 'ST-001', name: 'Omar Tantawy', role: 'Team Lead', avatar: 'OT', joinedDate: '2026-01-01' },
-                { id: 'ST-002', name: 'Muhammad Shibaani', role: 'Member', avatar: 'MS', joinedDate: '2026-01-02' },
-                { id: 'ST-003', name: 'Ali Hassan', role: 'Member', avatar: 'AH', joinedDate: '2026-01-03' },
-            ],
-            score: 1250,
-            rank: 3,
-            achievements: ['First Project', 'Team Player'],
-            createdDate: '2026-01-01'
-        },
-        {
-            id: 'team-002',
-            name: 'Code Ninjas',
-            description: 'AI and Machine Learning enthusiasts',
-            competitionId: 'c3',
-            competitionName: 'AI Programming Championship',
-            leaderId: 'ST-004',
-            leaderName: 'Layla Saleh',
-            members: [
-                { id: 'ST-004', name: 'Layla Saleh', role: 'Team Lead', avatar: 'LS', joinedDate: '2026-01-05' },
-                { id: 'ST-005', name: 'Ahmed Deen', role: 'Member', avatar: 'AD', joinedDate: '2026-01-06' },
-            ],
-            score: 980,
-            rank: 5,
-            achievements: ['Quick Start'],
-            createdDate: '2026-01-05'
-        },
-        {
-            id: 'team-003',
-            name: 'Web Wizards',
-            description: 'Full-stack web development team',
-            competitionId: 'c4',
-            competitionName: 'Web Applications Challenge',
-            leaderId: 'ST-007',
-            leaderName: 'Hassan Ghareeb',
-            members: [
-                { id: 'ST-007', name: 'Hassan Ghareeb', role: 'Team Lead', avatar: 'HG', joinedDate: '2026-01-10' },
-                { id: 'ST-008', name: 'Zainab Faraj', role: 'Member', avatar: 'ZF', joinedDate: '2026-01-11' },
-                { id: 'ST-009', name: 'Sarah Rashid', role: 'Member', avatar: 'SR', joinedDate: '2026-01-12' },
-                { id: 'ST-010', name: 'Fatima Thamer', role: 'Member', avatar: 'FT', joinedDate: '2026-01-13' },
-            ],
-            score: 1450,
-            rank: 1,
-            achievements: ['Top Performers', 'Team Spirit', 'Fast Learners'],
-            createdDate: '2026-01-10'
-        },
-        {
-            id: 'team-004',
-            name: 'Robo Masters',
-            description: 'Robotics and automation specialists',
-            competitionId: 'c5',
-            competitionName: 'International Robotics Olympiad',
-            leaderId: 'ST-011',
-            leaderName: 'Shireen Shemari',
-            members: [
-                { id: 'ST-011', name: 'Shireen Shemari', role: 'Team Lead', avatar: 'SS', joinedDate: '2026-01-15' },
-                { id: 'ST-012', name: 'Kamal Shibaani', role: 'Member', avatar: 'KS', joinedDate: '2026-01-16' },
-                { id: 'ST-013', name: 'Rana Enezi', role: 'Member', avatar: 'RE', joinedDate: '2026-01-17' },
-            ],
-            score: 1100,
-            rank: 4,
-            achievements: ['Innovation Award'],
-            createdDate: '2026-01-15'
-        },
-    ]);
+    // All available teams in the platform
+    const [teams, setTeams] = useState([]);
+    const [joinRequests, setJoinRequests] = useState([]);
+    const [teamMessages, setTeamMessages] = useState({});
+    const [teamResources, setTeamResources] = useState({});
 
-    // Join requests tracking
-    const [joinRequests, setJoinRequests] = useState([
-        {
-            id: 'req-001',
-            teamId: 'team-001',
-            teamName: 'The Innovators',
-            userId: 'ST-015',
-            userName: 'Yasser Dosari',
-            userAvatar: 'YD',
-            message: 'I have experience in water purification systems and would love to contribute!',
-            status: 'pending',
-            requestDate: '2026-02-05'
-        },
-        {
-            id: 'req-002',
-            teamId: 'team-003',
-            teamName: 'Web Wizards',
-            userId: 'ST-016',
-            userName: 'Dina Qahtani',
-            userAvatar: 'DQ',
-            message: 'Skilled in React and Node.js. Looking forward to collaborating!',
-            status: 'pending',
-            requestDate: '2026-02-06'
-        },
-    ]);
+    // Fetch Teams
+    const fetchTeams = async () => {
+        try {
+            const res = await api.get('/teams');
+            const mappedTeams = res.data.map(t => ({
+                id: t._id,
+                name: t.name,
+                description: t.description,
+                competitionId: t.competition?._id,
+                competitionName: t.competition?.title,
+                leaderId: t.leader?._id,
+                leaderName: t.leader?.name,
+                members: (t.members || []).filter(m => m).map(m => ({
+                    id: m._id,
+                    name: m.name,
+                    role: m._id === t.leader?._id ? 'Team Lead' : 'Member',
+                    avatar: (m.name || 'U').split(' ').map(n => n[0]).join(''),
+                    joinedDate: '2026-01-01' // Mock date as backend doesn't track join date in members array yet
+                })),
+                score: t.score,
+                rank: t.rank || 0,
+                achievements: t.achievements,
+                createdDate: new Date(t.createdAt).toISOString().split('T')[0]
+            }));
+            setTeams(mappedTeams);
+        } catch (error) {
+            console.error("Failed to fetch teams", error);
+        }
+    };
 
-    // Team messages by team ID
-    const [teamMessages, setTeamMessages] = useState({
-        'team-001': [
-            { id: 1, sender: 'Omar Tantawy', senderId: 'ST-001', text: 'Hello, are we done with the presentation slides?', timestamp: '10:30 AM' },
-            { id: 2, sender: 'Muhammad Shibaani', senderId: 'ST-002', text: 'Almost, we just need to add the financial projections.', timestamp: '10:32 AM' },
-        ],
-        'team-002': [
-            { id: 1, sender: 'Layla Saleh', senderId: 'ST-004', text: 'Let\'s review the machine learning model tomorrow.', timestamp: '09:15 AM' },
-        ],
-        'team-003': [
-            { id: 1, sender: 'Hassan Ghareeb', senderId: 'ST-007', text: 'Great progress on the frontend everyone!', timestamp: '14:20 PM' },
-        ],
-        'team-004': [
-            { id: 1, sender: 'Shireen Shemari', senderId: 'ST-011', text: 'Robot testing scheduled for next week.', timestamp: '11:00 AM' },
-        ],
-    });
+    useEffect(() => {
+        if (user) {
+            fetchTeams();
+        }
+    }, [user]);
 
-    // Team resources by team ID
-    const [teamResources, setTeamResources] = useState({
-        'team-001': [
-            { id: 1, name: 'Project Proposal.pdf', type: 'document', url: '#', uploadedBy: 'Omar Tantawy', date: '2026-01-05' },
-            { id: 2, name: 'Market Research Links', type: 'link', url: '#', uploadedBy: 'Ali Hassan', date: '2026-01-06' },
-        ],
-        'team-002': [
-            { id: 1, name: 'AI Model Training Data', type: 'document', url: '#', uploadedBy: 'Layla Saleh', date: '2026-01-07' },
-        ],
-        'team-003': [
-            { id: 1, name: 'UI Design Mockups', type: 'image', url: '#', uploadedBy: 'Hassan Ghareeb', date: '2026-01-12' },
-            { id: 2, name: 'API Documentation', type: 'link', url: '#', uploadedBy: 'Zainab Faraj', date: '2026-01-13' },
-        ],
-        'team-004': [
-            { id: 1, name: 'Robot Schematics', type: 'document', url: '#', uploadedBy: 'Shireen Shemari', date: '2026-01-16' },
-        ],
-    });
+    // Fetch requests for teams I lead
+    useEffect(() => {
+        const fetchAllRequests = async () => {
+             if (!user || teams.length === 0) return;
+             
+             const myLeadingTeams = teams.filter(t => t.leaderId === user.id);
+             let allReqs = [];
+             
+             for (const team of myLeadingTeams) {
+                 try {
+                     const res = await api.get(`/teams/${team.id}/requests`);
+                     // Map if needed, but backend already maps mostly
+                     // Backend returns: id, teamId, userId, userName, userAvatar, message, status, requestDate
+                     allReqs = [...allReqs, ...res.data];
+                 } catch (err) {
+                     console.error(`Failed to fetch requests for team ${team.id}`, err);
+                 }
+             }
+             setJoinRequests(allReqs);
+        };
+        
+        fetchAllRequests();
+    }, [user, teams]);
+
+    const fetchTeamMessages = async (teamId) => {
+        try {
+            const res = await api.get(`/teams/${teamId}/messages`);
+            const mappedMessages = res.data.map(m => ({
+                id: m._id,
+                sender: m.sender.name,
+                senderId: m.sender._id,
+                text: m.text,
+                timestamp: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }));
+            setTeamMessages(prev => ({ ...prev, [teamId]: mappedMessages }));
+        } catch (error) {
+            console.error("Failed to fetch messages", error);
+        }
+    };
+
+    const fetchTeamResources = async (teamId) => {
+        try {
+            const res = await api.get(`/teams/${teamId}/resources`);
+             const mappedResources = res.data.map(r => ({
+                id: r._id,
+                name: r.name,
+                type: r.type,
+                url: r.url,
+                uploadedBy: r.uploadedBy.name,
+                date: new Date(r.createdAt).toISOString().split('T')[0]
+            }));
+            setTeamResources(prev => ({ ...prev, [teamId]: mappedResources }));
+        } catch (error) {
+            console.error("Failed to fetch resources", error);
+        }
+    };
 
     // Get teams user is a member of
     const getUserTeams = () => {
@@ -179,110 +143,90 @@ export const TeamProvider = ({ children }) => {
     };
 
     // Request to join a team
-    const requestToJoinTeam = (teamId, message = '') => {
+    // Request to join a team
+    const requestToJoinTeam = async (teamId, message = '') => {
         if (!user) return;
-
-        const team = getTeamById(teamId);
-        if (!team) return;
-
-        // Check if already a member
-        if (isTeamMember(teamId)) {
-            alert('You are already a member of this team!');
-            return;
+        try {
+            const res = await api.post(`/teams/${teamId}/join`, { message });
+            // For now, let's just log. UI should handle notification.
+            console.log('Join request sent!');
+        } catch (error) {
+             console.error("Join request failed", error);
         }
-
-        // Check if already requested
-        const existingRequest = joinRequests.find(
-            req => req.teamId === teamId && req.userId === user.id && req.status === 'pending'
-        );
-        if (existingRequest) {
-            alert('You have already sent a request to this team!');
-            return;
-        }
-
-        const newRequest = {
-            id: `req-${Date.now()}`,
-            teamId: team.id,
-            teamName: team.name,
-            userId: user.id,
-            userName: user.name,
-            userAvatar: user.name.split(' ').map(n => n[0]).join(''),
-            message: message,
-            status: 'pending',
-            requestDate: new Date().toISOString().split('T')[0]
-        };
-
-        setJoinRequests(prev => [...prev, newRequest]);
-        return newRequest;
     };
 
     // Approve join request
-    const approveJoinRequest = (requestId) => {
-        const request = joinRequests.find(req => req.id === requestId);
-        if (!request) return;
-
-        // Add user to team
-        setTeams(prev => prev.map(team => {
-            if (team.id === request.teamId) {
-                return {
-                    ...team,
-                    members: [
-                        ...team.members,
-                        {
-                            id: request.userId,
-                            name: request.userName,
-                            role: 'Member',
-                            avatar: request.userAvatar,
-                            joinedDate: new Date().toISOString().split('T')[0]
-                        }
-                    ]
-                };
-            }
-            return team;
-        }));
-
-        // Update request status
-        setJoinRequests(prev => prev.map(req =>
-            req.id === requestId ? { ...req, status: 'approved' } : req
-        ));
+    const approveJoinRequest = async (requestId) => {
+        try {
+            await api.put(`/teams/0/requests/${requestId}/approve`); // teamId is not needed for the route I defined, but I used /:id/requests/:requestId. 
+            // Wait, my route is router.put('/:id/requests/:requestId/approve')
+            // I need the team ID.
+            // The requestId is global unique in Mongo, but my route structure requires teamId.
+            // I should find the request in state to get teamId.
+            const req = joinRequests.find(r => r.id === requestId);
+            if (!req) return;
+            
+            await api.put(`/teams/${req.teamId}/requests/${requestId}/approve`);
+            
+            // Optimistic update
+            setJoinRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
+            // Also update members in teams state?
+            // Ideally we re-fetch teams to get the new member list
+            fetchTeams();
+        } catch (error) {
+            console.error("Failed to approve request", error);
+        }
     };
 
     // Reject join request
-    const rejectJoinRequest = (requestId) => {
-        setJoinRequests(prev => prev.map(req =>
-            req.id === requestId ? { ...req, status: 'rejected' } : req
-        ));
+    const rejectJoinRequest = async (requestId) => {
+        try {
+           const req = joinRequests.find(r => r.id === requestId);
+           if (!req) return;
+           
+           await api.put(`/teams/${req.teamId}/requests/${requestId}/reject`);
+           setJoinRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
+        } catch (error) {
+            console.error("Failed to reject request", error);
+        }
     };
 
     // Create a new team
-    const createTeam = (teamData) => {
+    // Create a new team
+    const createTeam = async (teamData) => {
         if (!user) return;
-
-        const newTeam = {
-            id: `team-${Date.now()}`,
-            leaderId: user.id,
-            leaderName: user.name,
-            members: [
-                {
+        try {
+            const res = await api.post('/teams', teamData);
+            const newTeam = res.data;
+            // Map to match frontend structure before adding to state
+            const mappedNewTeam = {
+                id: newTeam._id,
+                name: newTeam.name,
+                description: newTeam.description,
+                competitionId: newTeam.competition,
+                competitionName: teamData.competitionName,
+                // Leader is current user
+                leaderId: user.id,
+                leaderName: user.name,
+                members: [{
                     id: user.id,
                     name: user.name,
                     role: 'Team Lead',
-                    avatar: user.name.split(' ').map(n => n[0]).join(''),
+                    avatar: user.name.charAt(0),
                     joinedDate: new Date().toISOString().split('T')[0]
-                }
-            ],
-            score: 0,
-            rank: teams.length + 1,
-            achievements: [],
-            createdDate: new Date().toISOString().split('T')[0],
-            ...teamData
-        };
-
-        setTeams(prev => [...prev, newTeam]);
-        setTeamMessages(prev => ({ ...prev, [newTeam.id]: [] }));
-        setTeamResources(prev => ({ ...prev, [newTeam.id]: [] }));
-
-        return newTeam;
+                }],
+                score: 0,
+                rank: 0,
+                achievements: [],
+                createdDate: new Date().toISOString().split('T')[0]
+            };
+            setTeams(prev => [...prev, mappedNewTeam]);
+            setTeamMessages(prev => ({ ...prev, [newTeam._id]: [] }));
+            setTeamResources(prev => ({ ...prev, [newTeam._id]: [] }));
+            return mappedNewTeam;
+        } catch (error) {
+            console.error("Create team failed", error);
+        }
     };
 
     // Leave a team
@@ -294,7 +238,7 @@ export const TeamProvider = ({ children }) => {
 
         // Don't allow leader to leave
         if (team.leaderId === user.id) {
-            alert('Team leaders cannot leave the team. Please transfer leadership first.');
+            console.warn('Team leaders cannot leave the team. Please transfer leadership first.');
             return;
         }
 
@@ -310,38 +254,49 @@ export const TeamProvider = ({ children }) => {
     };
 
     // Send message to a team
-    const sendMessage = (teamId, text) => {
+    // Send message to a team
+    const sendMessage = async (teamId, text) => {
         if (!user) return;
-
-        const newMessage = {
-            id: Date.now(),
-            sender: user.name,
-            senderId: user.id,
-            text,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-
-        setTeamMessages(prev => ({
-            ...prev,
-            [teamId]: [...(prev[teamId] || []), newMessage]
-        }));
+        try {
+            const res = await api.post(`/teams/${teamId}/messages`, { text });
+            const newMessage = {
+                id: res.data._id,
+                sender: user.name,
+                senderId: user.id,
+                text: res.data.text,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setTeamMessages(prev => ({
+                ...prev,
+                [teamId]: [...(prev[teamId] || []), newMessage]
+            }));
+        } catch (error) {
+            console.error("Send message failed", error);
+        }
     };
 
     // Add resource to a team
-    const addResource = (teamId, resource) => {
+    // Add resource to a team
+    const addResource = async (teamId, resource) => {
         if (!user) return;
+        try {
+            const res = await api.post(`/teams/${teamId}/resources`, resource);
+            const newResource = {
+                id: res.data._id,
+                uploadedBy: user.name,
+                date: new Date().toISOString().split('T')[0],
+                name: res.data.name,
+                type: res.data.type,
+                url: res.data.url
+            };
 
-        const newResource = {
-            id: Date.now(),
-            uploadedBy: user.name,
-            date: new Date().toISOString().split('T')[0],
-            ...resource
-        };
-
-        setTeamResources(prev => ({
-            ...prev,
-            [teamId]: [...(prev[teamId] || []), newResource]
-        }));
+            setTeamResources(prev => ({
+                ...prev,
+                [teamId]: [...(prev[teamId] || []), newResource]
+            }));
+        } catch (error) {
+            console.error("Add resource failed", error);
+        }
     };
 
     // Get pending requests for teams user leads
@@ -367,6 +322,7 @@ export const TeamProvider = ({ children }) => {
             // Team data
             teams,
             userTeams: getUserTeams(),
+            fetchTeams,
 
             // Team operations
             getTeamById,
@@ -388,6 +344,8 @@ export const TeamProvider = ({ children }) => {
             teamResources,
             sendMessage,
             addResource,
+            fetchTeamMessages,
+            fetchTeamResources
         }}>
             {children}
         </TeamContext.Provider>

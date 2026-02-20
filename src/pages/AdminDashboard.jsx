@@ -3,16 +3,37 @@ import { useApp } from '../context/AppContext';
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, BookOpen, MessageSquare, Send, FileText as FileTextIcon } from 'lucide-react';
+import { User, UserPlus, Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, BookOpen, MessageSquare, Send, Shield, FileText as FileTextIcon } from 'lucide-react';
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import api from '../services/api';
 
 const AdminDashboard = () => {
     const { students, competitions, notifications, addNotification, removeNotification, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
+    
+    // Pending Students State
+    const [pendingStudents, setPendingStudents] = useState([]);
+    const [schoolInfo, setSchoolInfo] = useState(null);
+    
+    React.useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [pendingRes, schoolRes] = await Promise.all([
+                    api.get('/schools/pending'),
+                    api.get('/schools/my')
+                ]);
+                setPendingStudents(pendingRes.data);
+                setSchoolInfo(schoolRes.data);
+            } catch (error) {
+                console.error("Dashboard data fetch failed", error);
+            }
+        };
+        fetchDashboardData();
+    }, []);
 
     // Feedback State
     const [feedback, setFeedback] = useState('');
@@ -41,6 +62,7 @@ const AdminDashboard = () => {
 
     const stats = [
         { title: 'Total Students', value: students.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+        { title: 'Pending Approvals', value: pendingStudents.length, icon: UserPlus, color: 'text-orange-600', bg: 'bg-orange-100' },
         { title: 'Competitions', value: competitions.length, icon: Trophy, color: 'text-purple-600', bg: 'bg-purple-100' },
         { title: 'Passed Students', value: students.filter(s => s.result === 'Passed').length, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-100' },
         { title: 'Failed Students', value: students.filter(s => s.result === 'Failed').length, icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' },
@@ -95,6 +117,42 @@ const AdminDashboard = () => {
         });
     };
 
+    const handleApproveStudent = async (id, name) => {
+         setConfirmDialog({
+            isOpen: true,
+            title: 'Approve Student Account',
+            message: `Are you sure you want to approve ${name}'s account? They will be able to login.`,
+            onConfirm: async () => {
+                try {
+                    await api.put(`/schools/students/${id}/approve`);
+                    setPendingStudents(prev => prev.filter(s => s._id !== id));
+                    addNotification(`${name} approved`, "success");
+                } catch (error) {
+                    addNotification("Failed to approve student", "error");
+                }
+            },
+            type: 'success'
+        });
+    };
+
+    const handleRejectStudent = async (id, name) => {
+         setConfirmDialog({
+            isOpen: true,
+            title: 'Reject Student Account',
+            message: `Are you sure you want to reject ${name}'s account? This will delete their request.`,
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/schools/students/${id}/reject`);
+                    setPendingStudents(prev => prev.filter(s => s._id !== id));
+                    addNotification(`${name} rejected`, "info");
+                } catch (error) {
+                    addNotification("Failed to reject student", "error");
+                }
+            },
+            type: 'danger'
+        });
+    };
+
     const TabButton = ({ id, label, icon: Icon }) => (
         <button
             onClick={() => setActiveTab(id)}
@@ -115,13 +173,46 @@ const AdminDashboard = () => {
         <div className="space-y-6 sm:space-y-8 relative">
             {/* Header */}
             <div className="flex flex-col gap-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">Admin Dashboard</h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage students, competitions, and submissions</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-violet-500/20">
+                    <div className="flex items-center gap-5">
+                        <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 shadow-inner">
+                            <School size={32} />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{schoolInfo?.name || 'Admin Dashboard'}</h1>
+                            <p className="text-white/80 font-medium flex items-center gap-2">
+                                <Shield className="h-4 w-4" /> Administrator Portal
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {schoolInfo?.code && (
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 flex flex-col items-center sm:items-end group hover:bg-white/20 transition-all cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-1 opacity-20">
+                                <Globe size={40} className="rotate-12" />
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1 relative z-10">Your School Code</span>
+                            <div className="flex items-center gap-3 relative z-10">
+                                <span className="text-3xl font-mono font-bold tracking-widest text-white drop-shadow-md group-hover:scale-105 transition-transform">
+                                    {schoolInfo.code}
+                                </span>
+                                <button 
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(schoolInfo.code);
+                                        addNotification("Code copied to clipboard!", "success");
+                                    }}
+                                    className="p-2 bg-white/20 hover:bg-white/40 rounded-xl transition-all shadow-sm"
+                                    title="Copy Code"
+                                >
+                                    <FileText size={18} />
+                                </button>
+                            </div>
+                            <p className="text-[10px] text-white/50 mt-1 font-medium relative z-10">Share this with students to register</p>
+                        </div>
+                    )}
+                </div>
+
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
                         {/* Notifications */}
                         <div className="relative shrink-0">
                             <button
@@ -188,14 +279,15 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     </div>
-                </div>
 
                 <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl w-full sm:w-auto self-start gap-1 overflow-x-auto max-w-full">
                     <TabButton id="overview" label="Overview" icon={FileText} />
+                    <TabButton id="approvals" label="Approvals" icon={UserPlus} />
                     <TabButton id="students" label="Students" icon={Users} />
                     <TabButton id="competitions" label="Competitions" icon={Trophy} />
                 </div>
             </div>
+
 
             {/* Overview Tab */}
             {activeTab === 'overview' && (
@@ -222,6 +314,66 @@ const AdminDashboard = () => {
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Approvals Tab */}
+            {activeTab === 'approvals' && (
+                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+                        <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 px-6 pt-6">
+                            <CardTitle className="text-lg font-bold">Pending Student Approvals</CardTitle>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                Students waiting to join your school ({pendingStudents.length})
+                            </p>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                             <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+                                        <tr>
+                                            <th className="px-6 py-4">Name</th>
+                                            <th className="px-6 py-4">Email</th>
+                                            <th className="px-6 py-4">Date</th>
+                                            <th className="px-6 py-4 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                                        {pendingStudents.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="4" className="px-6 py-16 text-center">
+                                                     <div className="flex flex-col items-center justify-center gap-2">
+                                                        <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                                            <CheckCircle className="h-5 w-5 text-green-500" />
+                                                        </div>
+                                                        <p className="text-slate-500 dark:text-slate-400 font-medium">All caught up! No pending approvals.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            pendingStudents.map((s) => (
+                                                <tr key={s._id} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td className="px-6 py-4 font-medium">{s.name}</td>
+                                                    <td className="px-6 py-4 text-slate-500">{s.email}</td>
+                                                    <td className="px-6 py-4 text-slate-500">{new Date(s.createdAt).toLocaleDateString()}</td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleApproveStudent(s._id, s.name)}>
+                                                                Approve
+                                                            </Button>
+                                                            <Button size="sm" variant="destructive" onClick={() => handleRejectStudent(s._id, s.name)}>
+                                                                Reject
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                 </div>
             )}
 
             {/* Students Tab */}

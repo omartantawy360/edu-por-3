@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTeam } from '../context/TeamContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +18,9 @@ export default function TeamHub() {
         approveJoinRequest,
         rejectJoinRequest,
         isTeamLeader,
-        leaveTeam
+        leaveTeam,
+        fetchTeamMessages,
+        fetchTeamResources
     } = useTeam();
 
     const team = getTeamById(teamId);
@@ -27,6 +29,13 @@ export default function TeamHub() {
     const isLeader = isTeamLeader(teamId);
     const allRequests = getMyTeamRequests();
     const teamRequests = allRequests.filter(req => req.teamId === teamId);
+    
+    useEffect(() => {
+        if (teamId) {
+            fetchTeamMessages(teamId);
+            fetchTeamResources(teamId);
+        }
+    }, [teamId]);
 
     const [newMessage, setNewMessage] = useState('');
     const [showResourceModal, setShowResourceModal] = useState(false);
