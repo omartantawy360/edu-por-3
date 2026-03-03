@@ -7,7 +7,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-19-blue?logo=react" alt="React 19">
-  <img src="https://img.shields.io/badge/Vite-6-purple?logo=vite" alt="Vite 6">
+  <img src="https://img.shields.io/badge/Vite-7-purple?logo=vite" alt="Vite 7">
   <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
@@ -33,20 +33,17 @@
 
 ## 📸 Visual Tour
 
-> [!NOTE]
-> *Place your screenshots in the `./docs/screenshots/` directory to populate this section.*
-
 ### 🖥️ The Student Hub
 | **Personal Dashboard** | **Team Collaboration** |
 | :---: | :---: |
-| ![Dashboard Placeholder](./docs/screenshots/student-dashboard.png) | ![Team Hub Placeholder](./docs/screenshots/team-hub.png) |
-| *Track your progress and upcoming deadlines.* | *Real-time chat and project strategy.* |
+| ![Student Dashboard](./docs/screenshots/student-dashboard.png) | ![Team Hub](./docs/screenshots/team-hub.png) |
+| *Track your progress, achievements, and upcoming deadlines.* | *Real-time chat and centralized project strategy.* |
 
 ### 🛡️ The Admin Command Center
 | **Student Management** | **Digital Certification** |
 | :---: | :---: |
-| ![Admin Placeholder](./docs/screenshots/admin-management.png) | ![Certificate Placeholder](./docs/screenshots/certificate-view.png) |
-| *Approve registrations and manage institutional data.* | *Issue verifiable accolades with one click.* |
+| ![Admin Management](./docs/screenshots/admin-management.png) | ![Certificate View](./docs/screenshots/certificate-view.png) |
+| *Approve registrations and maintain institutional integrity.* | *Issue verifiable accolades with a single click.* |
 
 ---
 
@@ -55,18 +52,18 @@
 ### 🎓 For Competitors (Students)
 - **🚀 Personalized HUD**: A unified view of current competitions, team status, and skill progression.
 - **🤝 Team Forge**: Advanced team building tools including member search and real-time invitations.
-- **💬 Synergy Chat**: Built-in communication channels for seamless project planning.
-- **📊 Skill Mapping**: Visual representation of your competitive strengths and areas for growth.
-- **🏆 Achievement System**: Earn badges and climb the institutional leaderboard.
-- **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion.
+- **💬 Synergy Chat**: Built-in communication channels for seamless project planning and file tracking.
+- **📊 AI-Driven Recommendations**: Smart skill-based suggestions for which competitions match your profile best.
+- **🏆 Gamified Leaderboards**: Climb the institutional rankings and earn prestige within your school community.
+- **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion of any event.
 
 ### 🛡️ For Orchestrators (Administrators)
 - **🗂️ Unified Registry**: Full CRUD control over student profiles, team configurations, and school data.
-- **⚖️ Evaluation Engine**: Streamlined workflow for reviewing submissions, providing feedback, and marking results.
+- **⚖️ Evaluation Engine**: Streamlined workflow for reviewing submissions, providing private feedback, and marking results.
 - **💎 Certificate Mint**: Dynamic certificate generation system with customizable templates.
-- **📢 Broadcast Network**: Mass notification system for critical competition updates.
-- **📈 Institutional Analytics**: Real-time insights into participation rates and success metrics.
-- **🛠️ Competition Architect**: Full-suite tool to build, edit, and phase multi-stage events.
+- **📢 Broadcast Network**: Mass notification system to keep thousands of students updated instantly.
+- **📈 Institutional Analytics**: Real-time insights into participation rates and success metrics at a glance.
+- **🛠️ Competition Architect**: Full-suite tool to build, edit, and phase multi-stage competitive events.
 
 ---
 
@@ -76,12 +73,12 @@ Built with a focus on **Visual Excellence** and **Performance**.
 
 | Layer | Technology | Rationale |
 | :--- | :--- | :--- |
-| **Logic** | [React 19](https://react.dev/) | Utilizing the latest Concurrent Mode and Transitions. |
-| **Style** | [Tailwind CSS](https://tailwindcss.com/) | For a utility-first, performant glassmorphic UI. |
-| **Motion** | [GSAP](https://gsap.com/) | Professional-grade micro-animations and transitions. |
-| **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles. |
+| **Logic** | [React 19](https://react.dev/) | Utilizing the latest Concurrent Mode and Transitions for sub-second UI response. |
+| **Style** | [Tailwind CSS](https://tailwindcss.com/) | For a utility-first, performant glassmorphic UI with zero runtime overhead. |
+| **Motion** | [GSAP](https://gsap.com/) | Professional-grade micro-animations managed via a high-performance engine. |
+| **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles for modern web standards. |
 | **Routing** | [React Router 7](https://reactrouter.com/) | Sophisticated nested routing for multi-dashboard layouts. |
-| **State** | React Context | Clean, scalable state management without external overhead. |
+| **State** | React Context | Clean, scalable state management without the complexity of external stores. |
 
 ---
 
@@ -139,7 +136,8 @@ src/
 This repository is optimized for **GitHub Pages**.
 
 1. Update the `base` in `vite.config.js` to match your repository name.
-2. Run `npm run deploy` to publish the latest `dist` to the `gh-pages` branch.
+2. Run `npm run build` to generate the production bundle.
+3. Use `npm run deploy` (configured with `gh-pages`) to push to the live site.
 
 ---
 
@@ -156,8 +154,8 @@ We welcome innovation! Whether it's a bug fix or a bold new feature:
 
 ## 📄 License & Legal
 
-Distributed under the **MIT License**. Created with a passion for educational technology.
+Distributed under the **MIT License**. Created with a passion for student-led innovation.
 
 <p align="center">
-  <strong>Built with ❤️ by the EduComp Team</strong>
+  <strong>Built with ❤️ for the Global Student Community</strong>
 </p>
