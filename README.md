@@ -1,13 +1,22 @@
 # <p align="center">🎓 EduComp</p>
 
 <p align="center">
-  <strong>The Ultimate Student Competition Management Platform</strong>
+  <strong>The Ultimate Student Competition Management Platform</strong><br>
+  <em>Empowering the next generation of innovators through structured excellence.</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-blue?logo=react" alt="React 19">
+  <img src="https://img.shields.io/badge/Vite-6-purple?logo=vite" alt="Vite 6">
+  <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
 
 <p align="center">
   <a href="https://omartantawy360.github.io/edu-por-3"><strong>🚀 Live Demo</strong></a> | 
-  <a href="#-key-features">Features</a> | 
-  <a href="#-tech-stack">Tech Stack</a> | 
+  <a href="#-visual-tour">Visual Tour</a> | 
+  <a href="#-core-features">Features</a> | 
+  <a href="#-architecture">Architecture</a> | 
   <a href="#-getting-started">Setup</a>
 </p>
 
@@ -15,77 +24,81 @@
 
 ## 🌟 Overview
 
-**EduComp** is a premium, feature-rich web ecosystem designed to bridge the gap between academic brilliance and organized competition. Whether you're an administrator orchestrating a multi-stage hackathon or a student looking to form the next winning team, EduComp provides the tools to succeed in a sleek, high-performance environment.
+**EduComp** is a high-performance, premium web ecosystem designed to orchestrate academic competitions. It serves as a dual-sided platform, providing students with a collaborative "Mission Control" and administrators with a powerful "Command Center" to manage registrations, teams, and certification at scale.
 
-> [!TIP]
-> **Why EduComp?** Most platforms focus only on registration. We focus on the *entire lifecycle*—from team formation and real-time collaboration to expert evaluation and professional certification.
-
----
-
-## 🎯 The Problem & Our Solution
-
-### The Gap
-Currently, student competitions are often managed through fragmented tools—spreadsheets for registration, Discord for chat, and email for submissions. This leads to **data silos, missed deadlines, and a high barrier to entry** for new students.
-
-### The EduComp Revolution
-EduComp centralizes the entire experience. By combining real-time collaboration with structured administration, we reduce administrative overhead by **up to 40%** and increase student participation by providing a clear, gamified path to success.
+> [!IMPORTANT]
+> **Vision**: EduComp isn't just a management tool; it's a launchpad. Built with **React 19** and a custom **Context-based State Engine**, it delivers a seamless, native-feeling experience that rivals enterprise SaaS products.
 
 ---
 
-## 🛡️ Technical Excellence
+## 📸 Visual Tour
 
-While it looks great, the beauty of EduComp is under the hood:
+> [!NOTE]
+> *Place your screenshots in the `./docs/screenshots/` directory to populate this section.*
 
-- **Proprietary Data Isolation**: Built-in architecture that ensures school-specific data (students, teams, scores) never leaks across institutional boundaries.
-- **Optimized Performance**: Leverages **Vite 6** and **React 19** for sub-second page transitions and ultra-lightweight bundle sizes.
-- **State-of-the-Art State Management**: A custom-architected Context API provider system that prevents unnecessary re-renders in complex dashboards.
-- **Responsive Animations**: Motion is managed via **GSAP** for buttery-smooth 60FPS interactions that feel "native" on every device.
+### 🖥️ The Student Hub
+| **Personal Dashboard** | **Team Collaboration** |
+| :---: | :---: |
+| ![Dashboard Placeholder](./docs/screenshots/student-dashboard.png) | ![Team Hub Placeholder](./docs/screenshots/team-hub.png) |
+| *Track your progress and upcoming deadlines.* | *Real-time chat and project strategy.* |
+
+### 🛡️ The Admin Command Center
+| **Student Management** | **Digital Certification** |
+| :---: | :---: |
+| ![Admin Placeholder](./docs/screenshots/admin-management.png) | ![Certificate Placeholder](./docs/screenshots/certificate-view.png) |
+| *Approve registrations and manage institutional data.* | *Issue verifiable accolades with one click.* |
 
 ---
 
-## 🚀 Key Features
+## 🎯 Core Features
 
-### 🎓 For Students (The "Competitor" Experience)
-- **Interactive Dashboard**: A mission-control center for all your competitions, deadlines, and achievements.
-- **Team Hub & Real-time Chat**: Connect with teammates instantly. Collaborate, strategize, and build together without leaving the platform.
-- **Competition Discovery**: Smart filters to find the perfect competition for your skillset.
-- **Project Portfolios**: Showcase your work with rich-text abstracts, repository links, and submission tracking.
-- **Digital Certificates**: Instantly verifiable achievements for your professional portfolio.
+### 🎓 For Competitors (Students)
+- **🚀 Personalized HUD**: A unified view of current competitions, team status, and skill progression.
+- **🤝 Team Forge**: Advanced team building tools including member search and real-time invitations.
+- **💬 Synergy Chat**: Built-in communication channels for seamless project planning.
+- **📊 Skill Mapping**: Visual representation of your competitive strengths and areas for growth.
+- **🏆 Achievement System**: Earn badges and climb the institutional leaderboard.
+- **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion.
 
-### 🛡️ For Administrators (The "Orchestrator" Experience)
-- **High-Level Analytics**: Monitor student engagement, success rates, and registration trends at a glance.
-- **Dynamic Competition Builder**: Create multi-stage competitions with customizable requirements and timelines.
-- **Expert Review System**: Streamlined grading workflow with private feedback loops and pass/fail automation.
-- **Broadcast Notifications**: Communicate critical updates to thousands of students simultaneously.
-- **User Gatekeeping**: Full control over student approvals and institutional integrity.
+### 🛡️ For Orchestrators (Administrators)
+- **🗂️ Unified Registry**: Full CRUD control over student profiles, team configurations, and school data.
+- **⚖️ Evaluation Engine**: Streamlined workflow for reviewing submissions, providing feedback, and marking results.
+- **💎 Certificate Mint**: Dynamic certificate generation system with customizable templates.
+- **📢 Broadcast Network**: Mass notification system for critical competition updates.
+- **📈 Institutional Analytics**: Real-time insights into participation rates and success metrics.
+- **🛠️ Competition Architect**: Full-suite tool to build, edit, and phase multi-stage events.
 
 ---
 
 ## 🛠️ Tech Stack
 
-Built with a focus on speed, scalability, and modern aesthetics.
+Built with a focus on **Visual Excellence** and **Performance**.
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | [React 19](https://react.dev/) + [Vite](https://vitejs.dev/) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com/) + [PostCSS](https://postcss.org/) |
-| **Animations** | [GSAP](https://gsap.com/) + [Tailwind Animate](https://github.com/jamiebuilds/tailwindcss-animate) |
-| **Routing** | [React Router 7](https://reactrouter.com/) |
-| **Icons** | [Lucide React](https://lucide.dev/) |
-| **State** | React Context API (Optimized for performance) |
+| Layer | Technology | Rationale |
+| :--- | :--- | :--- |
+| **Logic** | [React 19](https://react.dev/) | Utilizing the latest Concurrent Mode and Transitions. |
+| **Style** | [Tailwind CSS](https://tailwindcss.com/) | For a utility-first, performant glassmorphic UI. |
+| **Motion** | [GSAP](https://gsap.com/) | Professional-grade micro-animations and transitions. |
+| **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles. |
+| **Routing** | [React Router 7](https://reactrouter.com/) | Sophisticated nested routing for multi-dashboard layouts. |
+| **State** | React Context | Clean, scalable state management without external overhead. |
 
 ---
 
-## 📂 Project Architecture
+## 📂 Architecture
 
+### Directory Structure
 ```bash
 src/
-├── components/         # Atomic UI Design (Buttons, Cards, Modals)
-├── context/            # Specialized Global States (Auth, Team, Chat)
-├── pages/              # High-Level Route Views (Dashboards, Hubs)
-├── utils/              # Logic abstraction (cn utility, formatters)
-├── styles/             # Global CSS & Design Tokens
-└── App.jsx             # Core Routing Engine
+├── components/
+│   ├── ui/             # Reusable atomic molecules (Cards, Buttons, Badges)
+│   └── Layout/         # Primary structural components (Sidebar, Navbar)
+├── context/            # Multi-provider state architecture (Auth, App, Team, Chat)
+├── pages/
+│   ├── admin/          # Exclusive administrative viewports
+│   └── (root)/         # Student-facing hubs and dashboards
+├── utils/              # Logic abstractions and style merging (cn utility)
+└── styles/             # Tailwind directives and CSS variables
 ```
 
 ---
@@ -93,63 +106,58 @@ src/
 ## ⚡ Getting Started
 
 ### Prerequisites
-* **Node.js** (v18 or higher recommended)
-* **npm** or **Yarn**
+* **Node.js**: v18.0.0+
+* **System**: Windows, macOS, or Linux
 
-### Quick Setup
+### Quick Installation
 
-1. **Clone & Enter**
+1. **Clone the Infrastructure**
    ```bash
    git clone https://github.com/omartantawy360/edu-por-3.git
    cd edu-por-3
    ```
 
-2. **Install & Launch**
+2. **Initialize Environment**
    ```bash
    npm install
+   ```
+
+3. **Launch Development Suite**
+   ```bash
    npm run dev
    ```
 
-3. **Build for Production**
+4. **Production Compilation**
    ```bash
    npm run build
    ```
 
 ---
 
-## 🗺️ Future Roadmap
+## 🌍 Deployment
 
-We aren't done yet. Our vision for 2026 includes:
+This repository is optimized for **GitHub Pages**.
 
-- **Phase 1: AI-Powered Mentorship**: Integration of LLMs to provide real-time feedback on project abstracts.
-- **Phase 2: Mobile App (React Native)**: Native mobile experience for on-the-go notifications and team chat.
-- **Phase 3: Automated Judging**: Algorithmic scoring for technical components of submissions.
-- **Phase 4: Global Marketplace**: A "Talent Portal" where winners can be recruited directly by top companies.
+1. Update the `base` in `vite.config.js` to match your repository name.
+2. Run `npm run deploy` to publish the latest `dist` to the `gh-pages` branch.
 
 ---
 
-## 🌍 Impact & Scalability
+## 🤝 Contribution Guidelines
 
-EduComp is built to scale. Our modular component library allows for rapid deployment in:
-- International Hackathons
-- University Science Fairs
-- Corporate Innovation Challenges
-- K-12 Stem Competitions
-
----
-
-## 🤝 Vision & Contribution
-
-We believe that student competitions are the birthplace of the next great innovation. 
-
-1. **Fork** the project.
-2. **Commit** your brilliance (`git commit -m 'feat: add amazing innovation'`).
-3. **Push** and open a **Pull Request**.
+We welcome innovation! Whether it's a bug fix or a bold new feature:
+1. **Fork** the repository.
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`).
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`).
+4. **Push** to the branch (`git push origin feature/AmazingFeature`).
+5. **Open** a Pull Request.
 
 ---
 
-## 📄 License
+## 📄 License & Legal
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **MIT License**. Created with a passion for educational technology.
 
-<p align="center">Made with ❤️ for the student community.</p>
+<p align="center">
+  <strong>Built with ❤️ by the EduComp Team</strong>
+</p>
