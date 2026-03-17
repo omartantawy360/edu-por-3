@@ -2,8 +2,6 @@ import React from 'react';
 import { Calendar, Users, Trophy, Heart, MessageCircle, Share2, Bookmark, ChevronRight } from 'lucide-react';
 
 const CompetitionCard = ({ competition, onRegister, showActions = true }) => {
-  const [liked, setLiked] = React.useState(false);
-  const [saved, setSaved] = React.useState(false);
 
   const getTypeGradient = (type) => {
     return type === 'Outer'
@@ -48,6 +46,16 @@ const CompetitionCard = ({ competition, onRegister, showActions = true }) => {
             {competition.description}
           </p>
         </div>
+
+        {competition.categories && competition.categories.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {competition.categories.map((cat, i) => (
+              <span key={i} className="px-2 py-0.5 rounded-full bg-violet-100/50 dark:bg-violet-900/30 text-[10px] font-bold text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/50">
+                {cat}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">

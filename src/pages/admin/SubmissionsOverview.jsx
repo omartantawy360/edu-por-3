@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { CheckCircle, XCircle, Clock, Github, ExternalLink, MessageSquare } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+    CheckCircle, XCircle, Clock, Github, ExternalLink, MessageSquare, 
+    FileText, Paperclip, Video, Image as ImageIcon, FileCode, Search, Trophy, User, Globe
+} from 'lucide-react';
 
 const SubmissionsOverview = () => {
     const { submissions, students, competitions, updateSubmissionStatus } = useApp();
+    const location = useLocation();
     const [filter, setFilter] = useState('all');
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [feedbackText, setFeedbackText] = useState('');
@@ -127,21 +132,30 @@ const SubmissionsOverview = () => {
                                         </div>
                                     </div>
 
-                                    <a
-                                        href={submission.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-primary-600 hover:text-primary-700 text-sm flex items-center gap-1 mb-3"
-                                    >
-                                        View Submission <ExternalLink size={14} />
-                                    </a>
+                                    <div className="flex items-center gap-4">
+                                        <Link
+                                            to={location.pathname.startsWith('/admin') ? `/admin/submission/${submission.id}` : `/submission/${submission.id}`}
+                                            className="text-primary-600 hover:text-primary-700 text-sm font-semibold flex items-center gap-1.5 transition-colors"
+                                        >
+                                            <Search size={14} /> Full Details
+                                        </Link>
+
+                                        {submission.url && (
+                                            <a
+                                                href={submission.url.startsWith('http') ? submission.url : `https://${submission.url}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-slate-500 hover:text-primary-600 text-sm flex items-center gap-1.5 transition-colors"
+                                            >
+                                                <ExternalLink size={14} /> External Link
+                                            </a>
+                                        )}
+                                    </div>
 
                                     {submission.feedback && (
-                                        <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-                                                <MessageSquare size={12} /> Feedback
-                                            </p>
-                                            <p className="text-sm text-slate-700 dark:text-slate-200">{submission.feedback}</p>
+                                        <div className="mt-4 p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100/50 dark:border-emerald-900/20">
+                                            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-widest mb-1 shadow-sm">Official Feedback</p>
+                                            <p className="text-sm text-slate-700 dark:text-slate-300 italic leading-relaxed">"{submission.feedback}"</p>
                                         </div>
                                     )}
                                 </div>
@@ -170,49 +184,118 @@ const SubmissionsOverview = () => {
 
             {/* Review Modal */}
             {selectedSubmission && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-xl max-w-lg w-full p-6">
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-50 mb-4">Review Submission</h3>
-                        <div className="space-y-4">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-0 ring-1 ring-white/10 sidebar-scroll">
+                        {/* Modal Header */}
+                        <div className="sticky top-0 z-10 p-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Title</p>
-                                <p className="text-slate-900 dark:text-slate-50">{selectedSubmission.title}</p>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50">{selectedSubmission.title}</h3>
+                                <p className="text-sm text-slate-500 flex items-center gap-2 mt-1">
+                                    <User size={14} /> {getStudent(selectedSubmission.studentId)?.name}
+                                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                    {getCompetition(selectedSubmission.competitionId)?.name}
+                                </p>
                             </div>
-                            <div>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Student</p>
-                                <p className="text-slate-900 dark:text-slate-50">{getStudent(selectedSubmission.studentId)?.name}</p>
+                            <button 
+                                onClick={() => { setSelectedSubmission(null); setFeedbackText(''); }}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+                            >
+                                <XCircle size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-8 space-y-8">
+                            {/* Technical Report */}
+                            <div className="space-y-4">
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <FileText size={16} className="text-violet-500" /> TECHNICAL REPORT
+                                </h4>
+                                <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                                    {selectedSubmission.description || "No technical report provided for this submission."}
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Feedback</label>
-                                <textarea
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
-                                    rows="4"
-                                    placeholder="Provide feedback for the student..."
-                                    value={feedbackText}
-                                    onChange={(e) => setFeedbackText(e.target.value)}
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2 mt-6">
+
+                            {/* Assets Grid */}
+                            {selectedSubmission.files && selectedSubmission.files.length > 0 && (
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Paperclip size={16} className="text-violet-500" /> PROJECT ASSETS ({selectedSubmission.files.length})
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {selectedSubmission.files.map((file, idx) => {
+                                            const fileName = file.name || file;
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+                                            const isVideo = /\.(mp4|mov|avi|wmv)$/i.test(fileName);
+                                            const isPdf = /\.pdf$/i.test(fileName);
+                                            return (
+                                                <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm group hover:border-violet-200 transition-all">
+                                                    <div className="flex items-center gap-3 overflow-hidden">
+                                                        <div className={`p-2 rounded-lg ${isImage ? 'bg-blue-50 text-blue-500' : isVideo ? 'bg-amber-50 text-amber-500' : isPdf ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-500'}`}>
+                                                            {isImage ? <ImageIcon size={14} /> : isVideo ? <Video size={14} /> : isPdf ? <FileText size={14} /> : <FileCode size={14} />}
+                                                        </div>
+                                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{fileName}</span>
+                                                    </div>
+                                                    <ExternalLink size={14} className="text-slate-300 group-hover:text-violet-500 transition-colors" />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Code Preview */}
+                            {selectedSubmission.codeSnippet && (
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Github size={16} className="text-violet-500" /> SOURCE CODE PREVIEW
+                                    </h4>
+                                    <div className="relative group overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 shadow-xl">
+                                        <div className="absolute top-0 left-0 w-full h-8 bg-slate-800/80 flex items-center justify-between px-4 border-b border-white/5">
+                                            <div className="flex gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                            </div>
+                                            <span className="text-[10px] font-mono text-slate-400 font-bold tracking-wider">main{selectedSubmission.codeExt || '.js'}</span>
+                                        </div>
+                                        <pre className="p-6 pt-12 text-xs font-mono text-slate-300 overflow-x-auto sidebar-scroll leading-relaxed">
+                                            <code>{selectedSubmission.codeSnippet}</code>
+                                        </pre>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Actions & Feedback */}
+                            <div className="pt-8 border-t border-slate-100 dark:border-slate-800 space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">JUDGE FEEDBACK / DECISION SUMMARY</label>
+                                    <textarea
+                                        className="w-full px-5 py-4 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 focus:outline-none dark:bg-slate-950 dark:text-white transition-all shadow-inner min-h-[120px]"
+                                        placeholder="Enter constructive feedback for the student..."
+                                        value={feedbackText}
+                                        onChange={(e) => setFeedbackText(e.target.value)}
+                                    />
+                                </div>
+                                
+                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <button
+                                        onClick={() => handleReject(selectedSubmission.id)}
+                                        className="flex-1 py-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all font-bold flex items-center justify-center gap-2 border border-red-100"
+                                    >
+                                        <XCircle size={18} /> Reject Submission
+                                    </button>
+                                    <button
+                                        onClick={() => handleApprove(selectedSubmission.id)}
+                                        className="flex-1 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl hover:shadow-lg hover:shadow-emerald-500/20 transition-all font-bold flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle size={18} /> Approve Submission
+                                    </button>
+                                </div>
                                 <button
-                                    onClick={() => {
-                                        setSelectedSubmission(null);
-                                        setFeedbackText('');
-                                    }}
-                                    className="px-4 py-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg"
+                                    onClick={() => { setSelectedSubmission(null); setFeedbackText(''); }}
+                                    className="w-full py-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-sm font-semibold"
                                 >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => handleReject(selectedSubmission.id)}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                                >
-                                    Reject
-                                </button>
-                                <button
-                                    onClick={() => handleApprove(selectedSubmission.id)}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                                >
-                                    Approve
+                                    Close without changes
                                 </button>
                             </div>
                         </div>

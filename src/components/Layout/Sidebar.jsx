@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTeam } from '../../context/TeamContext';
 import { useChat } from '../../context/ChatContext';
-import { LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 import { ThemeToggle } from '../ThemeToggle';
@@ -12,6 +13,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const { userTeams, getMyTeamRequests } = useTeam();
   const { getUnreadCount } = useChat();
+  const { isDemoMode, toggleDemoMode } = useApp();
   const navigate = useNavigate();
   const [teamsExpanded, setTeamsExpanded] = useState(true);
 
@@ -164,6 +166,22 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           {/* User Profile Section */}
           <div className="p-4 mt-auto">
+            {/* Demo Mode Toggle */}
+            <div className="mb-4">
+              <Button 
+                onClick={toggleDemoMode} 
+                className={cn(
+                  "w-full gap-2 text-xs font-bold transition-all border", 
+                  isDemoMode 
+                    ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700/50 hover:bg-amber-200 dark:hover:bg-amber-900/60 shadow-inner" 
+                    : "bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-amber-600 hover:border-amber-300 dark:hover:text-amber-400 dark:hover:border-amber-700 shadow-sm"
+                )}
+              >
+                <Sparkles size={14} className={isDemoMode ? "text-amber-500 animate-pulse" : ""} />
+                {isDemoMode ? 'Demo Mode Active' : 'Enable Demo Mode'}
+              </Button>
+            </div>
+
             <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 mb-2">
               <button
                 type="button"

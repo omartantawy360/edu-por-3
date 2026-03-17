@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { AppProvider, useApp } from './context/AppContext';
+import { AppProvider } from './context/AppContext';
 import { TeamProvider } from './context/TeamContext';
 import { ChatProvider } from './context/ChatContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -26,6 +26,7 @@ import TeamsManagement from './pages/admin/TeamsManagement';
 import TeamDetails from './pages/admin/TeamDetails';
 import MessagesInbox from './pages/admin/MessagesInbox';
 import UserSettingsPage from './pages/UserSettingsPage';
+import SubmissionDetail from './pages/SubmissionDetail';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="certificate" element={<CertificatePage />} />
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="account" element={<UserSettingsPage />} />
+        <Route path="submission/:submissionId" element={<SubmissionDetail />} />
       </Route>
 
       <Route path="/register" element={
@@ -91,6 +93,7 @@ function AppRoutes() {
         <Route path="submissions" element={<SubmissionsOverview />} />
         <Route path="certificates" element={<CertificateManagement />} />
         <Route path="account" element={<UserSettingsPage />} />
+        <Route path="submission/:submissionId" element={<SubmissionDetail />} />
       </Route>
 
     </Routes>

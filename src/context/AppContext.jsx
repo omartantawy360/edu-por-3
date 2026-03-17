@@ -23,6 +23,9 @@ export const AppProvider = ({ children }) => {
     }
   }, [theme]);
 
+  // NEW: Demo Mode State
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
   const toggleTheme = () => {
     setTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark';
@@ -39,7 +42,6 @@ export const AppProvider = ({ children }) => {
     const firstNames = ["Omar", "Mohammed", "Ali", "Layla", "Ahmed", "Noor", "Hassan", "Zainab", "Sarah", "Fatima", "Shireen", "Kamal", "Rana", "Yasser", "Dina", "Khalid", "Amina", "Ibrahim", "Aisha", "Saleh"];
     const lastNames = ["Tantawy", "Ali", "Hassan", "Saleh", "Deen", "Ghareeb", "Faraj", "Rashid", "Thamer", "Shemari", "Shibaani", "Enezi", "Dosari", "Qahtani", "Maliki", "Najjar", "Hajri", "Tareqi", "Ruwaili", "Suwalem"];
     
-    const schools = ["WE School"];
     const projectTitles = [
         "Smart Water Purification System with AI", "Crop Disease Detection using Machine Learning", "Renewable Energy Management System",
         "Blockchain Supply Chain Transparency", "Smart Traffic Management System", "Biodegradable Packaging Solutions",
@@ -48,7 +50,7 @@ export const AppProvider = ({ children }) => {
     ];
     const mentors = ["Dr. Omar Tantawy", "Prof. Mohammed Ali", "Dr. Ahmed Sheeba", "Prof. Sarah Najjar", "Dr. Khalid Rashid"];
     
-    const competitionsList = ['Technology Innovation Summit', 'Science and Engineering Fair', 'AI Programming Championship', 'Web Applications Challenge', 'International Robotics Olympiad'];
+    const competitionsList = ['Technology and Innovation Summit', 'Science and Engineering Fair', 'AI Programming Championship', 'Web Applications Challenge', 'International Robotics Olympiad'];
     const statuses = ['Approved', 'Pending', 'Rejected'];
     const results = ['Passed', 'Failed', '-'];
     
@@ -70,7 +72,10 @@ export const AppProvider = ({ children }) => {
 
       const isTeam = i % 5 === 0;
       const type = isTeam ? 'Team' : 'Individual';
-      const members = isTeam ? [`${firstNames[(i + 1) % firstNames.length]}`, `${firstNames[(i + 2) % firstNames.length]}`].join(', ') : null;
+      const members = isTeam ? [
+        { id: `ST-M1-${i}`, name: firstNames[(i + 1) % firstNames.length] }, 
+        { id: `ST-M2-${i}`, name: firstNames[(i + 2) % firstNames.length] }
+      ] : null;
 
       return {
         id: `ST-${(i + 1).toString().padStart(3, '0')}`,
@@ -105,7 +110,8 @@ export const AppProvider = ({ children }) => {
         type: 'Internal',
         startDate: '2026-09-01',
         endDate: '2026-12-15',
-        maxParticipants: 100
+        maxParticipants: 100,
+        categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech']
     },
     { 
         id: 'c2', 
@@ -115,7 +121,8 @@ export const AppProvider = ({ children }) => {
         type: 'Internal',
         startDate: '2026-10-01',
         endDate: '2026-02-20',
-        maxParticipants: 50
+        maxParticipants: 50,
+        categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy']
     },
     { 
         id: 'c3', 
@@ -125,7 +132,8 @@ export const AppProvider = ({ children }) => {
         type: 'Internal',
         startDate: '2026-11-15',
         endDate: '2026-01-30',
-        maxParticipants: 200
+        maxParticipants: 200,
+        categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI']
     },
     { 
         id: 'c4', 
@@ -135,17 +143,19 @@ export const AppProvider = ({ children }) => {
         type: 'Internal',
         startDate: '2026-01-10',
         endDate: '2026-03-15',
-        maxParticipants: 32
+        maxParticipants: 32,
+        categories: []
     },
     { 
         id: 'c5', 
         name: 'International Robotics Olympiad', 
         stages: ['Local Qualification', 'Regional', 'International Finals'], 
-        description: 'First international robotics competition - the largest pre-university research and innovation competition in the world.', 
+        description: 'First international robotics competition.', 
         type: 'Outer',
         startDate: '2026-05-11',
         endDate: '2026-05-17',
-        maxParticipants: 1000
+        maxParticipants: 1000,
+        categories: []
     }
   ]);
 
@@ -165,6 +175,11 @@ export const AppProvider = ({ children }) => {
   const [achievements, setAchievements] = useState([
     { id: 'ach-001', studentId: 'ST-001', badge: 'First Submission', description: 'Submitted your first project', icon: '🎯', date: '2026-01-15', color: 'blue' },
     { id: 'ach-002', studentId: 'ST-001', badge: 'Team Player', description: 'Collaborated with more than 5 team members', icon: '🤝', date: '2026-01-20', color: 'green' },
+  ]);
+
+  // NEW: Scores tracking for E-Judging
+  const [scores, setScores] = useState([
+    { id: 'score-001', studentId: 'ST-001', competitionId: 'c2', innovation: 9, design: 8, presentation: 10, technical: 9, total: 36 }
   ]);
 
   const [notifications, setNotifications] = useState([
@@ -205,7 +220,9 @@ export const AppProvider = ({ children }) => {
       result: '-',
       projectTitle: null,
       school: 'WE School',
-      email: `${data.name.split(' ')[0].toLowerCase()}@school.edu`
+      email: `${data.name.split(' ')[0].toLowerCase()}@school.edu`,
+      // Ensure members is structured correctly if it's a team
+      members: Array.isArray(data.members) ? data.members : (typeof data.members === 'string' && data.members.trim() ? data.members.split(',').map((name, idx) => ({ id: `new-m-${idx}-${Date.now()}`, name: name.trim() })) : data.members)
     };
     setStudents((prev) => [...prev, newStudent]);
     addNotification(`New student registration: ${data.name}`, "info");
@@ -288,6 +305,13 @@ export const AppProvider = ({ children }) => {
     addNotification(`Submission ${id} ${status}`, "success");
   };
 
+  const editSubmission = (id, updatedData) => {
+    setSubmissions(prev => prev.map(sub => 
+      sub.id === id ? { ...sub, ...updatedData } : sub
+    ));
+    addNotification(`Submission updated: ${updatedData.title}`, "success");
+  };
+
   const getStudentSubmissions = (studentId) => {
     return submissions.filter(sub => sub.studentId === studentId);
   };
@@ -336,10 +360,122 @@ export const AppProvider = ({ children }) => {
     setAchievements(prev => prev.filter(ach => ach.id !== achievementId));
   };
 
+  // NEW: Score management functions
+  const addScore = (studentId, competitionId, scoreData) => {
+    setScores(prev => {
+      const existingIdx = prev.findIndex(s => s.studentId === studentId && s.competitionId === competitionId);
+      const newScore = {
+        id: existingIdx >= 0 ? prev[existingIdx].id : `score-${Date.now()}`,
+        studentId,
+        competitionId,
+        date: new Date().toISOString().split('T')[0],
+        ...scoreData
+      };
+      if (existingIdx >= 0) {
+        const newScores = [...prev];
+        newScores[existingIdx] = newScore;
+        return newScores;
+      }
+      return [...prev, newScore];
+    });
+    addNotification(`Scores saved for student`, 'success');
+  };
+
+  const getStudentsBySchool = (schoolName) => {
+    return students.filter(s => s.school === schoolName);
+  };
+
+  const getStudentScore = (studentId, competitionId) => {
+    return scores.find(s => s.studentId === studentId && s.competitionId === competitionId) || null;
+  };
+
+  // Handle Demo Mode Toggle
+  const toggleDemoMode = () => {
+    setIsDemoMode(prev => {
+      const next = !prev;
+      if (next) {
+        // Populate rich demo data
+        setStudents(generateMockStudents());
+        setCompetitions([
+          { id: 'c1', name: 'Technology and Innovation Summit', stages: ['Stage 1', 'Stage 2', 'Finals'], description: 'Annual competition in technological innovation for high school students.', type: 'Internal', startDate: '2026-09-01', endDate: '2026-12-15', maxParticipants: 100, categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech'] },
+          { id: 'c2', name: 'Science and Engineering Fair', stages: ['Submission', 'Finals'], description: 'Display of innovative science and engineering projects.', type: 'Internal', startDate: '2026-10-01', endDate: '2026-02-20', maxParticipants: 50, categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy'] },
+          { id: 'c3', name: 'AI Programming Championship', stages: ['Preliminaries', 'Finals'], description: 'Programming competition specialized in artificial intelligence and machine learning.', type: 'Internal', startDate: '2026-11-15', endDate: '2026-01-30', maxParticipants: 200, categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI'] },
+          { id: 'c4', name: 'Web Applications Challenge', stages: ['Round 1', 'Round 2', 'Finals'], description: 'Competition in web application development.', type: 'Internal', startDate: '2026-01-10', endDate: '2026-03-15', maxParticipants: 32, categories: [] },
+          { id: 'c5', name: 'International Robotics Olympiad', stages: ['Local Qualification', 'Regional', 'International Finals'], description: 'First international robotics competition.', type: 'Outer', startDate: '2026-05-11', endDate: '2026-05-17', maxParticipants: 1000, categories: [] }
+        ]);
+        setSubmissions([
+          { 
+            id: 'sub-demo1', 
+            studentId: 'ST-001', 
+            competitionId: 'c2', 
+            title: 'EcoTracker App', 
+            url: 'https://github.com/demo/ecotracker', 
+            type: 'github', 
+            status: 'approved', 
+            date: '2026-02-10', 
+            feedback: 'Great execution and practical application.',
+            description: '1. Introduction: EcoTracker is a mobile app designed to help users track their carbon footprint in real-time.\n2. Methodology: We used React Native for cross-platform support and a Firebase backend for data persistence.\n3. Results: Preliminary testing showed a 15% reduction in individual waste for active users.',
+            codeSnippet: 'import React from "react";\n\nconst CarbonCalculator = ({ usage }) => {\n  const calculateEmissions = (val) => val * 0.45;\n  return <div>{calculateEmissions(usage)} kg CO2</div>;\n};',
+            files: [{name: 'Project_Proposal.pdf'}, {name: 'app_screenshot.png'}]
+          },
+          { 
+            id: 'sub-demo2', 
+            studentId: 'ST-002', 
+            competitionId: 'c2', 
+            title: 'Smart Irrigation System', 
+            url: 'https://demo.com/irrigation', 
+            type: 'link', 
+            status: 'approved', 
+            date: '2026-02-12', 
+            feedback: 'Innovative approach.',
+            description: 'Solar-powered irrigation system using soil moisture sensors to optimize water usage in arid regions.',
+            files: [{name: 'Hardware_Schematics.pdf'}, {name: 'demo_video.mp4'}]
+          },
+          { 
+            id: 'sub-demo3', 
+            studentId: 'ST-003', 
+            competitionId: 'c2', 
+            title: 'AI Waste Sorter', 
+            url: 'https://github.com/demo/wastesort', 
+            type: 'github', 
+            status: 'pending', 
+            date: '2026-02-15', 
+            feedback: null,
+            description: 'Deep learning model that categorizes waste items into recyclables and non-recyclables using computer vision.',
+            codeSnippet: 'import tensorflow as tf\n\nmodel = tf.keras.models.load_model("sorter_v1.h5")\ndef predict_class(image):\n    return model.predict(image)',
+            files: [{name: 'Model_Architecture.png'}]
+          }
+        ]);
+        setScores([
+          { id: 'score-demo1', studentId: 'ST-001', competitionId: 'c2', innovation: 9, design: 10, presentation: 8, technical: 9, total: 36 },
+          { id: 'score-demo2', studentId: 'ST-002', competitionId: 'c2', innovation: 10, design: 7, presentation: 9, technical: 8, total: 34 }
+        ]);
+        setCertificates([
+          { id: 'cert-demo1', studentId: 'ST-001', studentName: 'Omar Tantawy', competitionId: 'c2', competitionName: 'Science and Engineering Fair', achievement: 'First Place Winner', date: '2026-03-01', issuedBy: 'Director of Education' },
+          { id: 'cert-demo2', studentId: 'ST-002', studentName: 'Mohammed Ali', competitionId: 'c2', competitionName: 'Science and Engineering Fair', achievement: 'Second Place Winner', date: '2026-03-01', issuedBy: 'Director of Education' },
+          { id: 'cert-demo3', studentId: 'ST-005', studentName: 'Ahmed Deen', competitionId: 'c1', competitionName: 'Technology Innovation Summit', achievement: 'Best Design Award', date: '2026-02-15', issuedBy: 'Innovation Board' },
+          { id: 'cert-demo4', studentId: 'ST-001', studentName: 'Omar Tantawy', competitionId: 'c3', competitionName: 'AI Programming Championship', achievement: 'Top 10 Finalist', date: '2026-02-20', issuedBy: 'AI Council' }
+        ]);
+        addNotification('Demo Mode Activated! Mock data loaded across all screens.', 'success');
+      } else {
+        // Clear demo data
+        setStudents([]);
+        setCompetitions([]);
+        setSubmissions([]);
+        setScores([]);
+        setCertificates([]);
+        addNotification('Demo Mode Deactivated. Returning to blank state.', 'info');
+      }
+      return next;
+    });
+  };
+
   return (
     <AppContext.Provider value={{
       theme,
       toggleTheme,
+      isDemoMode,
+      toggleDemoMode,
       students,
       competitions,
       notifications,
@@ -355,6 +491,7 @@ export const AppProvider = ({ children }) => {
       setStudentFeedback,
       addSubmission,
       updateSubmissionStatus,
+      editSubmission,
       getStudentSubmissions,
       getCompetitionSubmissions,
       issueCertificate,
@@ -363,7 +500,11 @@ export const AppProvider = ({ children }) => {
       achievements,
       addAchievement,
       getStudentAchievements,
-      removeAchievement
+      removeAchievement,
+      scores,
+      addScore,
+      getStudentScore,
+      getStudentsBySchool
     }}>
       {children}
     </AppContext.Provider>

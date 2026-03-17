@@ -1,15 +1,112 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { Link } from 'react-router-dom';
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, BookOpen, MessageSquare, Send, FileText as FileTextIcon, User } from 'lucide-react';
+import { 
+    Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, 
+    BookOpen, MessageSquare, Send, FileText as FileTextIcon, User, 
+    Paperclip, Github, Video, Image as ImageIcon, ExternalLink, FileCode, Search
+} from 'lucide-react';
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 
+const JudgingPanel = ({ student, competition }) => {
+    const { getStudentScore, addScore } = useApp();
+    const existingScore = competition ? getStudentScore(student.id, competition.id) : null;
+    
+    // Default or load existing scores
+    const [scores, setScores] = useState({
+        innovation: existingScore?.innovation || 0,
+        design: existingScore?.design || 0,
+        presentation: existingScore?.presentation || 0,
+        technical: existingScore?.technical || 0
+    });
+    const [isSaved, setIsSaved] = useState(false);
+
+    if (!competition) return <div className="p-4 text-amber-600 bg-amber-50 rounded-xl">Competition details not found. Please verify the competition name.</div>;
+
+    // Update individual score fields
+    const handleScoreChange = (field, val) => {
+        let num = parseInt(val) || 0;
+        if (num < 0) num = 0;
+        if (num > 10) num = 10;
+        setScores(prev => ({ ...prev, [field]: num }));
+        setIsSaved(false);
+    };
+
+    const totalScore = scores.innovation + scores.design + scores.presentation + scores.technical;
+
+    const handleSave = () => {
+        addScore(student.id, competition.id, { ...scores, total: totalScore });
+        setIsSaved(true);
+    };
+
+    return (
+        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+                    <Trophy className="h-4 w-4 text-amber-500" />
+                    Evaluation Rubric
+                </div>
+                <div className="text-xl font-black text-violet-600 dark:text-violet-400">
+                    {totalScore} <span className="text-sm font-medium text-slate-400">/ 40</span>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+                {[
+                    { key: 'innovation', label: 'Innovation' },
+                    { key: 'design', label: 'Design' },
+                    { key: 'presentation', label: 'Presentation' },
+                    { key: 'technical', label: 'Technical Quality' }
+                ].map(item => (
+                    <div key={item.key} className="space-y-1">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">{item.label} (10)</label>
+                        <input 
+                            type="number" 
+                            min="0" max="10"
+                            value={scores[item.key]}
+                            onChange={(e) => handleScoreChange(item.key, e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        />
+                    </div>
+                ))}
+            </div>
+
+            <div className="flex justify-end pt-2">
+                <Button onClick={handleSave} size="sm" className="gap-2 shadow-sm relative overflow-hidden group" variant={isSaved ? "outline" : "default"}>
+                    {isSaved ? <CheckCircle className="h-4 w-4 text-emerald-500" /> : <Send className="h-4 w-4" />}
+                    {isSaved ? 'Scores Saved' : 'Save Scores'}
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+const TabButton = ({ id, label, icon: iconProp, activeTab, setActiveTab }) => {
+    const Icon = iconProp;
+    return (
+        <button
+            onClick={() => setActiveTab(id)}
+            className={cn(
+                "flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all w-full md:w-auto min-w-[120px]",
+                activeTab === id
+                    ? "bg-white dark:bg-slate-800 text-violet-600 dark:text-violet-400 shadow-sm border border-slate-200 dark:border-slate-700"
+                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            )}
+        >
+            <Icon className={cn("h-4 w-4 shrink-0 transition-colors", activeTab === id ? "text-violet-600 dark:text-violet-400" : "")} />
+            <span className="hidden sm:inline">{label}</span>
+            <span className="sm:hidden">{label === 'Competitions' ? 'Comps' : label}</span>
+        </button>
+    );
+};
+
 const AdminDashboard = () => {
-    const { students, competitions, notifications, addNotification, removeNotification, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
+    const { students, competitions, submissions, notifications, removeNotification, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -95,21 +192,6 @@ const AdminDashboard = () => {
         });
     };
 
-    const TabButton = ({ id, label, icon: Icon }) => (
-        <button
-            onClick={() => setActiveTab(id)}
-            className={cn(
-                "flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all w-full md:w-auto min-w-[120px]",
-                activeTab === id
-                    ? "bg-white dark:bg-slate-800 text-violet-600 dark:text-violet-400 shadow-sm border border-slate-200 dark:border-slate-700"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-            )}
-        >
-            <Icon className={cn("h-4 w-4 shrink-0 transition-colors", activeTab === id ? "text-violet-600 dark:text-violet-400" : "")} />
-            <span className="hidden sm:inline">{label}</span>
-            <span className="sm:hidden">{label === 'Competitions' ? 'Comps' : label}</span>
-        </button>
-    );
 
     return (
         <div className="space-y-6 sm:space-y-8 relative">
@@ -191,9 +273,9 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl w-full sm:w-auto self-start gap-1 overflow-x-auto max-w-full">
-                    <TabButton id="overview" label="Overview" icon={FileText} />
-                    <TabButton id="students" label="Students" icon={Users} />
-                    <TabButton id="competitions" label="Competitions" icon={Trophy} />
+                    <TabButton id="overview" label="Overview" icon={FileText} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton id="students" label="Students" icon={Users} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton id="competitions" label="Competitions" icon={Trophy} activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             </div>
 
@@ -430,7 +512,9 @@ const AdminDashboard = () => {
                             </Button>
                         </div>
 
-                        <CardContent className="p-6 space-y-6">
+                        <CardContent className="p-0 space-y-0">
+                            {/* Modal Header/Profile already handled above, but let's make it look better */}
+                            <div className="p-6 space-y-6">
                             {/* Personal Info */}
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div className="space-y-1.5">
@@ -462,35 +546,127 @@ const AdminDashboard = () => {
                                         <Users className="h-3.5 w-3.5" /> Team
                                     </div>
                                     <div className="text-sm font-medium text-slate-900 dark:text-slate-100 pl-5">
-                                        {selectedStudent.members || 'Individual Entry'}
+                                        {Array.isArray(selectedStudent.members) 
+                                            ? selectedStudent.members.map(m => m.name).join(', ') 
+                                            : (selectedStudent.members || 'Individual Entry')}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Project Details */}
-                            <div className="space-y-3">
-                                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                    <FileTextIcon className="h-4 w-4 text-violet-500" />
-                                    Project Details
+                            {/* Project & Submission Details */}
+                            <div className="space-y-6">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 px-1">
+                                    <Trophy className="h-4 w-4 text-violet-500" />
+                                    Project Submission
                                 </h3>
 
-                                {selectedStudent.projectTitle ? (
-                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-xl border border-slate-100 dark:border-slate-800 space-y-4">
-                                        <div>
-                                            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedStudent.projectTitle}</div>
-                                            {selectedStudent.mentor && <div className="text-xs text-slate-500 mt-1 flex items-center gap-1"><User className="h-3 w-3" /> Mentor: {selectedStudent.mentor}</div>}
+                                {(() => {
+                                    const submission = submissions.find(s => s.studentId === selectedStudent.id);
+                                    if (!submission) return (
+                                        <div className="text-center py-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-500 text-sm italic">
+                                            No submission found for this student yet.
                                         </div>
-                                        {selectedStudent.abstract && (
-                                            <div className="pl-3 border-l-2 border-slate-300 dark:border-slate-700">
-                                                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">"{selectedStudent.abstract}"</p>
+                                    );
+
+                                    return (
+                                        <div className="space-y-5">
+                                            {/* Report Section */}
+                                            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">{submission.title}</h4>
+                                                    <Badge variant="secondary" className="capitalize">{submission.category || 'General'}</Badge>
+                                                </div>
+                                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                                        {submission.description || "No technical report provided."}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-500 text-sm">
-                                        No project description available for this competition type.
-                                    </div>
-                                )}
+
+                                            {/* Files Section */}
+                                            {submission.files && submission.files.length > 0 && (
+                                                <div className="space-y-3">
+                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <Paperclip className="h-3 w-3" /> ATTACHED ASSETS ({submission.files.length})
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {submission.files.map((file, idx) => {
+                                                            const fileName = file.name || file;
+                                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+                                                            const isVideo = /\.(mp4|mov|avi|wmv)$/i.test(fileName);
+                                                            const isPdf = /\.pdf$/i.test(fileName);
+
+                                                            return (
+                                                                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 group hover:border-violet-200 transition-all shadow-sm">
+                                                                    <div className="flex items-center gap-3 overflow-hidden">
+                                                                        <div className={cn(
+                                                                            "p-2 rounded-lg",
+                                                                            isImage ? "bg-blue-50 text-blue-500" :
+                                                                            isVideo ? "bg-amber-50 text-amber-500" :
+                                                                            isPdf ? "bg-red-50 text-red-500" : "bg-slate-50 text-slate-500"
+                                                                        )}>
+                                                                            {isImage && <ImageIcon size={14} />}
+                                                                            {isVideo && <Video size={14} />}
+                                                                            {isPdf && <FileTextIcon size={14} />}
+                                                                            {!isImage && !isVideo && !isPdf && <FileCode size={14} />}
+                                                                        </div>
+                                                                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{fileName}</span>
+                                                                    </div>
+                                                                    <button className="text-slate-400 group-hover:text-violet-500 p-1.5 transition-colors">
+                                                                        <ExternalLink size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Code Preview Section */}
+                                            {submission.codeSnippet && (
+                                                <div className="space-y-3">
+                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <Github className="h-3 w-3" /> CODE PREVIEW
+                                                    </div>
+                                                    <div className="relative group overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 shadow-xl">
+                                                        <div className="absolute top-0 left-0 w-full h-8 bg-slate-800/50 flex items-center justify-between px-4 border-b border-slate-700/50">
+                                                            <div className="flex gap-1.5">
+                                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                                            </div>
+                                                            <span className="text-[10px] font-mono text-slate-400">main{submission.codeExt || '.js'}</span>
+                                                        </div>
+                                                        <pre className="p-6 pt-12 text-xs font-mono text-slate-300 overflow-x-auto sidebar-scroll leading-relaxed">
+                                                            <code>{submission.codeSnippet}</code>
+                                                        </pre>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="flex flex-wrap gap-3 mt-6">
+                                                <Link
+                                                    to={`/admin/submission/${submission.id}`}
+                                                    className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 text-xs font-bold text-white px-5 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 transition-all active:scale-95"
+                                                >
+                                                    <Search size={14} /> View Full Details
+                                                </Link>
+                                                
+                                                {submission.url && (
+                                                    <a 
+                                                        href={submission.url.startsWith('http') ? submission.url : `https://${submission.url}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700 active:scale-95"
+                                                    >
+                                                        {submission.type === 'github' ? <Github size={14} /> : <Globe size={14} />} 
+                                                        Launch Live
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
                             {/* Feedback & Messaging */}
@@ -514,6 +690,8 @@ const AdminDashboard = () => {
                                         </Button>
                                     </div>
                                 </div>
+                            </div>
+
                             </div>
                         </CardContent>
                         <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">

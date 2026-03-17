@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Trophy, Calendar, Users, FileText, Sparkles, Plus, Image, Link as LinkIcon, CheckCircle, ChevronLeft } from 'lucide-react';
+import { Trophy, Calendar, Users, FileText, Sparkles, Plus, Image, Link as LinkIcon, CheckCircle, ChevronLeft, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
 const CreateCompetition = () => {
@@ -19,6 +19,26 @@ const CreateCompetition = () => {
         prize: '',
         requirements: ''
     });
+    const [categories, setCategories] = useState([]);
+    const [newCategory, setNewCategory] = useState('');
+
+    const handleAddCategory = () => {
+        if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+            setCategories([...categories, newCategory.trim()]);
+            setNewCategory('');
+        }
+    };
+
+    const handleRemoveCategory = (catToRemove) => {
+        setCategories(categories.filter(cat => cat !== catToRemove));
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddCategory();
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -37,6 +57,7 @@ const CreateCompetition = () => {
             endDate: formData.endDate,
             maxParticipants: parseInt(formData.maxParticipants) || 0,
             stages: stagesArray,
+            categories: categories,
             coverImage: formData.coverImage,
             prize: formData.prize,
             requirements: formData.requirements
@@ -149,6 +170,43 @@ const CreateCompetition = () => {
                             </div>
 
                             <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Competition Categories</label>
+                                    <div className="flex gap-2 mb-3">
+                                        <input
+                                            type="text"
+                                            value={newCategory}
+                                            onChange={(e) => setNewCategory(e.target.value)}
+                                            onKeyDown={handleKeyPress}
+                                            className="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+                                            placeholder="Add a category (e.g. AI, Robotics)"
+                                        />
+                                        <Button 
+                                            type="button" 
+                                            onClick={handleAddCategory}
+                                            className="px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white"
+                                        >
+                                            <Plus size={20} />
+                                        </Button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {categories.length > 0 ? categories.map((cat, idx) => (
+                                            <div key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 rounded-lg text-xs font-bold border border-violet-100 dark:border-violet-800/50 animate-scale-in">
+                                                {cat}
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => handleRemoveCategory(cat)}
+                                                    className="hover:text-red-500 transition-colors"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        )) : (
+                                            <p className="text-xs text-slate-400 italic">No categories added yet. This competition will be "General".</p>
+                                        )}
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Stages & Rounds <span className="text-red-500">*</span></label>
                                     <input

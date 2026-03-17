@@ -3,12 +3,14 @@ import { useApp } from '../../context/AppContext';
 import { Trophy, Medal, Award, TrendingUp, Crown, Filter } from 'lucide-react';
 
 const CompetitionLeaderboard = () => {
-    const { competitions, students } = useApp();
+    const { competitions, students, scores } = useApp();
     const [selectedCompetition, setSelectedCompetition] = useState('');
 
     // Calculate leaderboard for selected competition
     const getCompetitionLeaderboard = (competitionId) => {
         if (!competitionId) return [];
+
+        const compScores = scores.filter(s => s.competitionId === competitionId);
 
         // Filter students by competition
         const competitionStudents = students.filter(s => {
@@ -16,23 +18,38 @@ const CompetitionLeaderboard = () => {
             return comp?.id === competitionId;
         });
 
-        // Sort by result (Passed first) and then by stage progress
-        const sorted = competitionStudents
-            .map((student, index) => ({
-                id: student.id,
-                name: student.name,
-                score: student.result === 'Passed' ? 100 : student.result === 'Failed' ? 0 : 50,
-                status: student.status,
-                result: student.result,
-                stage: student.stage,
-                avatar: student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-            }))
-            .sort((a, b) => b.score - a.score)
-            .map((student, index) => ({
-                ...student,
-                rank: index + 1,
-                change: 0 // You can implement change tracking later
-            }));
+        // Use real scores, fallback to 0
+        const mapped = competitionStudents
+            .map((student) => {
+                const sScore = compScores.find(s => s.studentId === student.id);
+                return {
+                    id: student.id,
+                    name: student.name,
+                    score: sScore ? sScore.total : 0,
+                    innovation: sScore ? sScore.innovation : 0,
+                    design: sScore ? sScore.design : 0,
+                    presentation: sScore ? sScore.presentation : 0,
+                    technical: sScore ? sScore.technical : 0,
+                    status: student.status,
+                    result: student.result,
+                    stage: student.stage,
+                    avatar: student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                };
+            })
+            .sort((a, b) => b.score - a.score);
+
+        // Assign category awards if score > 0
+        const bestInnovation = [...mapped].sort((a, b) => b.innovation - a.innovation)[0];
+        const bestDesign = [...mapped].sort((a, b) => b.design - a.design)[0];
+        const bestPresentation = [...mapped].sort((a, b) => b.presentation - a.presentation)[0];
+
+        const sorted = mapped.map((student, index) => ({
+            ...student,
+            rank: index + 1,
+            bestInnovation: student.score > 0 && student.id === bestInnovation?.id,
+            bestDesign: student.score > 0 && student.id === bestDesign?.id,
+            bestPresentation: student.score > 0 && student.id === bestPresentation?.id
+        }));
 
         return sorted;
     };
@@ -100,8 +117,8 @@ const CompetitionLeaderboard = () => {
                                 key={student.id} 
                                 className={`flex items-center justify-between p-4 rounded-xl transition-all ${
                                     student.rank <= 3 
-                                        ? 'bg-gradient-to-r from-primary-50/80 to-transparent dark:from-primary-900/30 dark:to-transparent border border-primary-200/50 dark:border-primary-700/30' 
-                                        : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        ? 'bg-gradient-to-r from-violet-50/80 to-transparent dark:from-violet-900/30 dark:to-transparent border border-violet-200/50 dark:border-violet-700/30 shadow-sm' 
+                                        : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
                                 }`}
                             >
                                 <div className="flex items-center gap-4 flex-1">
@@ -112,35 +129,34 @@ const CompetitionLeaderboard = () => {
                                     </div>
                                     
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className="h-10 w-10 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-xs font-bold text-primary-700 dark:text-primary-300">
+                                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-xs font-bold ${
+                                            student.rank <= 3 ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                                        }`}>
                                             {student.avatar}
                                         </div>
                                         <div>
                                             <p className="text-sm font-semibold text-slate-800 dark:text-slate-50">{student.name}</p>
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-xs font-medium ${
-                                                    student.result === 'Passed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                                    student.result === 'Failed' ? 'text-red-600 dark:text-red-400' :
-                                                    'text-slate-500 dark:text-slate-400'
-                                                }`}>
-                                                    {student.result === '-' ? student.status : student.result}
-                                                </span>
-                                                <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
-                                                <span className="text-xs text-slate-500 dark:text-slate-400">{student.stage}</span>
+                                            <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                {student.bestInnovation && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">Best Innovation</span>}
+                                                {student.bestDesign && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-400">Best Design</span>}
+                                                {student.bestPresentation && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400">Best Presentation</span>}
+                                                {(!student.bestInnovation && !student.bestDesign && !student.bestPresentation) && (
+                                                    <>
+                                                        <span className="text-xs text-slate-500 dark:text-slate-400">{student.stage}</span>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="text-right">
-                                    <div className={`text-lg font-bold ${
-                                        student.result === 'Passed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                        student.result === 'Failed' ? 'text-red-600 dark:text-red-400' :
-                                        'text-slate-600 dark:text-slate-300'
+                                <div className="text-right pl-4">
+                                    <div className={`text-xl font-black ${
+                                        student.rank <= 3 ? 'text-violet-600 dark:text-violet-400' : 'text-slate-700 dark:text-slate-300'
                                     }`}>
                                         {student.score}
                                     </div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">points</div>
+                                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Total Score</div>
                                 </div>
                             </div>
                         );
