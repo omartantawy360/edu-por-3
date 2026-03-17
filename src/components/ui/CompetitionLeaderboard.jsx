@@ -1,35 +1,52 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useJudge } from '../../context/JudgeContext';
 import { Trophy, Medal, Award, TrendingUp, Crown, Filter } from 'lucide-react';
 
 const CompetitionLeaderboard = () => {
-    const { competitions, students, scores } = useApp();
+    const { competitions, students, scores, submissions } = useApp();
+    const { getAverageScore } = useJudge();
     const [selectedCompetition, setSelectedCompetition] = useState('');
 
     // Calculate leaderboard for selected competition
     const getCompetitionLeaderboard = (competitionId) => {
         if (!competitionId) return [];
 
-        const compScores = scores.filter(s => s.competitionId === competitionId);
-
-        // Filter students by competition
+        // Filter students who belong to this competition OR have a submission in it
         const competitionStudents = students.filter(s => {
+            const hasSubmission = submissions.some(sub => sub.studentId === s.id && sub.competitionId === competitionId);
             const comp = competitions.find(c => c.name === s.competition);
-            return comp?.id === competitionId;
+            const isRegistered = comp?.id === competitionId;
+            return hasSubmission || isRegistered;
         });
 
-        // Use real scores, fallback to 0
+        // Use judge average scores first, fallback to legacy scores
         const mapped = competitionStudents
             .map((student) => {
-                const sScore = compScores.find(s => s.studentId === student.id);
+                // Check for judge evaluations via submissions
+                const studentSubs = submissions.filter(s => s.studentId === student.id && s.competitionId === competitionId);
+                let totalScore = 0;
+                let hasJudgeScore = false;
+
+                for (const sub of studentSubs) {
+                    const avg = getAverageScore(sub.id);
+                    if (avg) {
+                        totalScore = avg.averageTotal;
+                        hasJudgeScore = true;
+                        break;
+                    }
+                }
+
+                // Fallback to legacy scores
+                if (!hasJudgeScore) {
+                    const legacyScore = scores.find(s => s.studentId === student.id && s.competitionId === competitionId);
+                    totalScore = legacyScore ? legacyScore.total : 0;
+                }
+
                 return {
                     id: student.id,
                     name: student.name,
-                    score: sScore ? sScore.total : 0,
-                    innovation: sScore ? sScore.innovation : 0,
-                    design: sScore ? sScore.design : 0,
-                    presentation: sScore ? sScore.presentation : 0,
-                    technical: sScore ? sScore.technical : 0,
+                    score: totalScore,
                     status: student.status,
                     result: student.result,
                     stage: student.stage,
@@ -38,17 +55,9 @@ const CompetitionLeaderboard = () => {
             })
             .sort((a, b) => b.score - a.score);
 
-        // Assign category awards if score > 0
-        const bestInnovation = [...mapped].sort((a, b) => b.innovation - a.innovation)[0];
-        const bestDesign = [...mapped].sort((a, b) => b.design - a.design)[0];
-        const bestPresentation = [...mapped].sort((a, b) => b.presentation - a.presentation)[0];
-
         const sorted = mapped.map((student, index) => ({
             ...student,
             rank: index + 1,
-            bestInnovation: student.score > 0 && student.id === bestInnovation?.id,
-            bestDesign: student.score > 0 && student.id === bestDesign?.id,
-            bestPresentation: student.score > 0 && student.id === bestPresentation?.id
         }));
 
         return sorted;
@@ -137,14 +146,12 @@ const CompetitionLeaderboard = () => {
                                         <div>
                                             <p className="text-sm font-semibold text-slate-800 dark:text-slate-50">{student.name}</p>
                                             <div className="flex flex-wrap items-center gap-2 mt-1">
-                                                {student.bestInnovation && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">Best Innovation</span>}
-                                                {student.bestDesign && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-400">Best Design</span>}
-                                                {student.bestPresentation && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400">Best Presentation</span>}
-                                                {(!student.bestInnovation && !student.bestDesign && !student.bestPresentation) && (
-                                                    <>
-                                                        <span className="text-xs text-slate-500 dark:text-slate-400">{student.stage}</span>
-                                                    </>
+                                                {student.rank <= 3 && student.score > 0 && (
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                                                        Top {student.rank}
+                                                    </span>
                                                 )}
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">{student.stage}</span>
                                             </div>
                                         </div>
                                     </div>

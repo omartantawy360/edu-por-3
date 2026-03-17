@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTeam } from '../../context/TeamContext';
 import { useChat } from '../../context/ChatContext';
-import { LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun, Sparkles } from 'lucide-react';
+import { LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun, Sparkles, Gavel, ClipboardList, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 import { ThemeToggle } from '../ThemeToggle';
@@ -27,8 +27,15 @@ const Sidebar = ({ isOpen, onClose }) => {
       { name: 'Teams', path: '/admin/teams', icon: Users },
       { name: 'Students', path: '/admin/students', icon: Target },
       { name: 'Submissions', path: '/admin/submissions', icon: Upload },
+      { name: 'E-Judging', path: '/admin/judging', icon: Gavel },
       { name: 'Certificates', path: '/admin/certificates', icon: Award },
       { name: 'Add Competition', path: '/admin/create-competition', icon: Settings },
+    ]
+    : user?.role === 'judge'
+    ? [
+      { name: 'Dashboard', path: '/judge', icon: LayoutDashboard },
+      { name: 'Assigned Submissions', path: '/judge/assigned', icon: ClipboardList },
+      { name: 'Completed Reviews', path: '/judge/completed', icon: CheckCircle2 },
     ]
     : [
       { name: 'Dashboard', path: '/student', icon: LayoutDashboard },

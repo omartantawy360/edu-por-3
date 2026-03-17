@@ -11,7 +11,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // { name: string, role: 'admin' | 'student', id: string }
+  const [user, setUser] = useState(null); // { name: string, role: 'admin' | 'student' | 'judge', id: string }
   const [loading, setLoading] = useState(false); 
 
   const login = (role) => {
@@ -24,6 +24,12 @@ export const AuthProvider = ({ children }) => {
               id: 'ADMIN-001',
               name: 'Admin User',
               role: 'admin',
+            });
+          } else if (role === 'judge') {
+            setUser({
+              id: 'JUDGE-001',
+              name: 'Dr. Sarah Mitchell',
+              role: 'judge',
             });
           } else {
             // Default student is Omar Tantawy

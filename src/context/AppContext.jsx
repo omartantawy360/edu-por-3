@@ -312,8 +312,10 @@ export const AppProvider = ({ children }) => {
     addNotification(`Submission updated: ${updatedData.title}`, "success");
   };
 
-  const getStudentSubmissions = (studentId) => {
-    return submissions.filter(sub => sub.studentId === studentId);
+  const getStudentSubmissions = (studentId, teamIds = []) => {
+    return submissions.filter(sub => 
+      sub.studentId === studentId || (sub.isTeamSubmission && teamIds.includes(sub.teamId))
+    );
   };
 
   const getCompetitionSubmissions = (competitionId) => {
@@ -323,13 +325,13 @@ export const AppProvider = ({ children }) => {
   // NEW: Certificate management functions
   const issueCertificate = (certificateData) => {
     const newCertificate = {
-      id: `cert-${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      issuedBy: 'Admin',
+      id: `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+      issuedBy: 'National Education Portal Admin',
       ...certificateData
     };
     setCertificates(prev => [...prev, newCertificate]);
-    addNotification(`Certificate issued to ${certificateData.studentName}`, "success");
+    addNotification(`Certificate issued: ${certificateData.certificateTitle}`, "success");
     return newCertificate;
   };
 
@@ -451,10 +453,45 @@ export const AppProvider = ({ children }) => {
           { id: 'score-demo2', studentId: 'ST-002', competitionId: 'c2', innovation: 10, design: 7, presentation: 9, technical: 8, total: 34 }
         ]);
         setCertificates([
-          { id: 'cert-demo1', studentId: 'ST-001', studentName: 'Omar Tantawy', competitionId: 'c2', competitionName: 'Science and Engineering Fair', achievement: 'First Place Winner', date: '2026-03-01', issuedBy: 'Director of Education' },
-          { id: 'cert-demo2', studentId: 'ST-002', studentName: 'Mohammed Ali', competitionId: 'c2', competitionName: 'Science and Engineering Fair', achievement: 'Second Place Winner', date: '2026-03-01', issuedBy: 'Director of Education' },
-          { id: 'cert-demo3', studentId: 'ST-005', studentName: 'Ahmed Deen', competitionId: 'c1', competitionName: 'Technology Innovation Summit', achievement: 'Best Design Award', date: '2026-02-15', issuedBy: 'Innovation Board' },
-          { id: 'cert-demo4', studentId: 'ST-001', studentName: 'Omar Tantawy', competitionId: 'c3', competitionName: 'AI Programming Championship', achievement: 'Top 10 Finalist', date: '2026-02-20', issuedBy: 'AI Council' }
+          { 
+            id: 'CERT-WZ92K8X', 
+            studentId: 'ST-001', 
+            studentName: 'Omar Tantawy', 
+            competitionId: 'c2', 
+            competitionName: 'Science and Engineering Fair',
+            certificateTitle: 'Excellence Award',
+            reason: 'Outstanding Research in AI',
+            customMessage: 'Your dedication to scientific inquiry and innovative approach to problem-solving has set a new benchmark for excellence and inspired your peers.',
+            date: '2026-03-01',
+            signatureName: 'Dr. Sarah Mitchell',
+            issuedBy: 'National Education Portal Admin'
+          },
+          { 
+            id: 'CERT-B3P5M2L', 
+            studentId: 'ST-002', 
+            studentName: 'Mohammed Ali', 
+            competitionId: 'c2', 
+            competitionName: 'Science and Engineering Fair',
+            certificateTitle: 'Finalist Participation',
+            reason: 'Successful Stage Completion',
+            customMessage: 'We recognize your significant contributions and active participation in the Fair, demonstrating high potential in engineering.',
+            date: '2026-03-01',
+            signatureName: 'Prof. James Chen',
+            issuedBy: 'National Education Portal Admin'
+          },
+          { 
+            id: 'CERT-K7R4J1V', 
+            studentId: 'ST-005', 
+            studentName: 'Ahmed Deen', 
+            competitionId: 'c1', 
+            competitionName: 'Technology Innovation Summit',
+            certificateTitle: 'Best Design Innovation',
+            reason: 'Creative UI/UX Solutions',
+            customMessage: 'Recognized for the most intuitive and aesthetically pleasing project design among over 100 participants.',
+            date: '2026-02-15',
+            signatureName: 'Innovation Board',
+            issuedBy: 'National Education Portal Admin'
+          }
         ]);
         addNotification('Demo Mode Activated! Mock data loaded across all screens.', 'success');
       } else {

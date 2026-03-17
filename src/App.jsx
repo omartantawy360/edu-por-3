@@ -5,6 +5,7 @@ import { AppProvider } from './context/AppContext';
 import { TeamProvider } from './context/TeamContext';
 import { ChatProvider } from './context/ChatContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { JudgeProvider } from './context/JudgeContext';
 import Login from './pages/Login';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import StudentDashboard from './pages/StudentDashboard';
@@ -25,8 +26,11 @@ import CertificateManagement from './pages/admin/CertificateManagement';
 import TeamsManagement from './pages/admin/TeamsManagement';
 import TeamDetails from './pages/admin/TeamDetails';
 import MessagesInbox from './pages/admin/MessagesInbox';
+import JudgeManagement from './pages/admin/JudgeManagement';
 import UserSettingsPage from './pages/UserSettingsPage';
 import SubmissionDetail from './pages/SubmissionDetail';
+import JudgeDashboard from './pages/JudgeDashboard';
+import EvaluationPanel from './pages/EvaluationPanel';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -91,9 +95,23 @@ function AppRoutes() {
         <Route path="create-competition" element={<CreateCompetition />} />
         <Route path="students" element={<StudentManagement />} />
         <Route path="submissions" element={<SubmissionsOverview />} />
+        <Route path="judging" element={<JudgeManagement />} />
         <Route path="certificates" element={<CertificateManagement />} />
         <Route path="account" element={<UserSettingsPage />} />
         <Route path="submission/:submissionId" element={<SubmissionDetail />} />
+      </Route>
+
+      {/* Judge Routes */}
+      <Route path="/judge" element={
+        <ProtectedRoute allowedRoles={['judge']}>
+          <DashboardLayout />
+        </ProtectedRoute>
+      }>
+        <Route index element={<JudgeDashboard />} />
+        <Route path="assigned" element={<JudgeDashboard tab="assigned" />} />
+        <Route path="completed" element={<JudgeDashboard tab="completed" />} />
+        <Route path="evaluate/:submissionId" element={<EvaluationPanel />} />
+        <Route path="account" element={<UserSettingsPage />} />
       </Route>
 
     </Routes>
@@ -112,13 +130,15 @@ export default function App() {
   return (
     <AuthProvider>
       <AppProvider>
-        <TeamProvider>
-          <ChatProvider>
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-              <ThemedApp />
-            </ThemeProvider>
-          </ChatProvider>
-        </TeamProvider>
+        <JudgeProvider>
+          <TeamProvider>
+            <ChatProvider>
+              <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                <ThemedApp />
+              </ThemeProvider>
+            </ChatProvider>
+          </TeamProvider>
+        </JudgeProvider>
       </AppProvider>
     </AuthProvider>
   );
