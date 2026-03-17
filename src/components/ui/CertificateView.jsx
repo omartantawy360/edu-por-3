@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { Award, Download, Share2, ShieldCheck, Sparkles, Loader2, Users } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
+import { Award, Download, Share2, ShieldCheck, Sparkles, Loader2, Users, Printer } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const CertificateView = () => {
     const { getStudentCertificates, students } = useApp();
@@ -16,44 +16,54 @@ const CertificateView = () => {
     const currentStudent = students.find(s => s.id === currentStudentId) || {};
     const certificates = getStudentCertificates(currentStudentId);
 
+    const handlePrint = () => {
+        // Triggering the browser's native print dialog is the most reliable way to "save as PDF"
+        // We'll use a print-specific CSS class to optimize the layout
+        window.print();
+    };
+
     const handleDownload = async (certId) => {
-        // Use the dedicated capture element instead of the display element
         const element = captureRefs.current[certId];
-        if (!element) return;
+        if (!element) {
+            console.error('Element not found for capture!');
+            return;
+        }
 
         setDownloading(certId);
 
         try {
-            // Give React time to ensure everything is rendered
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Wait for full rendering
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const opt = {
-                margin: 0,
-                filename: `Certificate_${certId}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, // Back to high quality but on a simplified element
-                    useCORS: true, 
-                    logging: false,
-                    letterRendering: true,
-                    allowTaint: false,
-                    // Use fixed dimensions to prevent hanging
-                    width: 1120, // A4 Landscape-ish at scale
-                    height: 790,
-                    windowWidth: 1200,
-                    windowHeight: 900
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true }
-            };
+            const canvas = await html2canvas(element, {
+                scale: 1, // Minimum scale for maximum reliability
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: 1120,
+                height: 790,
+                logging: true,
+                removeContainer: true
+            });
 
-            // Modern html2pdf usage pattern
-            await html2pdf().set(opt).from(element).save();
+            // Using Blob for memory efficiency instead of large Data URL strings
+            canvas.toBlob((blob) => {
+                if (!blob) throw new Error('Blob creation failed');
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `Certificate_${certId}.png`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                setDownloading(null);
+            }, 'image/png', 1.0);
             
-            setDownloading(null);
         } catch (err) {
-            console.error('PDF Generation Error:', err);
+            console.error('Image Export Failure:', err);
             setDownloading(null);
-            alert('PDF generation failed. This design might be too complex for your current browser.');
+            
+            if (window.confirm('Image generation failed. Try the "Print" method instead? (Select "Save as PDF" in the destination)')) {
+                handlePrint();
+            }
         }
     };
 
@@ -77,60 +87,75 @@ const CertificateView = () => {
 
     return (
         <div className="space-y-8 animate-fade-in pb-12">
-            {/* Hidden Capture Layer - Always Light-themed for the PDF itself */}
-            <div className="fixed top-[-9999px] left-[-9999px]" aria-hidden="true">
+            {/* Capture Layer - For Print/Image Export */}
+            <div className="print-container" style={{ position: 'fixed', left: '-5000px', top: 0, opacity: 0, pointerEvents: 'none' }} aria-hidden="true">
                 {certificates.map(cert => (
                     <div 
                         key={`capture-${cert.id}`} 
                         ref={el => captureRefs.current[cert.id] = el}
-                        className="bg-white text-slate-900 p-12 flex flex-col items-center justify-center text-center border-[12px] border-double border-slate-200"
-                        style={{ width: '1120px', height: '790px', fontFamily: 'serif' }}
+                        className="certificate-capture-area bg-white text-slate-900 flex flex-col items-center justify-between"
+                        style={{ 
+                            width: '1120px', 
+                            height: '790px', 
+                            padding: '60px', 
+                            boxSizing: 'border-box',
+                            border: '4px solid #f1f5f9' 
+                        }}
                     >
-                        {/* Simplified, robust design for PDF capture */}
-                        <div className="w-full h-full border-2 border-slate-100 p-8 flex flex-col items-center justify-between relative">
-                            {/* Watermark/Logo */}
-                            <div className="opacity-10 absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <Award size={400} />
+                        <div className="w-full h-full border-2 border-slate-100 p-12 flex flex-col items-center justify-between relative bg-white">
+                            {/* Simple CSS-based watermark (No SVG) */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
+                                <span style={{ fontSize: '400px', fontWeight: '900' }}>★</span>
                             </div>
 
-                            <div className="z-10 w-full">
-                                <p className="text-sm uppercase tracking-[0.5em] text-slate-400 font-bold mb-4">Certificate of Achievement</p>
-                                <h1 className="text-6xl font-black text-slate-900 mb-8">{cert.certificateTitle || cert.achievement}</h1>
+                            <div className="z-10 w-full text-center">
+                                <p style={{ fontSize: '18px', textTransform: 'uppercase', letterSpacing: '0.5em', color: '#94a3b8', fontWeight: '700', marginBottom: '24px' }}>
+                                    Certificate of Achievement
+                                </p>
+                                <h1 style={{ fontSize: '72px', fontWeight: '900', color: '#0f172a', margin: '0 0 40px 0', lineHeight: '1.1' }}>
+                                    {cert.certificateTitle || cert.achievement}
+                                </h1>
                                 
-                                <p className="text-xl italic text-slate-500 mb-4 font-serif">is hereby proudly presented to</p>
-                                <h2 className="text-5xl font-black text-slate-900 border-b-2 border-slate-900 pb-4 inline-block px-12 capitalize">{currentStudent.name || cert.studentName}</h2>
+                                <p style={{ fontSize: '24px', fontStyle: 'italic', color: '#64748b', marginBottom: '16px', fontFamily: 'serif' }}>
+                                    is hereby proudly presented to
+                                </p>
+                                <div style={{ borderBottom: '3px solid #0f172a', paddingBottom: '12px', marginBottom: '40px', display: 'inline-block' }}>
+                                    <h2 style={{ fontSize: '56px', fontWeight: '900', color: '#0f172a', margin: '0', textTransform: 'capitalize', padding: '0 40px' }}>
+                                        {currentStudent.name || cert.studentName}
+                                    </h2>
+                                </div>
                                 
-                                <p className="text-2xl text-slate-700 mt-12 max-w-3xl mx-auto leading-relaxed">
-                                    {cert.reason || "For demonstrating exceptional skills"} in the <strong>{cert.competitionName}</strong>.
+                                <p style={{ fontSize: '28px', color: '#334155', maxWidth: '800px', margin: '0 auto', lineHeight: '1.6' }}>
+                                    For demonstrating exceptional skills and dedication in the <strong style={{ color: '#0f172a' }}>{cert.competitionName}</strong>.
                                 </p>
 
                                 {cert.customMessage && (
-                                    <p className="mt-6 text-lg italic text-slate-500 max-w-2xl mx-auto">
+                                    <p style={{ marginTop: '30px', fontSize: '20px', fontStyle: 'italic', color: '#64748b', maxWidth: '700px', margin: '30px auto 0' }}>
                                         "{cert.customMessage}"
                                     </p>
                                 )}
                             </div>
 
-                            <div className="w-full flex justify-between items-end px-12 pb-8 z-10">
-                                <div className="text-center w-64 border-t-2 border-slate-900 pt-4">
-                                    <p className="text-xl italic mb-1">{cert.signatureName || cert.issuedBy}</p>
-                                    <p className="text-xs font-bold uppercase tracking-widest">Director Signature</p>
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 60px 40px', boxSizing: 'border-box' }}>
+                                <div style={{ textAlign: 'center', width: '280px', borderTop: '2px solid #0f172a', paddingTop: '16px' }}>
+                                    <p style={{ fontSize: '24px', fontStyle: 'italic', margin: '0 0 4px 0' }}>{cert.signatureName || cert.issuedBy}</p>
+                                    <p style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Director Signature</p>
                                 </div>
                                 
-                                <div className="text-center">
-                                    <div className="w-24 h-24 rounded-full border-4 border-double border-violet-200 flex items-center justify-center mb-2 mx-auto">
-                                        <Award className="text-violet-600" size={40} />
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: '4px double #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                                        <span style={{ fontSize: '40px', color: '#7c3aed' }}>★</span>
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400">ID: {cert.id}</p>
+                                    <p style={{ fontSize: '10px', fontWeight: 'bold', color: '#94a3b8' }}>ID: {cert.id}</p>
                                 </div>
 
-                                <div className="text-center w-64 border-t-2 border-slate-900 pt-4">
-                                    <p className="text-xl font-bold mb-1">{cert.date}</p>
-                                    <p className="text-xs font-bold uppercase tracking-widest">Date Issued</p>
+                                <div style={{ textAlign: 'center', width: '280px', borderTop: '2px solid #0f172a', paddingTop: '16px' }}>
+                                    <p style={{ fontSize: '24px', fontWeight: '900', margin: '0 0 4px 0' }}>{cert.date}</p>
+                                    <p style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Date Issued</p>
                                 </div>
                             </div>
 
-                            <p className="text-[8px] uppercase tracking-widest opacity-30">
+                            <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: '0.4', marginTop: '20px' }}>
                                 This is a digitally verified credential from the National Education Portal
                             </p>
                         </div>
@@ -260,6 +285,13 @@ const CertificateView = () => {
                             </div>
                             <div className="flex gap-3 w-full sm:w-auto">
                                 <button
+                                    onClick={() => handlePrint(cert.id)}
+                                    className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Printer size={16} />
+                                    Print
+                                </button>
+                                <button
                                     onClick={handleShare}
                                     className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center gap-2"
                                 >
@@ -274,12 +306,12 @@ const CertificateView = () => {
                                     {downloading === cert.id ? (
                                         <>
                                             <Loader2 size={16} className="animate-spin" />
-                                            Generating PDF...
+                                            Generating Image...
                                         </>
                                     ) : (
                                         <>
                                             <Download size={16} />
-                                            Download PDF
+                                            Download Image
                                         </>
                                     )}
                                 </button>
