@@ -24,10 +24,10 @@
 
 ## 🌟 Overview
 
-**EduComp** is a high-performance, premium web ecosystem designed to orchestrate academic competitions. It serves as a dual-sided platform, providing students with a collaborative "Mission Control" and administrators with a powerful "Command Center" to manage registrations, teams, and certification at scale.
+**EduComp** is a high-performance, premium web ecosystem designed to orchestrate academic competitions. It serves as a comprehensive platform with three distinct interfaces: a collaborative **Student Hub**, a specialized **Judge Portal**, and a powerful **Admin Command Center**.
 
 > [!IMPORTANT]
-> **Vision**: EduComp isn't just a management tool; it's a launchpad. Built with **React 19** and a custom **Context-based State Engine**, it delivers a seamless, native-feeling experience that rivals enterprise SaaS products.
+> **Vision**: EduComp isn't just a management tool; it's a launchpad. Built with **React 19** and a custom **Multi-Context State Engine**, it delivers a seamless, professional experience for students, judges, and administrators alike.
 
 ---
 
@@ -39,11 +39,17 @@
 | ![Student Dashboard](./docs/screenshots/student-dashboard.png) | ![Team Hub](./docs/screenshots/team-hub.png) |
 | *Track your progress, achievements, and upcoming deadlines.* | *Real-time chat and centralized project strategy.* |
 
-### 🛡️ The Admin Command Center
-| **Student Management** | **Digital Certification** |
+### ⚖️ The Judge Portal
+| **Judge Dashboard** | **Anonymous Evaluation** |
 | :---: | :---: |
-| ![Admin Management](./docs/screenshots/admin-management.png) | ![Certificate View](./docs/screenshots/certificate-view.png) |
-| *Approve registrations and maintain institutional integrity.* | *Issue verifiable accolades with a single click.* |
+| ![Judge Dashboard](./docs/screenshots/judge-dashboard.png) | ![Evaluation Panel](./docs/screenshots/evaluation-panel.png) |
+| *Monitor assigned submissions and review progress.* | *Score projects fairly with anonymized data and rubrics.* |
+
+### 🛡️ The Admin Command Center
+| **Judge & Rubric Management** | **Digital Certification** |
+| :---: | :---: |
+| ![Admin Judging](./docs/screenshots/admin-judging.png) | ![Certificate View](./docs/screenshots/certificate-view.png) |
+| *Orchestrate the judging flow and build custom rubrics.* | *Issue verifiable accolades with a single click.* |
 
 ---
 
@@ -54,16 +60,22 @@
 - **🤝 Team Forge**: Advanced team building tools including member search and real-time invitations.
 - **💬 Synergy Chat**: Built-in communication channels for seamless project planning and file tracking.
 - **📊 AI-Driven Recommendations**: Smart skill-based suggestions for which competitions match your profile best.
-- **🏆 Gamified Leaderboards**: Climb the institutional rankings and earn prestige within your school community.
+- **🏆 Gamified Leaderboards**: Real-time rankings powered by synchronized judge evaluations.
 - **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion of any event.
+
+### ⚖️ For Professional Judges
+- **🛡️ Anonymous Evaluation**: Complete isolation of student identifying data to ensure unbiased judging.
+- **📊 Interactive Rubrics**: Dynamic scoring system with clear criteria and real-time total calculation.
+- **🔒 Evaluation Locking**: Secure submission process that prevents post-submission score manipulation.
+- **📈 Progress Tracking**: Visual indicators of pending, completed, and overall review statistics.
 
 ### 🛡️ For Orchestrators (Administrators)
 - **🗂️ Unified Registry**: Full CRUD control over student profiles, team configurations, and school data.
-- **⚖️ Evaluation Engine**: Streamlined workflow for reviewing submissions, providing private feedback, and marking results.
+- **⚖️ E-Judging Command**: Manage judge roles, assign evaluations, and monitor judging progress at scale.
+- **🛠️ Rubric Architect**: Build and customize evaluation criteria for every competition independently.
 - **💎 Certificate Mint**: Dynamic certificate generation system with customizable templates.
-- **📢 Broadcast Network**: Mass notification system to keep thousands of students updated instantly.
-- **📈 Institutional Analytics**: Real-time insights into participation rates and success metrics at a glance.
-- **🛠️ Competition Architect**: Full-suite tool to build, edit, and phase multi-stage competitive events.
+- **📢 Broadcast Network**: Mass notification system to keep all users updated instantly.
+- **📈 Institutional Analytics**: Deep insights into judging variance and overall participation metrics.
 
 ---
 
@@ -73,12 +85,12 @@ Built with a focus on **Visual Excellence** and **Performance**.
 
 | Layer | Technology | Rationale |
 | :--- | :--- | :--- |
-| **Logic** | [React 19](https://react.dev/) | Utilizing the latest Concurrent Mode and Transitions for sub-second UI response. |
+| **Logic** | [React 19](https://react.dev/) | Utilizing Concurrent Mode and Transitions for sub-second UI response. |
 | **Style** | [Tailwind CSS](https://tailwindcss.com/) | For a utility-first, performant glassmorphic UI with zero runtime overhead. |
 | **Motion** | [GSAP](https://gsap.com/) | Professional-grade micro-animations managed via a high-performance engine. |
 | **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles for modern web standards. |
 | **Routing** | [React Router 7](https://reactrouter.com/) | Sophisticated nested routing for multi-dashboard layouts. |
-| **State** | React Context | Clean, scalable state management without the complexity of external stores. |
+| **State** | React Context | Clean, scalable state management across six specialized contexts (Auth, App, Team, Chat, Theme, Judge). |
 
 ---
 
@@ -88,11 +100,12 @@ Built with a focus on **Visual Excellence** and **Performance**.
 ```bash
 src/
 ├── components/
-│   ├── ui/             # Reusable atomic molecules (Cards, Buttons, Badges)
+│   ├── ui/             # Reusable atomic molecules (Cards, Buttons, RubricBuilder)
 │   └── Layout/         # Primary structural components (Sidebar, Navbar)
-├── context/            # Multi-provider state architecture (Auth, App, Team, Chat)
+├── context/            # Multi-provider context architecture (Auth, App, Team, Chat, Judge)
 ├── pages/
-│   ├── admin/          # Exclusive administrative viewports
+│   ├── admin/          # Exclusive administrative viewports and management
+│   ├── judge/          # Judge-specific interfaces (Dashboard, Evaluation)
 │   └── (root)/         # Student-facing hubs and dashboards
 ├── utils/              # Logic abstractions and style merging (cn utility)
 └── styles/             # Tailwind directives and CSS variables
