@@ -60,8 +60,12 @@ const SubmissionTracker = () => {
         return 'other';
     };
 
-    // Find current student record to check registered competition
-    const currentStudent = students.find(s => s.id === (user?.id || 'ST-001'));
+    // Find all records for the current student (to catch new registrations)
+    const myRegistrations = students.filter(s => 
+        s.id === (user?.id || 'ST-001') || 
+        (user?.name && s.name === user.name)
+    );
+    const myCompetitionNames = myRegistrations.map(r => r.competition);
     
     // Check if the student is in a team for the selected competition
     const teamForComp = userTeams.find(t => t.competitionId === formData.competitionId);
@@ -223,10 +227,8 @@ const SubmissionTracker = () => {
                                     <option value="">Select Competition</option>
                                     {competitions
                                         .filter(comp => {
-                                            // Only allow competition if the student is registered for it and approved
-                                            const isRegistered = currentStudent?.competition === comp.name;
-                                            const isApproved = currentStudent?.status === 'Approved';
-                                            return isRegistered && isApproved;
+                                            // Allow any competition where the student has a registration record (Pending or Approved)
+                                            return myCompetitionNames.includes(comp.name);
                                         })
                                         .map(comp => (
                                             <option key={comp.id} value={comp.id}>{comp.name}</option>
