@@ -60,7 +60,12 @@ const SubmissionTracker = () => {
         return 'other';
     };
 
-    // Use logged-in student ID from auth context
+    // Find current student record to check registered competition
+    const currentStudent = students.find(s => s.id === (user?.id || 'ST-001'));
+    
+    // Check if the student is in a team for the selected competition
+    const teamForComp = userTeams.find(t => t.competitionId === formData.competitionId);
+    
     const currentStudentId = user?.id || 'ST-001';
     const studentTeamIds = userTeams.map(team => team.id);
     const studentSubmissions = getStudentSubmissions(currentStudentId, studentTeamIds);
@@ -88,15 +93,13 @@ const SubmissionTracker = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // Find if the student is in a team for the selected competition
-        const teamForComp = userTeams.find(t => t.competitionId === formData.competitionId);
-        
         const submissionData = {
             ...formData,
             studentId: currentStudentId,
             isTeamSubmission: !!teamForComp,
             teamId: teamForComp ? teamForComp.id : null,
-            files: files.map(f => f.name ? f.name : f) // Handle real files or mocked strings
+            teamName: teamForComp ? teamForComp.name : null,
+            files: files.map(f => f.name ? f.name : f)
         };
 
         if (editingId) {
@@ -200,7 +203,11 @@ const SubmissionTracker = () => {
                 <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-lg border border-violet-100 dark:border-slate-800 p-6 md:p-8 animate-fade-in-down relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">
-                        {editingId ? 'Edit Project Submission' : 'Submit Your Project'}
+                        {editingId ? 'Edit Project Submission' : (
+                            teamForComp 
+                                ? `Submit for Team: ${teamForComp.name}` 
+                                : 'Submit Your Project'
+                        )}
                     </h3>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
@@ -215,7 +222,12 @@ const SubmissionTracker = () => {
                                 >
                                     <option value="">Select Competition</option>
                                     {competitions
-                                        .filter(comp => students.some(s => s.name === (user?.name || "Omar Tantawy") && s.competition === comp.name && s.status === 'Approved'))
+                                        .filter(comp => {
+                                            // Only allow competition if the student is registered for it and approved
+                                            const isRegistered = currentStudent?.competition === comp.name;
+                                            const isApproved = currentStudent?.status === 'Approved';
+                                            return isRegistered && isApproved;
+                                        })
                                         .map(comp => (
                                             <option key={comp.id} value={comp.id}>{comp.name}</option>
                                         ))}
@@ -508,7 +520,10 @@ const SubmissionTracker = () => {
                                 className="px-8 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/25 transition-all flex items-center gap-2"
                             >
                                 <Send size={18} />
-                                {editingId ? 'Update Project' : 'Submit Project'}
+                                {editingId 
+                                    ? 'Update Project' 
+                                    : (teamForComp ? `Submit for ${teamForComp.name}` : 'Submit Project')
+                                }
                             </button>
                         </div>
                     </form>
@@ -544,9 +559,16 @@ const SubmissionTracker = () => {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-1">
                                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 truncate">{submission.title}</h3>
-                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(submission.status)}`}>
-                                            {submission.status}
-                                        </span>
+                                        <div className="flex gap-2">
+                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(submission.status)}`}>
+                                                {submission.status}
+                                            </span>
+                                            {submission.isTeamSubmission && (
+                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-900/50">
+                                                    Team ({submission.teamName || 'Team Project'})
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-3 flex items-center gap-2">
                                         <span className="truncate max-w-[200px]">{getCompetitionName(submission.competitionId)}</span>
