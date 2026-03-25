@@ -8,6 +8,7 @@ import {
   ShieldCheck, Code, Paintbrush, Presentation
 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { Badge } from '../components/ui/Badge';
 
 const ProjectShowcasePage = () => {
   const { id } = useParams();
