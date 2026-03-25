@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useTeam } from '../context/TeamContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
-import { Calendar, Users, Trophy, BookOpen, AlertCircle, X, Plus, Search } from 'lucide-react';
+import { Calendar, Users, Trophy, BookOpen, AlertCircle, X, Plus, Search, Eye, ArrowRight } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
 
 const Register = () => {
@@ -295,8 +295,7 @@ const Register = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pt-4 border-t border-white/10">
-                                        <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Competition Stages</p>
+                                    <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
                                         <div className="flex flex-wrap gap-2">
                                             {selectedComp.stages.map((stage, i) => (
                                                 <span key={i} className="px-2 py-1 bg-white/10 rounded text-xs text-white">
@@ -304,6 +303,15 @@ const Register = () => {
                                                 </span>
                                             ))}
                                         </div>
+                                        
+                                        <Link 
+                                            to={`/student/competition/${selectedComp.id}`}
+                                            className="mt-2 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/10"
+                                        >
+                                            <Eye size={14} />
+                                            View Competition Timeline
+                                            <ArrowRight size={14} />
+                                        </Link>
                                     </div>
                                 </CardContent>
                             </Card>

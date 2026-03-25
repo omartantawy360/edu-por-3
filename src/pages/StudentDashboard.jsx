@@ -213,9 +213,12 @@ const StudentDashboard = () => {
                             </div>
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No competitions yet</h3>
                             <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2 mb-6">You haven't registered for any competitions. Check out the available competitions to get started!</p>
-                            <a href="#" className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20">
+                            <Link 
+                                to="/student/recommendations" 
+                                className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20"
+                            >
                                 Browse Competitions
-                            </a>
+                            </Link>
                         </div>
                     ) : (
                         <div className="space-y-4">
