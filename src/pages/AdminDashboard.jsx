@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button';
 import { 
     Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, 
     BookOpen, MessageSquare, Send, FileText as FileTextIcon, User, 
-    Paperclip, Github, Video, Image as ImageIcon, ExternalLink, FileCode, Search, LayoutList
+    Paperclip, Github, Video, Image as ImageIcon, ExternalLink, FileCode, Search, LayoutList, Megaphone, ArrowRight
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
@@ -302,6 +302,41 @@ const AdminDashboard = () => {
                                 <div className={cn("h-1 w-full", stat.color.replace('text-', 'bg-'))}></div>
                             </Card>
                         ))}
+                    </div>
+
+                    {/* Quick Actions / New Features */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                         <Link to="/admin/announcements" className="group">
+                             <div className="glass-card p-8 rounded-[2.5rem] border-white/10 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 text-white">
+                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
+                                 <div className="relative z-10 flex items-center gap-6">
+                                     <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20">
+                                         <Megaphone size={32} />
+                                     </div>
+                                     <div>
+                                         <h3 className="text-xl font-bold mb-1 tracking-tight">Broadcast Center</h3>
+                                         <p className="text-white/70 text-sm">Send smart announcements to all students.</p>
+                                     </div>
+                                     <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                                 </div>
+                             </div>
+                         </Link>
+
+                         <Link to="/admin/create-competition" className="group">
+                             <div className="glass-card p-8 rounded-[2.5rem] border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden bg-white dark:bg-slate-900">
+                                 <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                                 <div className="relative z-10 flex items-center gap-6">
+                                     <div className="h-16 w-16 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
+                                         <Trophy size={32} />
+                                     </div>
+                                     <div>
+                                         <h3 className="text-xl font-bold mb-1 tracking-tight text-slate-900 dark:text-slate-100">New Competition</h3>
+                                         <p className="text-slate-500 text-sm">Launch a new innovation cycle.</p>
+                                     </div>
+                                     <ArrowRight className="ml-auto text-violet-600 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                                 </div>
+                             </div>
+                         </Link>
                     </div>
                 </div>
             )}

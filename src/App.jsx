@@ -32,7 +32,11 @@ import SubmissionDetail from './pages/SubmissionDetail';
 import JudgeDashboard from './pages/JudgeDashboard';
 import EvaluationPanel from './pages/EvaluationPanel';
 import CompetitionTimelinePage from './pages/admin/CompetitionTimelinePage';
+import AnnouncementManager from './pages/admin/AnnouncementManager';
 import CompetitionDetailPage from './pages/CompetitionDetailPage';
+import VirtualExpoPage from './pages/VirtualExpoPage';
+import ProjectShowcasePage from './pages/ProjectShowcasePage';
+import StudentProfilePage from './pages/StudentProfilePage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -75,6 +79,9 @@ function AppRoutes() {
         <Route path="account" element={<UserSettingsPage />} />
         <Route path="submission/:submissionId" element={<SubmissionDetail />} />
         <Route path="competition/:id" element={<CompetitionDetailPage />} />
+        <Route path="expo" element={<VirtualExpoPage />} />
+        <Route path="project/:id" element={<ProjectShowcasePage />} />
+        <Route path="profile/:id" element={<StudentProfilePage />} />
       </Route>
 
       <Route path="/register" element={
@@ -100,6 +107,7 @@ function AppRoutes() {
         <Route path="submissions" element={<SubmissionsOverview />} />
         <Route path="judging" element={<JudgeManagement />} />
         <Route path="certificates" element={<CertificateManagement />} />
+        <Route path="announcements" element={<AnnouncementManager />} />
         <Route path="account" element={<UserSettingsPage />} />
         <Route path="submission/:submissionId" element={<SubmissionDetail />} />
         <Route path="competition/:id/timeline" element={<CompetitionTimelinePage />} />
@@ -117,6 +125,11 @@ function AppRoutes() {
         <Route path="evaluate/:submissionId" element={<EvaluationPanel />} />
         <Route path="account" element={<UserSettingsPage />} />
       </Route>
+
+      {/* Public Routes */}
+      <Route path="/expo" element={<VirtualExpoPage />} />
+      <Route path="/project/:id" element={<ProjectShowcasePage />} />
+      <Route path="/profile/:id" element={<StudentProfilePage />} />
 
     </Routes>
   );

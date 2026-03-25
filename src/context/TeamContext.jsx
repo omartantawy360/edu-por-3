@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { useApp } from './AppContext';
 
 const TeamContext = createContext(null);
 
@@ -13,6 +14,7 @@ export const useTeam = () => {
 
 export const TeamProvider = ({ children }) => {
     const { user } = useAuth();
+    const { addNotification } = useApp();
 
     // All available teams in the platform
     const [teams, setTeams] = useState([
@@ -362,6 +364,22 @@ export const TeamProvider = ({ children }) => {
         );
     };
 
+    // Update member role
+    const updateMemberRole = (teamId, memberId, role) => {
+        setTeams(prev => prev.map(team => {
+            if (team.id === teamId) {
+                return {
+                    ...team,
+                    members: team.members.map(member => 
+                        member.id === memberId ? { ...member, role } : member
+                    )
+                };
+            }
+            return team;
+        }));
+        addNotification(`Member role updated to ${role}`, "success");
+    };
+
     return (
         <TeamContext.Provider value={{
             // Team data
@@ -374,6 +392,7 @@ export const TeamProvider = ({ children }) => {
             isTeamLeader,
             createTeam,
             leaveTeam,
+            updateMemberRole,
 
             // Join requests
             joinRequests,

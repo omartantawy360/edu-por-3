@@ -3,14 +3,20 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X, FileText, ArrowRight } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X, FileText, ArrowRight, ExternalLink, Sparkles } from 'lucide-react';
 import { cn } from '../utils/cn';
 import DeadlineTimer from '../components/ui/DeadlineTimer';
+import StudentJourneyTimeline from '../components/ui/StudentJourneyTimeline';
 import { Link } from 'react-router-dom';
+import { useTeam } from '../context/TeamContext';
 
 const StudentDashboard = () => {
-    const { students, notifications, removeNotification, competitions } = useApp();
+    const { 
+        students, notifications, removeNotification, competitions, 
+        getStudentSubmissions, getStudentCertificates, announcements 
+    } = useApp();
     const { user } = useAuth();
+    const { userTeams } = useTeam();
 
     // Use logged-in user name from auth context
     const currentUserName = user?.name || "Omar Tantawy";
@@ -89,15 +95,21 @@ const StudentDashboard = () => {
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs sm:text-sm pt-2 animate-fade-in delay-100">
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs sm:text-sm pt-4 animate-fade-in delay-100">
+                             <Link 
+                                to={`/profile/${studentId}`}
+                                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-violet-600 font-bold shadow-lg hover:scale-105 transition-all text-sm group/port"
+                             >
+                                <Sparkles size={16} className="text-amber-500 group-hover/port:rotate-12 transition-transform" />
+                                My Public Portfolio
+                                <ExternalLink size={14} />
+                             </Link>
+
                             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                 <School className="h-3.5 w-3.5" /> {profile.school}
                             </span>
                             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                 <Mail className="h-3.5 w-3.5" /> {profile.email}
-                            </span>
-                            <span className="px-3 py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 text-emerald-100 font-semibold text-xs">
-                                Class {profile.clazz} • Grade {profile.grade}
                             </span>
                         </div>
                     </div>
@@ -200,134 +212,156 @@ const StudentDashboard = () => {
                 </div>
 
                 {/* My Competitions List */}
-                <div className="lg:col-span-2 space-y-4">
-                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-amber-500" />
-                        My Competitions
-                    </h2>
-
-                    {myRegistrations.length === 0 ? (
-                        <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center bg-slate-50/50 dark:bg-slate-900/50">
-                            <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Trophy className="h-8 w-8 text-slate-400" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No competitions yet</h3>
-                            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2 mb-6">You haven't registered for any competitions. Check out the available competitions to get started!</p>
-                            <Link 
-                                to="/student/recommendations" 
-                                className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20"
-                            >
-                                Browse Competitions
-                            </Link>
+                <div className="lg:col-span-2 space-y-8">
+                    
+                    {/* JOURNEY SECTION (NEW) */}
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-violet-500" />
+                            My Journey
+                        </h2>
+                        <div className="glass-card p-8 rounded-[2rem] border-white/10 shadow-xl overflow-hidden relative">
+                             {/* Background Decoration */}
+                             <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                             
+                             <StudentJourneyTimeline 
+                                studentId={studentId}
+                                submissions={getStudentSubmissions(studentId)}
+                                certificates={getStudentCertificates(studentId)}
+                                userTeams={userTeams}
+                             />
                         </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {myRegistrations.map((reg) => {
-                                const comp = competitions.find(c => c.name === reg.competition);
-                                return (
-                                    <div key={reg.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-900 transition-all duration-300 overflow-hidden">
-                                        <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Badge variant="outline" className="bg-white/80 backdrop-blur-sm shadow-sm">{reg.type}</Badge>
-                                        </div>
+                    </div>
 
-                                        <div className="p-6">
-                                            <div className="flex flex-col md:flex-row gap-6">
-                                                {/* Status Indicator Bar */}
-                                                <div className="hidden md:block w-1.5 self-stretch rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                                    <div className={cn(
-                                                        "w-full h-full transition-all duration-500",
-                                                        reg.status === 'Approved' ? 'bg-emerald-500' :
-                                                            reg.status === 'Rejected' ? 'bg-red-500' : 'bg-amber-500'
-                                                    )} style={{ height: '100%' }}></div>
-                                                </div>
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-amber-500" />
+                            My Competitions
+                        </h2>
 
-                                                <div className="flex-1 space-y-4">
-                                                    <div className="flex flex-wrap items-start justify-between gap-4">
-                                                        <div>
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-violet-600 transition-colors">
-                                                                    {reg.competition}
-                                                                </h3>
-                                                                <div className="md:hidden h-2.5 w-2.5 rounded-full" style={{
-                                                                    backgroundColor: reg.status === 'Approved' ? '#10b981' : reg.status === 'Rejected' ? '#ef4444' : '#f59e0b'
-                                                                }}></div>
-                                                            </div>
-                                                            <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                                                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 font-medium">
-                                                                    <Calendar className="h-3.5 w-3.5" />
-                                                                    {reg.stage}
-                                                                </span>
-                                                                {reg.projectTitle && (
-                                                                    <span className="flex items-center gap-1.5">
-                                                                        <BookOpen className="h-3.5 w-3.5" />
-                                                                        {reg.projectTitle}
+                        {myRegistrations.length === 0 ? (
+                            <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center bg-slate-50/50 dark:bg-slate-900/50">
+                                <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Trophy className="h-8 w-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No competitions yet</h3>
+                                <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2 mb-6">You haven't registered for any competitions. Check out the available competitions to get started!</p>
+                                <Link 
+                                    to="/student/recommendations" 
+                                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-500/20"
+                                >
+                                    Browse Competitions
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {myRegistrations.map((reg) => {
+                                    const comp = competitions.find(c => c.name === reg.competition);
+                                    return (
+                                        <div key={reg.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-900 transition-all duration-300 overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Badge variant="outline" className="bg-white/80 backdrop-blur-sm shadow-sm">{reg.type}</Badge>
+                                            </div>
+
+                                            <div className="p-6">
+                                                <div className="flex flex-col md:flex-row gap-6">
+                                                    {/* Status Indicator Bar */}
+                                                    <div className="hidden md:block w-1.5 self-stretch rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                                        <div className={cn(
+                                                            "w-full h-full transition-all duration-500",
+                                                            reg.status === 'Approved' ? 'bg-emerald-500' :
+                                                                reg.status === 'Rejected' ? 'bg-red-500' : 'bg-amber-500'
+                                                        )} style={{ height: '100%' }}></div>
+                                                    </div>
+
+                                                    <div className="flex-1 space-y-4">
+                                                        <div className="flex flex-wrap items-start justify-between gap-4">
+                                                            <div>
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-violet-600 transition-colors">
+                                                                        {reg.competition}
+                                                                    </h3>
+                                                                    <div className="md:hidden h-2.5 w-2.5 rounded-full" style={{
+                                                                        backgroundColor: reg.status === 'Approved' ? '#10b981' : reg.status === 'Rejected' ? '#ef4444' : '#f59e0b'
+                                                                    }}></div>
+                                                                </div>
+                                                                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                                                                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 font-medium">
+                                                                        <Calendar className="h-3.5 w-3.5" />
+                                                                        {reg.stage}
                                                                     </span>
-                                                                )}
+                                                                    {reg.projectTitle && (
+                                                                        <span className="flex items-center gap-1.5">
+                                                                            <BookOpen className="h-3.5 w-3.5" />
+                                                                            {reg.projectTitle}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="text-right">
+                                                                    <Badge className={cn("px-3 py-1 text-sm font-semibold capitalize shadow-sm",
+                                                                        reg.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' :
+                                                                            reg.status === 'Rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' :
+                                                                                'bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200'
+                                                                    )}>
+                                                                        {reg.status}
+                                                                    </Badge>
+                                                                    {reg.result && reg.result !== 'Pending' && (
+                                                                        <div className={cn(
+                                                                            "text-xs font-bold mt-1 text-right uppercase tracking-wider",
+                                                                            reg.result === 'Passed' ? 'text-emerald-600' : 'text-red-600'
+                                                                        )}>
+                                                                            {reg.result}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="text-right">
-                                                                <Badge className={cn("px-3 py-1 text-sm font-semibold capitalize shadow-sm",
-                                                                    reg.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' :
-                                                                        reg.status === 'Rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' :
-                                                                            'bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200'
-                                                                )}>
-                                                                    {reg.status}
-                                                                </Badge>
-                                                                {reg.result && reg.result !== 'Pending' && (
-                                                                    <div className={cn(
-                                                                        "text-xs font-bold mt-1 text-right uppercase tracking-wider",
-                                                                        reg.result === 'Passed' ? 'text-emerald-600' : 'text-red-600'
-                                                                    )}>
-                                                                        {reg.result}
+                                                        {/* Abstract + Feedback */}
+                                                        {(reg.abstract || reg.feedback) && (
+                                                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid gap-4">
+                                                                {reg.abstract && (
+                                                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                                                                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                            <FileText className="h-3 w-3" /> Abstract
+                                                                        </h4>
+                                                                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">"{reg.abstract}"</p>
+                                                                    </div>
+                                                                )}
+
+                                                                {reg.feedback && (
+                                                                    <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                                                                        <h4 className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                                            <MessageSquare className="h-3 w-3" /> Latest Feedback
+                                                                        </h4>
+                                                                        <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">"{reg.feedback}"</p>
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                        </div>
+                                                        )}
+
+                                                        {/* ── View Timeline CTA ── */}
+                                                        {comp && (
+                                                            <Link
+                                                                to={`/student/competition/${comp.id}`}
+                                                                className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors group/link"
+                                                            >
+                                                                <ArrowRight size={13} className="group-hover/link:translate-x-0.5 transition-transform" />
+                                                                View Competition Timeline
+                                                            </Link>
+                                                        )}
                                                     </div>
-
-                                                    {/* Abstract + Feedback */}
-                                                    {(reg.abstract || reg.feedback) && (
-                                                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid gap-4">
-                                                            {reg.abstract && (
-                                                                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                                                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                                                        <FileText className="h-3 w-3" /> Abstract
-                                                                    </h4>
-                                                                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">"{reg.abstract}"</p>
-                                                                </div>
-                                                            )}
-
-                                                            {reg.feedback && (
-                                                                <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
-                                                                    <h4 className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                                                        <MessageSquare className="h-3 w-3" /> Latest Feedback
-                                                                    </h4>
-                                                                    <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">"{reg.feedback}"</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-
-                                                    {/* ── View Timeline CTA ── */}
-                                                    {comp && (
-                                                        <Link
-                                                            to={`/student/competition/${comp.id}`}
-                                                            className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors group/link"
-                                                        >
-                                                            <ArrowRight size={13} className="group-hover/link:translate-x-0.5 transition-transform" />
-                                                            View Competition Timeline
-                                                        </Link>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -163,8 +163,26 @@ export const AppProvider = ({ children }) => {
   // NEW: Demo Mode State
   const [isDemoMode, setIsDemoMode] = useState(false);
 
+  // NEW: Announcements State
+  const [announcements, setAnnouncements] = useState([
+    { id: 'ann-1', title: 'Virtual Expo is Now Live!', content: 'Explore the winning projects from the Technology Summit and Science Fair in our new Virtual Expo hall.', target: 'All', date: '2026-03-20', type: 'global' },
+    { id: 'ann-2', title: 'Final Submission Deadline Reminder', content: 'Reminder for all teams in the Web Applications Challenge: the final code upload deadline is March 15th.', target: 'Competition', competitionId: 'c4', date: '2026-03-10', type: 'critical' },
+  ]);
+
   // Competition Timeline Posts  { [competitionId]: Post[] }
   const [competitionPosts, setCompetitionPosts] = useState({});
+
+  // ── Announcement Helpers ────────────────────────────────
+  const addAnnouncement = (data) => {
+    const newAnn = {
+      id: `ann-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      ...data
+    };
+    setAnnouncements(prev => [newAnn, ...prev]);
+    addNotification(`New announcement: ${data.title}`, "success");
+    return newAnn;
+  };
 
   // ── Post CRUD helpers ──────────────────────────────────
   const addPost = (competitionId, postData) => {
@@ -599,9 +617,17 @@ export const AppProvider = ({ children }) => {
             status: 'approved', 
             date: '2026-02-10', 
             feedback: 'Great execution and practical application.',
-            description: '1. Introduction: EcoTracker is a mobile app designed to help users track their carbon footprint in real-time.\n2. Methodology: We used React Native for cross-platform support and a Firebase backend for data persistence.\n3. Results: Preliminary testing showed a 15% reduction in individual waste for active users.',
+            description: 'EcoTracker is a mobile app designed to help users track their carbon footprint in real-time. It features a smart calculator for daily activities, integration with smart home devices, and a community leaderboard to encourage sustainable living.\n\nKey Achievements:\n- First Place in Science Fair 2026\n- Over 1,000 beta users\n- Featured in GreenTech Magazine',
+            videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Demo video
+            gallery: [
+              'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+            ],
             codeSnippet: 'import React from "react";\n\nconst CarbonCalculator = ({ usage }) => {\n  const calculateEmissions = (val) => val * 0.45;\n  return <div>{calculateEmissions(usage)} kg CO2</div>;\n};',
-            files: [{name: 'Project_Proposal.pdf'}, {name: 'app_screenshot.png'}]
+            files: [{name: 'Project_Proposal.pdf'}, {name: 'app_screenshot.png'}],
+            tags: ['Climate Tech', 'React Native', 'Firebase'],
+            isWinner: true,
+            rank: 1
           },
           { 
             id: 'sub-demo2', 
@@ -613,8 +639,16 @@ export const AppProvider = ({ children }) => {
             status: 'approved', 
             date: '2026-02-12', 
             feedback: 'Innovative approach.',
-            description: 'Solar-powered irrigation system using soil moisture sensors to optimize water usage in arid regions.',
-            files: [{name: 'Hardware_Schematics.pdf'}, {name: 'demo_video.mp4'}]
+            description: 'Solar-powered irrigation system using soil moisture sensors to optimize water usage in arid regions. The system adjusts watering schedules based on real-time weather forecasts and soil conditions.',
+            videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            gallery: [
+              'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1558449028-s549c7df6fc5?auto=format&fit=crop&w=800&q=80'
+            ],
+            files: [{name: 'Hardware_Schematics.pdf'}, {name: 'demo_video.mp4'}],
+            tags: ['IoT', 'Sustainability', 'Hardware'],
+            isWinner: true,
+            rank: 2
           },
           { 
             id: 'sub-demo3', 
@@ -627,8 +661,14 @@ export const AppProvider = ({ children }) => {
             date: '2026-02-15', 
             feedback: null,
             description: 'Deep learning model that categorizes waste items into recyclables and non-recyclables using computer vision.',
+            videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            gallery: [
+              'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'
+            ],
             codeSnippet: 'import tensorflow as tf\n\nmodel = tf.keras.models.load_model("sorter_v1.h5")\ndef predict_class(image):\n    return model.predict(image)',
-            files: [{name: 'Model_Architecture.png'}]
+            files: [{name: 'Model_Architecture.png'}],
+            tags: ['AI', 'Computer Vision', 'Recycling'],
+            isWinner: false
           }
         ]);
         setScores([
@@ -661,22 +701,14 @@ export const AppProvider = ({ children }) => {
             date: '2026-03-01',
             signatureName: 'Prof. James Chen',
             issuedBy: 'National Education Portal Admin'
-          },
-          { 
-            id: 'CERT-K7R4J1V', 
-            studentId: 'ST-005', 
-            studentName: 'Ahmed Deen', 
-            competitionId: 'c1', 
-            competitionName: 'Technology Innovation Summit',
-            certificateTitle: 'Best Design Innovation',
-            reason: 'Creative UI/UX Solutions',
-            customMessage: 'Recognized for the most intuitive and aesthetically pleasing project design among over 100 participants.',
-            date: '2026-02-15',
-            signatureName: 'Innovation Board',
-            issuedBy: 'National Education Portal Admin'
           }
         ]);
         setCompetitionPosts(generateDemoPosts());
+        setAnnouncements([
+          { id: 'ann-demo1', title: 'Virtual Expo is Now Live!', content: 'Explore the winning projects from the Technology Summit and Science Fair in our new Virtual Expo hall.', target: 'All', date: '2026-03-20', type: 'global' },
+          { id: 'ann-demo2', title: 'Science Fair Winners Announced', content: 'Congratulations to the top 3 winners of the Science Fair 2026! Certificates have been issued to your profiles.', target: 'Competition', competitionId: 'c2', date: '2026-03-01', type: 'success' },
+          { id: 'ann-demo3', title: 'Upcoming Workshop: Web Dev Basics', content: 'Join us next Monday for a specialized workshop on React and Tailwind CSS.', target: 'All', date: '2026-03-25', type: 'info' }
+        ]);
         addNotification('Demo Mode Activated! Mock data loaded across all screens.', 'success');
       } else {
         // Clear demo data
@@ -686,6 +718,7 @@ export const AppProvider = ({ children }) => {
         setScores([]);
         setCertificates([]);
         setCompetitionPosts({});
+        setAnnouncements([]);
         addNotification('Demo Mode Deactivated. Returning to blank state.', 'info');
       }
       return next;
@@ -732,6 +765,8 @@ export const AppProvider = ({ children }) => {
       editPost,
       deletePost,
       getCompetitionPosts,
+      announcements,
+      addAnnouncement,
     }}>
       {children}
     </AppContext.Provider>

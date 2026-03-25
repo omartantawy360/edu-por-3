@@ -27,54 +27,52 @@
 **EduComp** is a high-performance, premium web ecosystem designed to orchestrate academic competitions. It serves as a comprehensive platform with three distinct interfaces: a collaborative **Student Hub**, a specialized **Judge Portal**, and a powerful **Admin Command Center**.
 
 > [!IMPORTANT]
-> **Vision**: EduComp isn't just a management tool; it's a launchpad. Built with **React 19** and a custom **Multi-Context State Engine**, it delivers a seamless, professional experience for students, judges, and administrators alike.
+> **Ecosystem Upgrade**: The latest version introduces a **Dynamic Competition Lifecycle**, featuring a public **Virtual Expo**, **Student Portfolios**, and **Journey Tracking** to provide long-term value beyond the competition dates.
 
 ---
 
 ## 📸 Visual Tour
 
-### 🖥️ The Student Hub
-| **Personal Dashboard** | **Team Collaboration** |
+### 🖥️ The Student Hub & Journey
+| **Personal Journey Timeline** | **Public Student Portfolio** |
 | :---: | :---: |
-| ![Student Dashboard](./docs/screenshots/student-dashboard.png) | ![Team Hub](./docs/screenshots/team-hub.png) |
-| *Track your progress, achievements, and upcoming deadlines.* | *Real-time chat and centralized project strategy.* |
+| ![Journey Timeline](./docs/screenshots/student-journey.png) | ![Student Profile](./docs/screenshots/student-profile.png) |
+| *Visualize your growth with a chronological milestone tracker.* | *Share your professional achievements and project history.* |
 
-### ⚖️ The Judge Portal
-| **Judge Dashboard** | **Anonymous Evaluation** |
+### 🏆 Excellence & Exposure
+| **Virtual Expo Hall** | **Project Showcase** |
 | :---: | :---: |
-| ![Judge Dashboard](./docs/screenshots/judge-dashboard.png) | ![Evaluation Panel](./docs/screenshots/evaluation-panel.png) |
-| *Monitor assigned submissions and review progress.* | *Score projects fairly with anonymized data and rubrics.* |
+| ![Virtual Expo](./docs/screenshots/virtual-expo.png) | ![Project Showcase](./docs/screenshots/project-showcase.png) |
+| *Discover winning projects from across the ecosystem.* | *Deep-dive into project details, media, and team roles.* |
 
-### 🛡️ The Admin Command Center
-| **Judge & Rubric Management** | **Digital Certification** |
+### ⚖️ Evaluation & Communication
+| **Judge Panel** | **Admin Broadcast Center** |
 | :---: | :---: |
-| ![Admin Judging](./docs/screenshots/admin-judging.png) | ![Certificate View](./docs/screenshots/certificate-view.png) |
-| *Orchestrate the judging flow and build custom rubrics.* | *Issue verifiable accolades with a single click.* |
+| ![Evaluation Panel](./docs/screenshots/evaluation-panel.png) | ![Broadcast Center](./docs/screenshots/admin-broadcast.png) |
+| *Score projects fairly with anonymized data and rubrics.* | *Send smart notifications and platform-wide updates.* |
 
 ---
 
 ## 🎯 Core Features
 
 ### 🎓 For Competitors (Students)
-- **🚀 Personalized HUD**: A unified view of current competitions, team status, and skill progression.
-- **🤝 Team Forge**: Advanced team building tools including member search and real-time invitations.
+- **🚀 Dynamic Journey**: A unified timeline of current competitions, team status, and milestone progression.
+- **🌟 Public Portfolios**: Professional, sharable profile pages showcasing all participation and awards.
+- **🤝 Team Forge**: Advanced team building tools including member search and role assignments.
 - **💬 Synergy Chat**: Built-in communication channels for seamless project planning and file tracking.
 - **📊 AI-Driven Recommendations**: Smart skill-based suggestions for which competitions match your profile best.
-- **🏆 Gamified Leaderboards**: Real-time rankings powered by synchronized judge evaluations.
 - **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion of any event.
 
-### ⚖️ For Professional Judges
-- **🛡️ Anonymous Evaluation**: Complete isolation of student identifying data to ensure unbiased judging.
-- **📊 Interactive Rubrics**: Dynamic scoring system with clear criteria and real-time total calculation.
-- **🔒 Evaluation Locking**: Secure submission process that prevents post-submission score manipulation.
-- **📈 Progress Tracking**: Visual indicators of pending, completed, and overall review statistics.
+### 🏛️ Competition Ecosystem (Public)
+- **🔥 Virtual Expo**: A public-facing showcase of winning projects from all competitions.
+- **🖼️ Project Showcases**: Rich project detail pages with media galleries, video embeds, and team role highlights.
+- **🌍 Social Sharing**: Easy tools to share projects and portfolios to external social networks.
 
 ### 🛡️ For Orchestrators (Administrators)
+- **📢 Broadcast Network**: New centralized center to send targeted "Smart Announcements" to specific student groups.
 - **🗂️ Unified Registry**: Full CRUD control over student profiles, team configurations, and school data.
-- **⚖️ E-Judging Command**: Manage judge roles, assign evaluations, and monitor judging progress at scale.
 - **🛠️ Rubric Architect**: Build and customize evaluation criteria for every competition independently.
 - **💎 Certificate Mint**: Dynamic certificate generation system with customizable templates.
-- **📢 Broadcast Network**: Mass notification system to keep all users updated instantly.
 - **📈 Institutional Analytics**: Deep insights into judging variance and overall participation metrics.
 
 ---
@@ -91,25 +89,6 @@ Built with a focus on **Visual Excellence** and **Performance**.
 | **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles for modern web standards. |
 | **Routing** | [React Router 7](https://reactrouter.com/) | Sophisticated nested routing for multi-dashboard layouts. |
 | **State** | React Context | Clean, scalable state management across six specialized contexts (Auth, App, Team, Chat, Theme, Judge). |
-
----
-
-## 📂 Architecture
-
-### Directory Structure
-```bash
-src/
-├── components/
-│   ├── ui/             # Reusable atomic molecules (Cards, Buttons, RubricBuilder)
-│   └── Layout/         # Primary structural components (Sidebar, Navbar)
-├── context/            # Multi-provider context architecture (Auth, App, Team, Chat, Judge)
-├── pages/
-│   ├── admin/          # Exclusive administrative viewports and management
-│   ├── judge/          # Judge-specific interfaces (Dashboard, Evaluation)
-│   └── (root)/         # Student-facing hubs and dashboards
-├── utils/              # Logic abstractions and style merging (cn utility)
-└── styles/             # Tailwind directives and CSS variables
-```
 
 ---
 
@@ -136,32 +115,6 @@ src/
    ```bash
    npm run dev
    ```
-
-4. **Production Compilation**
-   ```bash
-   npm run build
-   ```
-
----
-
-## 🌍 Deployment
-
-This repository is optimized for **GitHub Pages**.
-
-1. Update the `base` in `vite.config.js` to match your repository name.
-2. Run `npm run build` to generate the production bundle.
-3. Use `npm run deploy` (configured with `gh-pages`) to push to the live site.
-
----
-
-## 🤝 Contribution Guidelines
-
-We welcome innovation! Whether it's a bug fix or a bold new feature:
-1. **Fork** the repository.
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`).
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`).
-4. **Push** to the branch (`git push origin feature/AmazingFeature`).
-5. **Open** a Pull Request.
 
 ---
 
