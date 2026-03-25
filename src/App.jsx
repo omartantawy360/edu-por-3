@@ -31,6 +31,8 @@ import UserSettingsPage from './pages/UserSettingsPage';
 import SubmissionDetail from './pages/SubmissionDetail';
 import JudgeDashboard from './pages/JudgeDashboard';
 import EvaluationPanel from './pages/EvaluationPanel';
+import CompetitionTimelinePage from './pages/admin/CompetitionTimelinePage';
+import CompetitionDetailPage from './pages/CompetitionDetailPage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -72,6 +74,7 @@ function AppRoutes() {
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="account" element={<UserSettingsPage />} />
         <Route path="submission/:submissionId" element={<SubmissionDetail />} />
+        <Route path="competition/:id" element={<CompetitionDetailPage />} />
       </Route>
 
       <Route path="/register" element={
@@ -99,6 +102,7 @@ function AppRoutes() {
         <Route path="certificates" element={<CertificateManagement />} />
         <Route path="account" element={<UserSettingsPage />} />
         <Route path="submission/:submissionId" element={<SubmissionDetail />} />
+        <Route path="competition/:id/timeline" element={<CompetitionTimelinePage />} />
       </Route>
 
       {/* Judge Routes */}

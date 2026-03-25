@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button';
 import { 
     Users, Trophy, CheckCircle, XCircle, Calendar, FileText, Globe, Bell, Eye, X, Mail, School, 
     BookOpen, MessageSquare, Send, FileText as FileTextIcon, User, 
-    Paperclip, Github, Video, Image as ImageIcon, ExternalLink, FileCode, Search
+    Paperclip, Github, Video, Image as ImageIcon, ExternalLink, FileCode, Search, LayoutList
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
@@ -475,11 +475,19 @@ const AdminDashboard = () => {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {competitions.map((comp) => (
-                            <CompetitionCard
-                                key={comp.id}
-                                competition={comp}
-                                showActions={false}
-                            />
+                            <div key={comp.id} className="flex flex-col gap-0">
+                                <CompetitionCard
+                                    competition={comp}
+                                    showActions={false}
+                                />
+                                <Link
+                                    to={`/admin/competition/${comp.id}/timeline`}
+                                    className="flex items-center justify-center gap-2 py-2.5 rounded-b-2xl -mt-1 border border-t-0 border-slate-200 dark:border-slate-800 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 text-sm font-bold hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors group"
+                                >
+                                    <LayoutList size={14} className="group-hover:scale-110 transition-transform" />
+                                    Manage Timeline
+                                </Link>
+                            </div>
                         ))}
                     </div>
                 </div>

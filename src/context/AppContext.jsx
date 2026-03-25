@@ -1,5 +1,142 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+/**
+ * ─────────────────────────────────────────────────────────
+ *  COMPETITION POSTS  –  demo seed data
+ * ─────────────────────────────────────────────────────────
+ *  Each post: { id, type, title, description, date, status,
+ *               isPinned, registrationStatus, registrationDeadline,
+ *               stageStartDate, stageEndDate, winners }
+ * ─────────────────────────────────────────────────────────
+ */
+const generateDemoPosts = () => ({
+  c1: [
+    {
+      id: 'p-c1-1',
+      type: 'Introduction',
+      title: 'Welcome to the Technology & Innovation Summit 2026',
+      description: 'The annual Technology & Innovation Summit is back! This prestigious competition invites the brightest minds from schools across the country to showcase breakthrough ideas in Smart Cities, Health Tech, FinTech, and EdTech. Whether you build an app, a hardware prototype, or a research paper – we want to hear your vision.\n\n**Goals:**\n- Foster technological creativity among high-school students\n- Provide a launchpad for student-led innovation\n- Connect participants with industry mentors and sponsors\n\n**Rules:**\n- Projects must be original work\n- Teams of 1–4 members are accepted\n- All submissions must include a technical report',
+      date: '2026-09-01',
+      status: 'published',
+      isPinned: true,
+    },
+    {
+      id: 'p-c1-2',
+      type: 'Registration',
+      title: 'Registration is Now Open!',
+      description: 'Applications are officially open for the Technology & Innovation Summit 2026. Register your project and secure your spot before the deadline. Early registrants will receive a preparation guide and access to online workshops.\n\nSpots are **limited to 100 participants** — don\'t miss out!',
+      date: '2026-09-05',
+      status: 'published',
+      isPinned: false,
+      registrationStatus: 'Open',
+      registrationDeadline: '2026-10-01',
+    },
+    {
+      id: 'p-c1-3',
+      type: 'Stage',
+      title: 'Stage 1 – Project Submission',
+      description: 'Participants must submit their full project including:\n- Technical report (PDF, max 10 pages)\n- Project demo video (max 5 minutes)\n- Source code or prototype files\n\nAll submissions reviewed by a panel of 5 expert judges. Top 30 projects advance to Stage 2.',
+      date: '2026-10-05',
+      status: 'published',
+      isPinned: false,
+      stageStartDate: '2026-10-05',
+      stageEndDate: '2026-10-25',
+    },
+    {
+      id: 'p-c1-4',
+      type: 'Stage',
+      title: 'Stage 2 – Live Pitch & Demo',
+      description: 'The top 30 teams selected in Stage 1 will present their projects live to the judging panel and an audience of industry professionals. Each team gets 10 minutes to pitch + 5 minutes Q&A.\n\nLocation: WE School Innovation Hall\nDress code: Smart casual',
+      date: '2026-11-10',
+      status: 'published',
+      isPinned: false,
+      stageStartDate: '2026-11-10',
+      stageEndDate: '2026-11-12',
+    },
+    {
+      id: 'p-c1-5',
+      type: 'Announcement',
+      title: '📢 Schedule Change: Finals Moved to December 15',
+      description: 'Due to high demand and venue availability, the final evaluation round has been rescheduled from November 30 to **December 15, 2026**. All qualified teams have been notified via email. Travel reimbursement forms are now available on the portal.\n\nWe apologise for any inconvenience and look forward to an outstanding finals day!',
+      date: '2026-11-20',
+      status: 'published',
+      isPinned: true,
+    },
+    {
+      id: 'p-c1-6',
+      type: 'Result',
+      title: '🏆 Final Results – Technology & Innovation Summit 2026',
+      description: 'After two intense rounds of evaluation, we are thrilled to announce the winners of this year\'s Technology & Innovation Summit. Congratulations to all participants for their outstanding efforts!\n\nCertificates and prize money will be distributed within 14 business days.',
+      date: '2026-12-15',
+      status: 'published',
+      isPinned: true,
+      winners: [
+        { rank: 1, name: 'Omar Tantawy', teamName: 'Team Nexus', project: 'SmartGrid AI Energy Manager' },
+        { rank: 2, name: 'Mohammed Ali', teamName: 'Team Horizon', project: 'HealthPulse Wearable System' },
+        { rank: 3, name: 'Ali Hassan', teamName: 'Solo Entry', project: 'EduBot – AI Tutor' },
+      ],
+    },
+  ],
+  c2: [
+    {
+      id: 'p-c2-1',
+      type: 'Introduction',
+      title: 'Science & Engineering Fair 2026 – Opening Announcement',
+      description: 'Welcome to the Science & Engineering Fair, where curiosity meets innovation! This year we celebrate projects across Environmental Science, Mechanical Engineering, BioTech, and Renewable Energy.\n\n**Key Goals:**\n- Encourage scientific thinking and the scientific method\n- Give students real experience in research presentation\n- Connect projects with academic mentors for guidance\n\nAll project abstracts must be submitted for approval before proceeding to the full submission stage.',
+      date: '2026-10-01',
+      status: 'published',
+      isPinned: true,
+    },
+    {
+      id: 'p-c2-2',
+      type: 'Registration',
+      title: 'Register Your Research Project',
+      description: 'Registration for the Science & Engineering Fair is now **open**. Submit your abstract and mentor information to secure a project slot.\n\n- Max 50 projects accepted\n- Individual or team entries (max 3 members)\n- Abstract: 300–500 words\n\nProjects will be reviewed for relevance and feasibility by our academic committee.',
+      date: '2026-10-05',
+      status: 'published',
+      isPinned: false,
+      registrationStatus: 'Open',
+      registrationDeadline: '2026-11-01',
+    },
+    {
+      id: 'p-c2-3',
+      type: 'Stage',
+      title: 'Submission Stage – Full Project Upload',
+      description: 'Registered participants must upload their complete project package:\n- Research paper (IEEE format, 6–12 pages)\n- Supporting data and datasets\n- Presentation slides (optional but recommended)\n\nAll submissions are reviewed anonymously. Top 15 projects advance to the Finals.',
+      date: '2026-11-05',
+      status: 'published',
+      isPinned: false,
+      stageStartDate: '2026-11-05',
+      stageEndDate: '2026-11-30',
+    },
+    {
+      id: 'p-c2-4',
+      type: 'Stage',
+      title: 'Finals – Project Exhibition & Judging',
+      description: 'The top 15 projects will be exhibited in our Science Fair hall. Each team will staff a project booth for 3 hours while judges and guests circulate.\n\n**Judging criteria:** Innovation (30%), Scientific Method (30%), Presentation (20%), Impact (20%)\n\nGuests and family members are welcome to attend the exhibition.',
+      date: '2026-01-20',
+      status: 'published',
+      isPinned: false,
+      stageStartDate: '2026-01-20',
+      stageEndDate: '2026-01-21',
+    },
+    {
+      id: 'p-c2-5',
+      type: 'Result',
+      title: '🏆 Science & Engineering Fair – Winners Announced!',
+      description: 'We are proud to announce the winners of the 2026 Science & Engineering Fair. These projects demonstrated exceptional scientific rigour, creativity, and real-world impact.\n\nThank you to all participants, mentors, and judges for making this year\'s fair extraordinary. Certificates will be issued within 7 days.',
+      date: '2026-02-01',
+      status: 'published',
+      isPinned: true,
+      winners: [
+        { rank: 1, name: 'Omar Tantawy', teamName: 'Solo Entry', project: 'EcoTracker – Carbon Footprint AI App' },
+        { rank: 2, name: 'Mohammed Ali', teamName: 'Team GreenTech', project: 'Smart Irrigation System' },
+        { rank: 3, name: 'Layla Hassan', teamName: 'Team BioFuture', project: 'Algae-based Biofuel Research' },
+      ],
+    },
+  ],
+});
+
 const AppContext = createContext(null);
 
 export const useApp = () => {
@@ -25,6 +162,52 @@ export const AppProvider = ({ children }) => {
 
   // NEW: Demo Mode State
   const [isDemoMode, setIsDemoMode] = useState(false);
+
+  // Competition Timeline Posts  { [competitionId]: Post[] }
+  const [competitionPosts, setCompetitionPosts] = useState({});
+
+  // ── Post CRUD helpers ──────────────────────────────────
+  const addPost = (competitionId, postData) => {
+    const newPost = {
+      id: `p-${competitionId}-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      status: 'published',
+      isPinned: false,
+      ...postData,
+    };
+    setCompetitionPosts(prev => ({
+      ...prev,
+      [competitionId]: [...(prev[competitionId] || []), newPost],
+    }));
+    addNotification(`New post added to competition timeline`, 'success');
+    return newPost;
+  };
+
+  const editPost = (competitionId, postId, updatedData) => {
+    setCompetitionPosts(prev => ({
+      ...prev,
+      [competitionId]: (prev[competitionId] || []).map(p =>
+        p.id === postId ? { ...p, ...updatedData } : p
+      ),
+    }));
+  };
+
+  const deletePost = (competitionId, postId) => {
+    setCompetitionPosts(prev => ({
+      ...prev,
+      [competitionId]: (prev[competitionId] || []).filter(p => p.id !== postId),
+    }));
+    addNotification('Post removed from timeline', 'info');
+  };
+
+  const getCompetitionPosts = (competitionId) => {
+    const posts = competitionPosts[competitionId] || [];
+    // Pinned posts first, then chronological
+    return [
+      ...posts.filter(p => p.isPinned),
+      ...posts.filter(p => !p.isPinned),
+    ];
+  };
 
   const toggleTheme = () => {
     setTheme(prev => {
@@ -493,6 +676,7 @@ export const AppProvider = ({ children }) => {
             issuedBy: 'National Education Portal Admin'
           }
         ]);
+        setCompetitionPosts(generateDemoPosts());
         addNotification('Demo Mode Activated! Mock data loaded across all screens.', 'success');
       } else {
         // Clear demo data
@@ -501,6 +685,7 @@ export const AppProvider = ({ children }) => {
         setSubmissions([]);
         setScores([]);
         setCertificates([]);
+        setCompetitionPosts({});
         addNotification('Demo Mode Deactivated. Returning to blank state.', 'info');
       }
       return next;
@@ -541,7 +726,12 @@ export const AppProvider = ({ children }) => {
       scores,
       addScore,
       getStudentScore,
-      getStudentsBySchool
+      getStudentsBySchool,
+      competitionPosts,
+      addPost,
+      editPost,
+      deletePost,
+      getCompetitionPosts,
     }}>
       {children}
     </AppContext.Provider>
