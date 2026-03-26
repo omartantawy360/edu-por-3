@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
 import { Link } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -12,6 +12,9 @@ import {
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { useTeam } from '../context/TeamContext';
+import { COMPETITION_PHASES, RESULTS_VISIBILITY, LEADERBOARD_STATUS } from '../context/AppContext';
+import CompetitionWizard from '../components/admin/CompetitionWizard';
 
 const JudgingPanel = ({ student, competition }) => {
     const { getStudentScore, addScore } = useApp();
@@ -106,7 +109,11 @@ const TabButton = ({ id, label, icon: iconProp, activeTab, setActiveTab }) => {
 };
 
 const AdminDashboard = () => {
-    const { students, competitions, submissions, notifications, removeNotification, updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback } = useApp();
+    const { 
+        students, competitions, submissions, notifications, removeNotification, 
+        updateStudentStage, setStudentFeedback
+    } = useApp();
+    const { teams } = useTeam();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -137,10 +144,10 @@ const AdminDashboard = () => {
     });
 
     const stats = [
-        { title: 'Total Students', value: students.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-        { title: 'Competitions', value: competitions.length, icon: Trophy, color: 'text-purple-600', bg: 'bg-purple-100' },
-        { title: 'Passed Students', value: students.filter(s => s.result === 'Passed').length, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-        { title: 'Failed Students', value: students.filter(s => s.result === 'Failed').length, icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' },
+        { title: 'Registered Teams', value: teams.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { title: 'Accepted Teams', value: teams.filter(t => t.status === 'Accepted').length, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { title: 'Active submissions', value: submissions.length, icon: FileText, color: 'text-violet-600', bg: 'bg-violet-50' },
+        { title: 'Live Competitions', value: competitions.filter(c => c.phase !== COMPETITION_PHASES.DRAFT && c.phase !== COMPETITION_PHASES.ARCHIVED).length, icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-50' },
     ];
 
     const handleSendFeedback = () => {
@@ -151,46 +158,6 @@ const AdminDashboard = () => {
         setSelectedStudent(null);
     };
 
-    // Confirmation handlers
-    const handleApprove = (student) => {
-        setConfirmDialog({
-            isOpen: true,
-            title: 'Approve Registration',
-            message: `Are you sure you want to approve ${student.name}'s registration for ${student.competition}? The student will be notified.`,
-            onConfirm: () => updateStudentStatus(student.id, 'Approved'),
-            type: 'success'
-        });
-    };
-
-    const handleReject = (student) => {
-        setConfirmDialog({
-            isOpen: true,
-            title: 'Reject Registration',
-            message: `Are you sure you want to reject ${student.name}'s registration for ${student.competition}? The student will be notified.`,
-            onConfirm: () => updateStudentStatus(student.id, 'Rejected'),
-            type: 'danger'
-        });
-    };
-
-    const handlePass = (student) => {
-        setConfirmDialog({
-            isOpen: true,
-            title: 'Mark as Passed',
-            message: `Are you sure you want to mark ${student.name} as PASSED for ${student.competition}? This action will notify the student.`,
-            onConfirm: () => setStudentResult(student.id, 'Passed'),
-            type: 'success'
-        });
-    };
-
-    const handleFail = (student) => {
-        setConfirmDialog({
-            isOpen: true,
-            title: 'Mark as Failed',
-            message: `Are you sure you want to mark ${student.name} as FAILED for ${student.competition}? This action will notify the student.`,
-            onConfirm: () => setStudentResult(student.id, 'Failed'),
-            type: 'danger'
-        });
-    };
 
 
     return (
@@ -274,8 +241,8 @@ const AdminDashboard = () => {
 
                 <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl w-full sm:w-auto self-start gap-1 overflow-x-auto max-w-full">
                     <TabButton id="overview" label="Overview" icon={FileText} activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <TabButton id="students" label="Students" icon={Users} activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <TabButton id="competitions" label="Competitions" icon={Trophy} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton id="directory" label="Directory" icon={Users} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton id="manage" label="Manage" icon={LayoutList} activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             </div>
 
@@ -284,14 +251,18 @@ const AdminDashboard = () => {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {stats.map((stat, i) => (
-                            <Card key={i} className="border-0 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
+                            <button 
+                                key={i} 
+                                onClick={() => setActiveTab('manage')}
+                                className="text-left border-0 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden group bg-white dark:bg-slate-900 rounded-3xl"
+                            >
                                 <CardContent className="p-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className={cn("p-3 rounded-xl transition-all duration-300 group-hover:scale-110", stat.bg, stat.color)}>
                                             <stat.icon className="h-6 w-6" />
                                         </div>
-                                        <div className={cn("text-xs font-bold px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400")}>
-                                            Total
+                                        <div className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400")}>
+                                            Manage <ArrowRight size={10} className="inline ml-1" />
                                         </div>
                                     </div>
                                     <div>
@@ -299,8 +270,8 @@ const AdminDashboard = () => {
                                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{stat.title}</p>
                                     </div>
                                 </CardContent>
-                                <div className={cn("h-1 w-full", stat.color.replace('text-', 'bg-'))}></div>
-                            </Card>
+                                <div className={cn("h-1.5 w-full", stat.color.replace('text-', 'bg-'))}></div>
+                            </button>
                         ))}
                     </div>
 
@@ -341,15 +312,15 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* Students Tab */}
-            {activeTab === 'students' && (
+            {/* Directory Tab (Read-only searchable list) */}
+            {activeTab === 'directory' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
                         <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 px-6 pt-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <CardTitle className="text-lg font-bold">Student Management</CardTitle>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Filter and manage student registrations</p>
+                                    <CardTitle className="text-lg font-bold">Records Directory</CardTitle>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Global lookup for all registered students and teams</p>
                                 </div>
                                 <Button variant="outline" size="sm" onClick={() => { setFilterGrade(''); setFilterCompetition(''); setFilterResult(''); }} className="gap-2">
                                     <XCircle className="h-4 w-4" /> Reset Filters
@@ -465,31 +436,9 @@ const AdminDashboard = () => {
                                                             </td>
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center justify-end gap-2">
-                                                                    <Button size="sm" variant="secondary" className="h-8 gap-1.5 font-medium shadow-sm" onClick={() => setSelectedStudent(student)}>
-                                                                        <Eye className="h-3.5 w-3.5" /> <span className="hidden xl:inline">View</span>
+                                                                    <Button size="sm" variant="outline" className="h-8 gap-1.5 font-bold shadow-sm border-slate-200" onClick={() => setSelectedStudent(student)}>
+                                                                        <Eye className="h-3.5 w-3.5" /> View Details
                                                                     </Button>
-
-                                                                    {student.status === 'Pending' && (
-                                                                        <>
-                                                                            <Button size="sm" className="h-8 w-8 p-0 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-700 border border-emerald-200 shadow-sm" onClick={() => handleApprove(student)} title="Approve">
-                                                                                <CheckCircle className="h-4 w-4" />
-                                                                            </Button>
-                                                                            <Button size="sm" className="h-8 w-8 p-0 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border border-red-200 shadow-sm" onClick={() => handleReject(student)} title="Reject">
-                                                                                <XCircle className="h-4 w-4" />
-                                                                            </Button>
-                                                                        </>
-                                                                    )}
-
-                                                                    {student.status === 'Approved' && (
-                                                                        <>
-                                                                            <Button size="sm" className={cn("h-8 px-3 gap-1", student.result === 'Passed' ? "bg-emerald-100 text-emerald-700 cursor-default" : "text-emerald-600 bg-white border border-emerald-200 hover:bg-emerald-50")} onClick={() => student.result !== 'Passed' && handlePass(student)} title="Mark as Passed">
-                                                                                <CheckCircle className="h-3.5 w-3.5" /> <span className="hidden xl:inline">Pass</span>
-                                                                            </Button>
-                                                                            <Button size="sm" className={cn("h-8 px-3 gap-1", student.result === 'Failed' ? "bg-red-100 text-red-700 cursor-default" : "text-red-600 bg-white border border-red-200 hover:bg-red-50")} onClick={() => student.result !== 'Failed' && handleFail(student)} title="Mark as Failed">
-                                                                                <XCircle className="h-3.5 w-3.5" /> <span className="hidden xl:inline">Fail</span>
-                                                                            </Button>
-                                                                        </>
-                                                                    )}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -505,28 +454,6 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* Competitions Tab */}
-            {activeTab === 'competitions' && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {competitions.map((comp) => (
-                            <div key={comp.id} className="flex flex-col gap-0">
-                                <CompetitionCard
-                                    competition={comp}
-                                    showActions={false}
-                                />
-                                <Link
-                                    to={`/admin/competition/${comp.id}/timeline`}
-                                    className="flex items-center justify-center gap-2 py-2.5 rounded-b-2xl -mt-1 border border-t-0 border-slate-200 dark:border-slate-800 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 text-sm font-bold hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors group"
-                                >
-                                    <LayoutList size={14} className="group-hover:scale-110 transition-transform" />
-                                    Manage Timeline
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
 
             {/* Student Details Modal */}
             {selectedStudent && (
@@ -741,6 +668,13 @@ const AdminDashboard = () => {
                             <Button variant="outline" onClick={() => setSelectedStudent(null)}>Close Details</Button>
                         </div>
                     </Card>
+                </div>
+            )}
+
+            {/* Manage / Competition Wizard Tab */}
+            {activeTab === 'manage' && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <CompetitionWizard />
                 </div>
             )}
 

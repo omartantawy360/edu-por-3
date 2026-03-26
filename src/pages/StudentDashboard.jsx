@@ -3,17 +3,18 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X, FileText, ArrowRight, ExternalLink, Sparkles } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, Calendar, User, MessageSquare, School, Mail, BookOpen, Bell, X, FileText, ArrowRight, ExternalLink, Sparkles, Star, ThumbsUp, ThumbsDown, BarChart3 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import DeadlineTimer from '../components/ui/DeadlineTimer';
 import StudentJourneyTimeline from '../components/ui/StudentJourneyTimeline';
 import { Link } from 'react-router-dom';
 import { useTeam } from '../context/TeamContext';
+import CompetitionPhaseSteps from '../components/ui/CompetitionPhaseSteps';
 
 const StudentDashboard = () => {
     const { 
         students, notifications, removeNotification, competitions, 
-        getStudentSubmissions, getStudentCertificates, announcements 
+        getStudentSubmissions, getStudentCertificates, scores
     } = useApp();
     const { user } = useAuth();
     const { userTeams } = useTeam();
@@ -297,6 +298,15 @@ const StudentDashboard = () => {
                                                                         </span>
                                                                     )}
                                                                 </div>
+                                                                {comp && (
+                                                                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Competition Phase</span>
+                                                                            <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase">{comp.phase}</Badge>
+                                                                        </div>
+                                                                        <CompetitionPhaseSteps currentPhase={comp.phase} />
+                                                                    </div>
+                                                                )}
                                                             </div>
 
                                                             <div className="flex items-center gap-3">
@@ -308,7 +318,7 @@ const StudentDashboard = () => {
                                                                     )}>
                                                                         {reg.status}
                                                                     </Badge>
-                                                                    {reg.result && reg.result !== 'Pending' && (
+                                                                    {reg.result && reg.result !== 'Pending' && reg.result !== '-' && (
                                                                         <div className={cn(
                                                                             "text-xs font-bold mt-1 text-right uppercase tracking-wider",
                                                                             reg.result === 'Passed' ? 'text-emerald-600' : 'text-red-600'
@@ -316,9 +326,56 @@ const StudentDashboard = () => {
                                                                             {reg.result}
                                                                         </div>
                                                                     )}
+
                                                                 </div>
                                                             </div>
                                                         </div>
+
+                                                        {/* Results Banner (Published) */}
+                                                        {comp?.resultsVisibility === 'Published' && reg.result && reg.result !== '-' && (
+                                                            <div className={cn(
+                                                                'mt-4 p-4 rounded-2xl border-2 space-y-3',
+                                                                reg.result === 'Passed'
+                                                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                                                                    : 'bg-red-50   dark:bg-red-900/20   border-red-200   dark:border-red-800'
+                                                            )}>
+                                                                <div className={cn(
+                                                                    'flex items-center gap-2 font-bold text-base',
+                                                                    reg.result === 'Passed' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'
+                                                                )}>
+                                                                    {reg.result === 'Passed' ? <ThumbsUp size={17} /> : <ThumbsDown size={17} />}
+                                                                    {reg.result === 'Passed' ? '🎉 Congratulations! You Passed!' : 'You did not pass this round. Keep going! 💪'}
+                                                                </div>
+                                                                {(() => {
+                                                                    const sc = scores.find(s => s.studentId === reg.id && s.competitionId === comp.id);
+                                                                    if (!sc) return null;
+                                                                    const cats = [
+                                                                        { label: 'Innovation',   val: sc.innovation },
+                                                                        { label: 'Design',       val: sc.design },
+                                                                        { label: 'Presentation', val: sc.presentation },
+                                                                        { label: 'Technical',    val: sc.technical },
+                                                                    ];
+                                                                    return (
+                                                                        <div className='space-y-2 pt-2 border-t border-current/10'>
+                                                                            <p className='text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5'>
+                                                                                <BarChart3 size={9} /> Score Breakdown
+                                                                            </p>
+                                                                            {cats.map(c => (
+                                                                                <div key={c.label} className='flex items-center gap-2'>
+                                                                                    <span className='w-24 text-[11px] text-slate-500 dark:text-slate-400 shrink-0'>{c.label}</span>
+                                                                                    <div className='flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden'>
+                                                                                        <div className={cn('h-full rounded-full transition-all duration-500', reg.result === 'Passed' ? 'bg-emerald-500' : 'bg-red-400')}
+                                                                                            style={{ width: `${(c.val / 10) * 100}%` }} />
+                                                                                    </div>
+                                                                                    <span className='w-5 text-[11px] font-bold text-slate-700 dark:text-slate-300 text-right'>{c.val}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                            <p className='text-right text-sm font-black text-violet-600 dark:text-violet-400'>Total: {sc.total ?? '—'} / 40</p>
+                                                                        </div>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                        )}
 
                                                         {/* Abstract + Feedback */}
                                                         {(reg.abstract || reg.feedback) && (

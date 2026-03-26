@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTeam } from '../context/TeamContext';
 import { useAuth } from '../context/AuthContext';
 import { Send, FileText, Link as LinkIcon, Download, Users, UserPlus, CheckCircle, XCircle, LogOut, Settings, TrendingUp, MessageCircle, Folder, Plus } from 'lucide-react';
+import { Badge } from '../components/ui/Badge';
+import { cn } from '../utils/cn';
 
 export default function TeamHub() {
     const { teamId } = useParams();
@@ -95,7 +97,17 @@ export default function TeamHub() {
                             </div>
                             <div>
                                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-50">{team.name}</h1>
-                                <p className="text-sm text-violet-600 dark:text-violet-400 font-semibold mt-1 uppercase tracking-wide">{team.competitionName}</p>
+                                <div className="flex items-center gap-3 mt-1">
+                                    <p className="text-sm text-violet-600 dark:text-violet-400 font-semibold uppercase tracking-wide">{team.competitionName}</p>
+                                    <Badge variant="outline" className={cn(
+                                        "px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border shadow-sm",
+                                        team.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800' :
+                                        team.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800' :
+                                        'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800'
+                                    )}>
+                                        {team.status || 'Pending'}
+                                    </Badge>
+                                </div>
                                 <p className="text-slate-600 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">{team.description}</p>
                             </div>
                         </div>

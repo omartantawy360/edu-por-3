@@ -26,6 +26,7 @@ export const TeamProvider = ({ children }) => {
             competitionName: 'Science and Engineering Fair',
             leaderId: 'ST-001',
             leaderName: 'Omar Tantawy',
+            status: 'Accepted',
             members: [
                 { id: 'ST-001', name: 'Omar Tantawy', role: 'Team Lead', avatar: 'OT', joinedDate: '2026-01-01' },
                 { id: 'ST-002', name: 'Muhammad Shibaani', role: 'Member', avatar: 'MS', joinedDate: '2026-01-02' },
@@ -44,6 +45,7 @@ export const TeamProvider = ({ children }) => {
             competitionName: 'AI Programming Championship',
             leaderId: 'ST-004',
             leaderName: 'Layla Saleh',
+            status: 'Accepted',
             members: [
                 { id: 'ST-004', name: 'Layla Saleh', role: 'Team Lead', avatar: 'LS', joinedDate: '2026-01-05' },
                 { id: 'ST-005', name: 'Ahmed Deen', role: 'Member', avatar: 'AD', joinedDate: '2026-01-06' },
@@ -61,6 +63,7 @@ export const TeamProvider = ({ children }) => {
             competitionName: 'Web Applications Challenge',
             leaderId: 'ST-007',
             leaderName: 'Hassan Ghareeb',
+            status: 'Pending',
             members: [
                 { id: 'ST-007', name: 'Hassan Ghareeb', role: 'Team Lead', avatar: 'HG', joinedDate: '2026-01-10' },
                 { id: 'ST-008', name: 'Zainab Faraj', role: 'Member', avatar: 'ZF', joinedDate: '2026-01-11' },
@@ -80,6 +83,7 @@ export const TeamProvider = ({ children }) => {
             competitionName: 'International Robotics Olympiad',
             leaderId: 'ST-011',
             leaderName: 'Shireen Shemari',
+            status: 'Accepted',
             members: [
                 { id: 'ST-011', name: 'Shireen Shemari', role: 'Team Lead', avatar: 'SS', joinedDate: '2026-01-15' },
                 { id: 'ST-012', name: 'Kamal Shibaani', role: 'Member', avatar: 'KS', joinedDate: '2026-01-16' },
@@ -277,14 +281,23 @@ export const TeamProvider = ({ children }) => {
             rank: teams.length + 1,
             achievements: [],
             createdDate: new Date().toISOString().split('T')[0],
-            ...teamData
+            ...teamData,
+            status: 'Pending'
         };
 
         setTeams(prev => [...prev, newTeam]);
+        addNotification(`Team ${newTeam.name} created and is pending approval`, "success");
         setTeamMessages(prev => ({ ...prev, [newTeam.id]: [] }));
         setTeamResources(prev => ({ ...prev, [newTeam.id]: [] }));
 
         return newTeam;
+    };
+
+    const updateTeamStatus = (teamId, status) => {
+        setTeams(prev => prev.map(team => 
+            team.id === teamId ? { ...team, status } : team
+        ));
+        addNotification(`Team status updated to ${status}`, "success");
     };
 
     // Leave a team
@@ -407,6 +420,7 @@ export const TeamProvider = ({ children }) => {
             teamResources,
             sendMessage,
             addResource,
+            updateTeamStatus,
         }}>
             {children}
         </TeamContext.Provider>

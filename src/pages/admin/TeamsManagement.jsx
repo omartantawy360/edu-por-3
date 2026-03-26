@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { useTeam } from '../../context/TeamContext';
-import { useNavigate } from 'react-router-dom';
-import { Users, Search, Filter, Plus, UserPlus, CheckCircle, XCircle, Edit, Trash2, Shield, TrendingUp, AlertCircle } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
+import { Users, Search, Filter, Plus, UserPlus, CheckCircle, XCircle, Edit, Trash2, Shield, TrendingUp, AlertCircle, Clock } from 'lucide-react';
+import { Badge } from '../../components/ui/Badge';
+import { cn } from '../../utils/cn';
 
 export default function TeamsManagement() {
-    const { teams, joinRequests, approveJoinRequest, rejectJoinRequest, createTeam } = useTeam();
+    const { competitions } = useApp();
+    const { teams, joinRequests, approveJoinRequest, rejectJoinRequest, createTeam, updateTeamStatus } = useTeam();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const compFilterParam = searchParams.get('competition');
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterCompetition, setFilterCompetition] = useState('all');
+    const [filterCompetition, setFilterCompetition] = useState(compFilterParam || 'all');
     const [activeTab, setActiveTab] = useState('teams'); // 'teams', 'requests'
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newTeam, setNewTeam] = useState({
@@ -28,13 +34,6 @@ export default function TeamsManagement() {
         return matchesSearch && matchesFilter;
     });
 
-    const competitions = [
-        { id: 'c1', name: 'Technology and Innovation Summit' },
-        { id: 'c2', name: 'Science and Engineering Fair' },
-        { id: 'c3', name: 'AI Programming Championship' },
-        { id: 'c4', name: 'Web Applications Challenge' },
-        { id: 'c5', name: 'International Robotics Olympiad' }
-    ];
 
     const handleApproveRequest = (requestId) => {
         approveJoinRequest(requestId);
@@ -200,8 +199,7 @@ export default function TeamsManagement() {
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Competition</th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Leader</th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Members</th>
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Rank</th>
-                                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Score</th>
+                                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
@@ -234,16 +232,38 @@ export default function TeamsManagement() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="text-sm text-slate-800 dark:text-slate-100">#{team.rank}</span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{team.score}</span>
+                                                <Badge className={cn(
+                                                    "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                                                    team.status === 'Accepted' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' :
+                                                    team.status === 'Rejected' ? 'bg-red-100 text-red-700 hover:bg-red-200' :
+                                                    'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                                )}>
+                                                    {team.status || 'Pending'}
+                                                </Badge>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
+                                                    {team.status === 'Pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => updateTeamStatus(team.id, 'Accepted')}
+                                                                className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all"
+                                                                title="Accept Team"
+                                                            >
+                                                                <CheckCircle size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateTeamStatus(team.id, 'Rejected')}
+                                                                className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                                                title="Reject Team"
+                                                            >
+                                                                <XCircle size={16} />
+                                                            </button>
+                                                        </>
+                                                    )}
                                                     <button
                                                         onClick={() => navigate(`/admin/teams/${team.id}`)}
-                                                        className="p-2 text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-all"
+                                                        className="p-2 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all"
                                                         title="View Details"
                                                     >
                                                         <Edit size={16} />

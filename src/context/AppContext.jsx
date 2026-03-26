@@ -137,6 +137,33 @@ const generateDemoPosts = () => ({
   ],
 });
 
+/**
+ * ─────────────────────────────────────────────────────────
+ *  COMPETITION CONSTANTS
+ * ─────────────────────────────────────────────────────────
+ */
+export const COMPETITION_PHASES = {
+  DRAFT: 'Draft',
+  REGISTRATION_OPEN: 'Registration Open',
+  REGISTRATION_CLOSED: 'Registration Closed',
+  EVALUATION: 'Evaluation',
+  RESULTS_READY: 'Results Ready',
+  RESULTS_PUBLISHED: 'Results Published',
+  ARCHIVED: 'Archived'
+};
+
+export const RESULTS_VISIBILITY = {
+  HIDDEN: 'Hidden',
+  INTERNAL: 'Internal',
+  PUBLISHED: 'Published'
+};
+
+export const LEADERBOARD_STATUS = {
+  HIDDEN: 'Hidden',
+  LIVE: 'Live',
+  FINAL: 'Final'
+};
+
 const AppContext = createContext(null);
 
 export const useApp = () => {
@@ -306,57 +333,90 @@ export const AppProvider = ({ children }) => {
     { 
         id: 'c1', 
         name: 'Technology and Innovation Summit', 
-        stages: ['Stage 1', 'Stage 2', 'Finals'],
+        phase: COMPETITION_PHASES.RESULTS_PUBLISHED,
+        stages: [
+          { name: 'Stage 1', startDate: '2026-10-05', endDate: '2026-10-25', maxTeams: 100, status: 'Completed' },
+          { name: 'Stage 2', startDate: '2026-11-10', endDate: '2026-11-12', maxTeams: 30, status: 'Completed' },
+          { name: 'Finals', startDate: '2026-12-15', endDate: '2026-12-15', maxTeams: 10, status: 'Completed' }
+        ],
         description: 'Annual competition in technological innovation for high school students.',
         type: 'Internal',
         startDate: '2026-09-01',
         endDate: '2026-12-15',
         maxParticipants: 100,
-        categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech']
+        categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech'],
+        resultsVisibility: RESULTS_VISIBILITY.PUBLISHED,
+        leaderboardStatus: LEADERBOARD_STATUS.FINAL
     },
     { 
         id: 'c2', 
         name: 'Science and Engineering Fair', 
-        stages: ['Submission', 'Finals'],
+        phase: COMPETITION_PHASES.EVALUATION,
+        stages: [
+          { name: 'Submission', startDate: '2026-11-05', endDate: '2026-11-30', maxTeams: 50, status: 'Completed' },
+          { name: 'Finals', startDate: '2026-01-20', endDate: '2026-01-21', maxTeams: 15, status: 'Open' }
+        ],
         description: 'Display of innovative science and engineering projects.',
         type: 'Internal',
         startDate: '2026-10-01',
         endDate: '2026-02-20',
         maxParticipants: 50,
-        categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy']
+        categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy'],
+        resultsVisibility: RESULTS_VISIBILITY.INTERNAL,
+        leaderboardStatus: LEADERBOARD_STATUS.LIVE
     },
     { 
         id: 'c3', 
         name: 'AI Programming Championship', 
-        stages: ['Preliminaries', 'Finals'],
+        phase: COMPETITION_PHASES.REGISTRATION_OPEN,
+        stages: [
+          { name: 'Preliminaries', startDate: '2026-12-01', endDate: '2026-12-15', maxTeams: 200, status: 'Upcoming' },
+          { name: 'Finals', startDate: '2026-01-15', endDate: '2026-01-30', maxTeams: 50, status: 'Upcoming' }
+        ],
         description: 'Programming competition specialized in artificial intelligence and machine learning.',
         type: 'Internal',
         startDate: '2026-11-15',
         endDate: '2026-01-30',
         maxParticipants: 200,
-        categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI']
+        categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI'],
+        resultsVisibility: RESULTS_VISIBILITY.HIDDEN,
+        leaderboardStatus: LEADERBOARD_STATUS.HIDDEN
     },
     { 
         id: 'c4', 
         name: 'Web Applications Challenge', 
-        stages: ['Round 1', 'Round 2', 'Finals'],
+        phase: COMPETITION_PHASES.DRAFT,
+        stages: [
+          { name: 'Round 1', startDate: '2026-01-10', endDate: '2026-01-30', maxTeams: 32, status: 'Upcoming' },
+          { name: 'Round 2', startDate: '2026-02-10', endDate: '2026-02-28', maxTeams: 16, status: 'Upcoming' },
+          { name: 'Finals', startDate: '2026-03-10', endDate: '2026-03-15', maxTeams: 8, status: 'Upcoming' }
+        ],
         description: 'Competition in web application and static application development.',
         type: 'Internal',
         startDate: '2026-01-10',
         endDate: '2026-03-15',
         maxParticipants: 32,
-        categories: []
+        categories: [],
+        resultsVisibility: RESULTS_VISIBILITY.HIDDEN,
+        leaderboardStatus: LEADERBOARD_STATUS.HIDDEN
     },
     { 
         id: 'c5', 
         name: 'International Robotics Olympiad', 
-        stages: ['Local Qualification', 'Regional', 'International Finals'], 
+        phase: COMPETITION_PHASES.REGISTRATION_CLOSED,
+        stages: [
+          { name: 'Local Qualification', startDate: '2026-05-11', endDate: '2026-05-12', maxTeams: 1000, status: 'Upcoming' },
+          { name: 'Regional', startDate: '2026-05-13', endDate: '2026-05-14', maxTeams: 100, status: 'Upcoming' },
+          { name: 'International Finals', startDate: '2026-05-15', endDate: '2026-05-17', maxTeams: 20, status: 'Upcoming' }
+        ], 
         description: 'First international robotics competition.', 
         type: 'Outer',
         startDate: '2026-05-11',
         endDate: '2026-05-17',
         maxParticipants: 1000,
-        categories: []
+        categories: [],
+        resultsVisibility: RESULTS_VISIBILITY.HIDDEN,
+        leaderboardStatus: LEADERBOARD_STATUS.HIDDEN
     }
   ]);
 
@@ -398,6 +458,25 @@ export const AppProvider = ({ children }) => {
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
   };
 
+  const updateCompetitionPhase = (id, phase) => {
+    setCompetitions(prev => prev.map(c => c.id === id ? { ...c, phase } : c));
+    addNotification(`Competition phase updated to ${phase}`, "info");
+  };
+
+  const updateCompetitionVisibility = (id, visibility) => {
+    setCompetitions(prev => prev.map(c => c.id === id ? { ...c, resultsVisibility: visibility } : c));
+    addNotification(`Results visibility set to ${visibility}`, "info");
+  };
+
+  const updateLeaderboardStatus = (id, status) => {
+    setCompetitions(prev => prev.map(c => c.id === id ? { ...c, leaderboardStatus: status } : c));
+    addNotification(`Leaderboard status updated to ${status}`, "info");
+  };
+
+  const updateCompetitionStages = (id, stages) => {
+    setCompetitions(prev => prev.map(c => c.id === id ? { ...c, stages } : c));
+  };
+
   const addCompetition = (data) => {
       const newCompetition = {
           id: Math.random().toString(36).substr(2, 9),
@@ -406,6 +485,10 @@ export const AppProvider = ({ children }) => {
           startDate: '',
           endDate: '',
           maxParticipants: 0,
+          phase: COMPETITION_PHASES.DRAFT,
+          stages: [],
+          resultsVisibility: RESULTS_VISIBILITY.HIDDEN,
+          leaderboardStatus: LEADERBOARD_STATUS.HIDDEN,
           ...data
       };
       setCompetitions(prev => [...prev, newCompetition]);
@@ -592,6 +675,26 @@ export const AppProvider = ({ children }) => {
     return scores.find(s => s.studentId === studentId && s.competitionId === competitionId) || null;
   };
 
+  // Returns all students registered for a competition, optionally filtered by stage
+  const getCompetitionStudents = (competitionId, stage = null) => {
+    return students.filter(s =>
+      s.competition === competitions.find(c => c.id === competitionId)?.name &&
+      (stage === null || s.stage === stage)
+    );
+  };
+
+  // Mark many students Passed or Failed at once and send notifications
+  const bulkSetResults = (studentIds, result) => {
+    setStudents(prev => prev.map(s => {
+      if (!studentIds.includes(s.id)) return s;
+      const msg = result === 'Passed'
+        ? `Congratulations! You have passed ${s.competition}! 🎉🏆`
+        : `Unfortunately, you did not pass ${s.competition}. Keep trying! 💪`;
+      addNotification(msg, result === 'Passed' ? 'success' : 'error', s.id);
+      return { ...s, result };
+    }));
+  };
+
   // Handle Demo Mode Toggle
   const toggleDemoMode = () => {
     setIsDemoMode(prev => {
@@ -600,11 +703,94 @@ export const AppProvider = ({ children }) => {
         // Populate rich demo data
         setStudents(generateMockStudents());
         setCompetitions([
-          { id: 'c1', name: 'Technology and Innovation Summit', stages: ['Stage 1', 'Stage 2', 'Finals'], description: 'Annual competition in technological innovation for high school students.', type: 'Internal', startDate: '2026-09-01', endDate: '2026-12-15', maxParticipants: 100, categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech'] },
-          { id: 'c2', name: 'Science and Engineering Fair', stages: ['Submission', 'Finals'], description: 'Display of innovative science and engineering projects.', type: 'Internal', startDate: '2026-10-01', endDate: '2026-02-20', maxParticipants: 50, categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy'] },
-          { id: 'c3', name: 'AI Programming Championship', stages: ['Preliminaries', 'Finals'], description: 'Programming competition specialized in artificial intelligence and machine learning.', type: 'Internal', startDate: '2026-11-15', endDate: '2026-01-30', maxParticipants: 200, categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI'] },
-          { id: 'c4', name: 'Web Applications Challenge', stages: ['Round 1', 'Round 2', 'Finals'], description: 'Competition in web application development.', type: 'Internal', startDate: '2026-01-10', endDate: '2026-03-15', maxParticipants: 32, categories: [] },
-          { id: 'c5', name: 'International Robotics Olympiad', stages: ['Local Qualification', 'Regional', 'International Finals'], description: 'First international robotics competition.', type: 'Outer', startDate: '2026-05-11', endDate: '2026-05-17', maxParticipants: 1000, categories: [] }
+          { 
+            id: 'c1', 
+            name: 'Technology and Innovation Summit', 
+            phase: 'Results Published',
+            stages: [
+              { name: 'Stage 1', startDate: '2026-10-05', endDate: '2026-10-25', status: 'Completed' },
+              { name: 'Stage 2', startDate: '2026-11-10', endDate: '2026-11-12', status: 'Completed' },
+              { name: 'Finals', startDate: '2026-12-15', endDate: '2026-12-15', status: 'Completed' }
+            ],
+            description: 'Annual competition in technological innovation for high school students.', 
+            type: 'Internal', 
+            startDate: '2026-09-01', 
+            endDate: '2026-12-15', 
+            maxParticipants: 100, 
+            categories: ['Smart Cities', 'Health Tech', 'FinTech', 'EdTech'],
+            resultsVisibility: 'Published',
+            leaderboardStatus: 'Final'
+          },
+          { 
+            id: 'c2', 
+            name: 'Science and Engineering Fair', 
+            phase: 'Evaluation',
+            stages: [
+              { name: 'Submission', startDate: '2026-11-05', endDate: '2026-11-30', status: 'Completed' },
+              { name: 'Finals', startDate: '2026-01-20', endDate: '2026-01-21', status: 'Open' }
+            ],
+            description: 'Display of innovative science and engineering projects.', 
+            type: 'Internal', 
+            startDate: '2026-10-01', 
+            endDate: '2026-02-20', 
+            maxParticipants: 50, 
+            categories: ['Environmental Science', 'Mechanical Engineering', 'BioTech', 'Renewable Energy'],
+            resultsVisibility: 'Internal',
+            leaderboardStatus: 'Live'
+          },
+          { 
+            id: 'c3', 
+            name: 'AI Programming Championship', 
+            phase: 'Registration Open',
+            stages: [
+              { name: 'Preliminaries', startDate: '2026-12-01', endDate: '2026-12-15', status: 'Upcoming' },
+              { name: 'Finals', startDate: '2026-01-15', endDate: '2026-01-30', status: 'Upcoming' }
+            ],
+            description: 'Programming competition specialized in artificial intelligence and machine learning.', 
+            type: 'Internal', 
+            startDate: '2026-11-15', 
+            endDate: '2026-01-30', 
+            maxParticipants: 200, 
+            categories: ['Natural Language Processing', 'Computer Vision', 'Predictive Analysis', 'Robotics AI'],
+            resultsVisibility: 'Hidden',
+            leaderboardStatus: 'Hidden'
+          },
+          { 
+            id: 'c4', 
+            name: 'Web Applications Challenge', 
+            phase: 'Draft',
+            stages: [
+              { name: 'Round 1', startDate: '2026-01-10', endDate: '2026-01-30', status: 'Upcoming' },
+              { name: 'Round 2', startDate: '2026-02-10', endDate: '2026-02-28', status: 'Upcoming' },
+              { name: 'Finals', startDate: '2026-03-10', endDate: '2026-03-15', status: 'Upcoming' }
+            ],
+            description: 'Competition in web application development.', 
+            type: 'Internal', 
+            startDate: '2026-01-10', 
+            endDate: '2026-03-15', 
+            maxParticipants: 32, 
+            categories: [],
+            resultsVisibility: 'Hidden',
+            leaderboardStatus: 'Hidden'
+          },
+          { 
+            id: 'c5', 
+            name: 'International Robotics Olympiad', 
+            phase: 'Registration Closed',
+            stages: [
+              { name: 'Local Qualification', startDate: '2026-05-11', endDate: '2026-05-12', status: 'Upcoming' },
+              { name: 'Regional', startDate: '2026-05-13', endDate: '2026-05-14', status: 'Upcoming' },
+              { name: 'International Finals', startDate: '2026-05-15', endDate: '2026-05-17', status: 'Upcoming' }
+            ],
+            description: 'First international robotics competition.', 
+            type: 'Outer', 
+            startDate: '2026-05-11', 
+            endDate: '2026-05-17', 
+            maxParticipants: 1000, 
+            categories: [],
+            resultsVisibility: 'Hidden',
+            leaderboardStatus: 'Hidden'
+          }
         ]);
         setSubmissions([
           { 
@@ -766,7 +952,12 @@ export const AppProvider = ({ children }) => {
       deletePost,
       getCompetitionPosts,
       announcements,
-      addAnnouncement,
+      updateCompetitionPhase,
+      updateCompetitionVisibility,
+      updateLeaderboardStatus,
+      updateCompetitionStages,
+      getCompetitionStudents,
+      bulkSetResults,
     }}>
       {children}
     </AppContext.Provider>

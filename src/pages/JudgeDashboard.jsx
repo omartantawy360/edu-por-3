@@ -144,6 +144,34 @@ const JudgeDashboard = ({ tab }) => {
                 ))}
             </div>
 
+            {/* Phase Awareness Banners */}
+            <div className="space-y-3">
+                {assignedCompetitions.some(c => c.phase === 'Results Published') && (
+                    <div className="p-4 rounded-2xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 flex items-center gap-3">
+                        <AlertCircle className="h-5 w-5 text-violet-500 shrink-0" />
+                        <p className="text-sm font-semibold text-violet-800 dark:text-violet-300">
+                            Results for some assigned competitions have already been published. Evaluations are now read-only.
+                        </p>
+                    </div>
+                )}
+                {!assignedCompetitions.some(c => c.phase === 'Evaluation') && !assignedCompetitions.some(c => c.phase === 'Results Published') && (
+                    <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center gap-3">
+                        <Clock className="h-5 w-5 text-amber-500 shrink-0" />
+                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                            No competitions are currently in the Evaluation phase. You can preview submissions, but scoring may not be saved.
+                        </p>
+                    </div>
+                )}
+                {assignedCompetitions.some(c => c.phase === 'Evaluation') && (
+                    <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3">
+                        <Gavel className="h-5 w-5 text-emerald-500 shrink-0" />
+                        <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                            Evaluation phase is active. Please review all assigned submissions by the deadline.
+                        </p>
+                    </div>
+                )}
+            </div>
+
             {/* Progress Bar */}
             <div className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/50">
                 <div className="flex items-center justify-between mb-3">
@@ -235,7 +263,7 @@ const JudgeDashboard = ({ tab }) => {
                                 </button>
                             </div>
                             <div className="space-y-3">
-                                {pendingSubs.slice(0, 3).map((sub, i) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), false))}
+                                {pendingSubs.slice(0, 3).map((sub) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), false))}
                             </div>
                         </div>
                     )}
@@ -251,7 +279,7 @@ const JudgeDashboard = ({ tab }) => {
                             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">You've reviewed all assigned submissions</p>
                         </div>
                     ) : (
-                        pendingSubs.map((sub, i) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), false))
+                        pendingSubs.map((sub) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), false))
                     )}
                 </div>
             )}
@@ -265,7 +293,7 @@ const JudgeDashboard = ({ tab }) => {
                             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Start evaluating to see completed reviews here</p>
                         </div>
                     ) : (
-                        completedSubs.map((sub, i) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), true))
+                        completedSubs.map((sub) => renderSubmissionCard(sub, assignedSubs.indexOf(sub), true))
                     )}
                 </div>
             )}

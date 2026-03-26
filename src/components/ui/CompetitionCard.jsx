@@ -31,6 +31,11 @@ const CompetitionCard = ({ competition, onRegister, showActions = true }) => {
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent" />
+        <div className="absolute top-4 left-4 z-10">
+          <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm bg-black/40 backdrop-blur-md text-white border border-white/20`}>
+            {competition.phase}
+          </span>
+        </div>
         <div className="absolute top-4 right-4 z-10">
           <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm ${getTypeBadge(competition.type)}`}>
             {competition.type === 'Outer' ? '🌍 Global' : '🏫 Internal'}
@@ -123,7 +128,7 @@ const CompetitionCard = ({ competition, onRegister, showActions = true }) => {
             <div className="flex flex-wrap gap-2">
               {competition.stages?.slice(0, 3).map((stage, i) => (
                 <span key={i} className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700">
-                  {stage}
+                  {typeof stage === 'string' ? stage : stage.name}
                 </span>
               ))}
               {competition.stages?.length > 3 && (
