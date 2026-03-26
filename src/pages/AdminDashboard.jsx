@@ -406,16 +406,19 @@ const AdminDashboard = () => {
                                                                 {competition && (
                                                                     <select
                                                                         className="rounded-lg border border-slate-200 bg-white text-xs py-1.5 pl-2.5 pr-8 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100 cursor-pointer hover:border-violet-300 transition-colors"
-                                                                        value={student.stage}
+                                                                        value={typeof student.stage === 'string' ? student.stage : (student.stage?.name || '')}
                                                                         onChange={(e) => updateStudentStage(student.id, e.target.value)}
                                                                     >
-                                                                        {competition.stages.map(stage => (
-                                                                            <option key={stage} value={stage}>{stage}</option>
-                                                                        ))}
+                                                                        {(competition.stages || []).map(stage => {
+                                                                            const sName = typeof stage === 'string' ? stage : (stage.name || 'Unnamed Stage');
+                                                                            return <option key={sName} value={sName}>{sName}</option>;
+                                                                        })}
                                                                         <option value="Registration">Registration</option>
                                                                     </select>
                                                                 )}
-                                                                {!competition && <span>{student.stage}</span>}
+                                                                {(!competition || !student.stage) && (
+                                                                    <span>{typeof student.stage === 'string' ? student.stage : (student.stage?.name || '-')}</span>
+                                                                )}
                                                             </td>
                                                             <td className="px-6 py-4">
                                                                 <Badge variant={
