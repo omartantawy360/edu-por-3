@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -12,6 +12,7 @@ import {
 import { cn } from '../utils/cn';
 import CompetitionCard from '../components/ui/CompetitionCard';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import CompetitionPhaseSteps from '../components/ui/CompetitionPhaseSteps';
 import { useTeam } from '../context/TeamContext';
 import { COMPETITION_PHASES, RESULTS_VISIBILITY, LEADERBOARD_STATUS } from '../context/AppContext';
 import CompetitionWizard from '../components/admin/CompetitionWizard';
@@ -111,9 +112,11 @@ const TabButton = ({ id, label, icon: iconProp, activeTab, setActiveTab }) => {
 const AdminDashboard = () => {
     const { 
         students, competitions, submissions, notifications, removeNotification, 
-        updateStudentStage, setStudentFeedback
+        updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback,
+        updateCompetitionPhase, updateCompetitionVisibility, updateLeaderboardStatus
     } = useApp();
     const { teams } = useTeam();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -156,6 +159,58 @@ const AdminDashboard = () => {
         setFeedback('');
         // Close modal or show success? Let's just reset for now and maybe close
         setSelectedStudent(null);
+    };
+
+    const handleApprove = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Approve Registration?',
+            message: 'This will allow the student/team to participate in the competition.',
+            type: 'warning',
+            onConfirm: () => {
+                updateStudentStatus(id, 'Approved');
+                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const handleReject = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Reject Registration?',
+            message: 'Are you sure you want to reject this registration?',
+            type: 'destructive',
+            onConfirm: () => {
+                updateStudentStatus(id, 'Rejected');
+                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const handlePass = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Mark as Passed?',
+            message: 'This student/team has successfully completed this stage.',
+            type: 'warning',
+            onConfirm: () => {
+                setStudentResult(id, 'Passed');
+                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const handleFail = (id) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Mark as Failed?',
+            message: 'Are you sure you want to mark this entry as failed?',
+            type: 'destructive',
+            onConfirm: () => {
+                setStudentResult(id, 'Failed');
+                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
 
@@ -242,6 +297,7 @@ const AdminDashboard = () => {
                 <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl w-full sm:w-auto self-start gap-1 overflow-x-auto max-w-full">
                     <TabButton id="overview" label="Overview" icon={FileText} activeTab={activeTab} setActiveTab={setActiveTab} />
                     <TabButton id="directory" label="Directory" icon={Users} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton id="competitions" label="Competitions" icon={Trophy} activeTab={activeTab} setActiveTab={setActiveTab} />
                     <TabButton id="manage" label="Manage" icon={LayoutList} activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
             </div>
@@ -438,7 +494,29 @@ const AdminDashboard = () => {
                                                                 </span>
                                                             </td>
                                                             <td className="px-6 py-4">
-                                                                <div className="flex items-center justify-end gap-2">
+                                                                <div className="flex items-center justify-end gap-2 text-right">
+                                                                    <div className="flex items-center gap-1">
+                                                                        {student.status === 'Pending' && (
+                                                                            <>
+                                                                                <Button size="xs" variant="ghost" className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full" onClick={() => handleApprove(student.id)}>
+                                                                                    <CheckCircle className="h-4 w-4" />
+                                                                                </Button>
+                                                                                <Button size="xs" variant="ghost" className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full" onClick={() => handleReject(student.id)}>
+                                                                                    <XCircle className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </>
+                                                                        )}
+                                                                        {student.status === 'Approved' && !student.result && (
+                                                                            <>
+                                                                                <Button size="xs" variant="ghost" className="h-8 px-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => handlePass(student.id)}>
+                                                                                    PASS
+                                                                                </Button>
+                                                                                <Button size="xs" variant="ghost" className="h-8 px-2 text-[10px] font-black text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleFail(student.id)}>
+                                                                                    FAIL
+                                                                                </Button>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
                                                                     <Button size="sm" variant="outline" className="h-8 gap-1.5 font-bold shadow-sm border-slate-200" onClick={() => setSelectedStudent(student)}>
                                                                         <Eye className="h-3.5 w-3.5" /> View Details
                                                                     </Button>
@@ -454,6 +532,108 @@ const AdminDashboard = () => {
                             </div>
                         </CardContent>
                     </Card>
+                </div>
+            )}
+
+
+            {/* Competitions Tab */}
+            {activeTab === 'competitions' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-8">
+                        {competitions.map((comp) => {
+                            const compTeams = teams.filter(t => t.competitionId === comp.id);
+                            const pendingTeams = compTeams.filter(t => t.status === 'Pending');
+                            const acceptedTeams = compTeams.filter(t => t.status === 'Accepted');
+                            
+                            return (
+                                <Card key={comp.id} className="overflow-hidden border-slate-200 dark:border-slate-800 shadow-lg">
+                                    <div className="flex flex-col lg:flex-row">
+                                        <div className="lg:w-1/3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
+                                            <CompetitionCard
+                                                competition={comp}
+                                                showActions={false}
+                                            />
+                                        </div>
+                                        <div className="flex-1 p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/10">
+                                            {/* Phase Indicator */}
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between px-2">
+                                                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Competition Workflow</h4>
+                                                    <Badge variant="secondary" className="capitalize">{comp.phase}</Badge>
+                                                </div>
+                                                <CompetitionPhaseSteps currentPhase={comp.phase} />
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Teams</p>
+                                                    <div className="flex items-end justify-between">
+                                                        <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{compTeams.length}</span>
+                                                        <span className="text-xs text-emerald-500 font-bold">{acceptedTeams.length} Accepted</span>
+                                                    </div>
+                                                </div>
+                                                <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phase Actions</p>
+                                                    <div className="flex gap-2">
+                                                        <Button 
+                                                            size="xs" 
+                                                            variant="default" 
+                                                            className="h-8 text-[10px] font-bold px-3"
+                                                            onClick={() => {
+                                                                const phases = Object.values(COMPETITION_PHASES);
+                                                                const currentIdx = phases.indexOf(comp.phase);
+                                                                if (currentIdx < phases.length - 1) {
+                                                                    updateCompetitionPhase(comp.id, phases[currentIdx + 1]);
+                                                                }
+                                                            }}
+                                                        >
+                                                            Move to Next
+                                                        </Button>
+                                                        {comp.phase === COMPETITION_PHASES.RESULTS_READY && (
+                                                            <Button 
+                                                                size="xs" 
+                                                                className="h-8 text-[10px] font-bold px-3 bg-emerald-600 hover:bg-emerald-700"
+                                                                onClick={() => {
+                                                                    updateCompetitionPhase(comp.id, COMPETITION_PHASES.RESULTS_PUBLISHED);
+                                                                    updateCompetitionVisibility(comp.id, RESULTS_VISIBILITY.PUBLISHED);
+                                                                    updateLeaderboardStatus(comp.id, LEADERBOARD_STATUS.FINAL);
+                                                                }}
+                                                            >
+                                                                Publish Results
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Team Control</p>
+                                                    <Link to={`/admin/teams?competition=${comp.id}`} className="text-xs font-bold text-violet-600 hover:text-violet-700 flex items-center gap-1 mt-2">
+                                                        Manage {pendingTeams.length} Pending <ArrowRight size={12} />
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-4 pt-2">
+                                                <Link
+                                                    to={`/admin/competition/${comp.id}/timeline`}
+                                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm"
+                                                >
+                                                    <LayoutList size={14} />
+                                                    Timeline Manager
+                                                </Link>
+                                                <Button 
+                                                    variant="secondary" 
+                                                    className="flex-1 rounded-2xl text-xs font-bold py-3"
+                                                    onClick={() => navigate(`/admin/submissions?competition=${comp.id}`)}
+                                                >
+                                                    <FileTextIcon size={14} /> Submissions
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 

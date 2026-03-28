@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>The Ultimate Student Competition Management Platform</strong><br>
-  <em>Empowering the next generation of innovators through structured excellence.</em>
+  <em>Empowering the next generation of innovators through structured excellence and professional lifecycle management.</em>
 </p>
 
 <p align="center">
@@ -15,7 +15,8 @@
 <p align="center">
   <a href="https://omartantawy360.github.io/edu-por-3"><strong>🚀 Live Demo</strong></a> | 
   <a href="#-visual-tour">Visual Tour</a> | 
-  <a href="#-core-features">Features</a> | 
+  <a href="#-ecosystems">Ecosystems</a> | 
+  <a href="#-competition-lifecycle">Lifecycle</a> | 
   <a href="#-architecture">Architecture</a> | 
   <a href="#-getting-started">Setup</a>
 </p>
@@ -24,103 +25,117 @@
 
 ## 🌟 Overview
 
-**EduComp** is a high-performance, premium web ecosystem designed to orchestrate academic competitions. It serves as a comprehensive platform with three distinct interfaces: a collaborative **Student Hub**, a specialized **Judge Portal**, and a powerful **Admin Command Center**.
+**EduComp** is a premium, high-performance web ecosystem designed to orchestrate academic competitions. It serves as a comprehensive platform with specialized interfaces for Students, Judges, and Administrators—now powered by a state-of-the-art **Competition Lifecycle Engine**.
 
 > [!IMPORTANT]
-> **Ecosystem Upgrade**: The latest version introduces a **Dynamic Competition Lifecycle**, featuring a public **Virtual Expo**, **Student Portfolios**, and **Journey Tracking** to provide long-term value beyond the competition dates.
+> **Dynamic Adaptation**: The entire platform is phase-aware. Dashboards, actions, and visibility states automatically shift as competitions transition through their lifecycle, ensuring a seamless journey from registration to results.
 
 ---
 
 ## 📸 Visual Tour
 
-### 🖥️ The Student Hub & Journey
-| **Personal Journey Timeline** | **Public Student Portfolio** |
+### 🖥️ The Student & Admin Experience
+| **Student Journey Timeline** | **Admin Competition Wizard** |
 | :---: | :---: |
-| ![Journey Timeline](./docs/screenshots/student-journey.png) | ![Student Profile](./docs/screenshots/student-profile.png) |
-| *Visualize your growth with a chronological milestone tracker.* | *Share your professional achievements and project history.* |
+| ![Journey Timeline](./docs/screenshots/student-journey.png) | ![Admin Wizard](./docs/screenshots/admin-wizard.png) |
+| *Visual milestone tracker for all student activities.* | *Guided 4-step workflow for lifecycle management.* |
 
-### 🏆 Excellence & Exposure
-| **Virtual Expo Hall** | **Project Showcase** |
+### 🏆 Results & Analytics
+| **Rich Result Banners** | **Score Breakdown** |
 | :---: | :---: |
-| ![Virtual Expo](./docs/screenshots/virtual-expo.png) | ![Project Showcase](./docs/screenshots/project-showcase.png) |
-| *Discover winning projects from across the ecosystem.* | *Deep-dive into project details, media, and team roles.* |
-
-### ⚖️ Evaluation & Communication
-| **Judge Panel** | **Admin Broadcast Center** |
-| :---: | :---: |
-| ![Evaluation Panel](./docs/screenshots/evaluation-panel.png) | ![Broadcast Center](./docs/screenshots/admin-broadcast.png) |
-| *Score projects fairly with anonymized data and rubrics.* | *Send smart notifications and platform-wide updates.* |
+| ![Results Banner](./docs/screenshots/results-banner.png) | ![Score Breakdown](./docs/screenshots/score-breakdown.png) |
+| *Premium Pass/Fail feedback for competitors.* | *Granular performance data (Innovation, Design, Technical).* |
 
 ---
 
-## 🎯 Core Features
+## 🌍 Ecosystems
 
-### 🎓 For Competitors (Students)
-- **🚀 Dynamic Journey**: A unified timeline of current competitions, team status, and milestone progression.
-- **🌟 Public Portfolios**: Professional, sharable profile pages showcasing all participation and awards.
-- **🤝 Team Forge**: Advanced team building tools including member search and role assignments.
-- **💬 Synergy Chat**: Built-in communication channels for seamless project planning and file tracking.
-- **📊 AI-Driven Recommendations**: Smart skill-based suggestions for which competitions match your profile best.
-- **📜 Verifiable Accolades**: Instant access to digital certificates upon successful completion of any event.
+### 🎓 1. Student Hub (Competitor)
+The heart of the competitor experience, designed for growth and visibility.
+- **🚀 Dynamic Dashboard**: A unified timeline of registered competitions, pending tasks, and team milestones.
+- **🌟 Public Portfolios**: Professional, sharable profiles that showcase achievements, skills, and past projects.
+- **🤝 Team Forge**: Advanced collaboration tools including team formation, role assignment, and recruitment.
+- **💬 Synergy Chat**: Built-in, real-time communication for team coordination and project development.
+- **📜 Digital Vault**: Instant access to verifiable certificates and past accolades.
 
-### 🏛️ Competition Ecosystem (Public)
-- **🔥 Virtual Expo**: A public-facing showcase of winning projects from all competitions.
-- **🖼️ Project Showcases**: Rich project detail pages with media galleries, video embeds, and team role highlights.
-- **🌍 Social Sharing**: Easy tools to share projects and portfolios to external social networks.
+### ⚖️ 2. Judge Portal (Evaluation)
+A specialized, focused interface for fair and efficient assessment.
+- **🔒 phase-Locked Evaluation**: Judging panels only activate during the evaluation phase to prevent unauthorized scoring.
+- **📋 Rubric Architect**: Interactive, criteria-based scoring with real-time total calculation.
+- **🛰️ Progress Tracker**: Visual overview of assigned projects, showing which are ready for review vs. still in draft.
+- **💬 Feedback loop**: Direct qualitative feedback field alongside quantitative scores.
 
-### 🛡️ For Orchestrators (Administrators)
-- **📢 Broadcast Network**: New centralized center to send targeted "Smart Announcements" to specific student groups.
-- **🗂️ Unified Registry**: Full CRUD control over student profiles, team configurations, and school data.
-- **🛠️ Rubric Architect**: Build and customize evaluation criteria for every competition independently.
-- **💎 Certificate Mint**: Dynamic certificate generation system with customizable templates.
-- **📈 Institutional Analytics**: Deep insights into judging variance and overall participation metrics.
+### 🛡️ 3. Admin Command Center (Orchestrator)
+The brain of the operation, balancing guided workflows with granular control.
+- **🧙‍♂️ Competition Wizard**: A guided 4-step engine (Select → Registration → Scoring → Publish) for bulk lifecycle management.
+- **📢 Broadcast Network**: Centralized "Smart Announcement" center for targeted system notifications.
+- **🛠️ Dual-Mode Registry**: Seamlessly switch between read-only Directory views and granular edit modes.
+- **📊 Rank Engine**: Automated leaderboard generation with real-time ranking based on complex rubric weights.
+- **💎 Certificate Mint**: Dynamic template-based generation for competition winners and participants.
+
+### 🏛️ 4. Public Arena (Exposure)
+The public-facing showcase for institutional excellence.
+- **🔥 Virtual Expo**: A dynamic gallery of the most innovative student projects across all competitions.
+- **🖼️ Project Showcases**: Rich detail pages featuring team credits, media galleries, and technical descriptions.
+- **🌍 Global Recognition**: Public permalinks for projects and profiles to facilitate external sharing.
 
 ---
 
-## 🛠️ Tech Stack
+## 🏆 Competition Lifecycle
+The platform enforces a strict, professionally modeled competition workflow:
 
-Built with a focus on **Visual Excellence** and **Performance**.
+1. **Draft / Setup** — Admin configures rules, rubrics, and demographics.
+2. **Registration Open** — Competitions appear on student dashboards; teams form and enroll.
+3. **Evaluation (Judging)** — Judging portals open; rubric-based scoring commences.
+4. **Results Ready** — Admin reviews final rankings and verifies leaderboard integrity.
+5. **Results Published** — Results go live; student banners appear; certificates are minted.
+6. **Archived** — Data is preserved for historical analytics and long-term portfolio value.
 
-| Layer | Technology | Rationale |
-| :--- | :--- | :--- |
-| **Logic** | [React 19](https://react.dev/) | Utilizing Concurrent Mode and Transitions for sub-second UI response. |
-| **Style** | [Tailwind CSS](https://tailwindcss.com/) | For a utility-first, performant glassmorphic UI with zero runtime overhead. |
-| **Motion** | [GSAP](https://gsap.com/) | Professional-grade micro-animations managed via a high-performance engine. |
-| **Engine** | [Vite 7](https://vitejs.dev/) | Optimized HMR and lightning-fast build cycles for modern web standards. |
-| **Routing** | [React Router 7](https://reactrouter.com/) | Sophisticated nested routing for multi-dashboard layouts. |
-| **State** | React Context | Clean, scalable state management across six specialized contexts (Auth, App, Team, Chat, Theme, Judge). |
+---
+
+## 🛠️ Architecture & Tech Stack
+
+### 🧠 Strategic State Management
+The project utilizes a sophisticated **6-Context React Architecture** for modularity and performance:
+- **AuthContext**: Identity management, role-based access, and session persistence.
+- **AppContext**: Core competition data, lifecycle state, and system-wide configurations.
+- **TeamContext**: Intricate team relationship mapping, recruitment, and management.
+- **ChatContext**: Real-time message streaming and cross-team communication.
+- **JudgeContext**: Specialized evaluation state and rubric-to-score transformations.
+- **ThemeContext**: Dynamic UI palette management (including Sleek Dark Mode).
+
+### 🎨 Visual Identity & Engineering
+- **Logic**: [React 19](https://react.dev/) — Optimized using Concurrent Mode and highly efficient rendering patterns.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) — Premium glassmorphism-inspired design system with zero runtime CSS overhead.
+- **Animations**: [GSAP](https://gsap.com/) — High-performance micro-animations for an "alive" UI feel.
+- **Build**: [Vite 7](https://vitejs.dev/) — Lighting-fast HMR and build optimization for modern web standards.
 
 ---
 
 ## ⚡ Getting Started
 
-### Prerequisites
-* **Node.js**: v18.0.0+
-* **System**: Windows, macOS, or Linux
+### Quick Setup
 
-### Quick Installation
-
-1. **Clone the Infrastructure**
+1. **Clone & Enter**
    ```bash
    git clone https://github.com/omartantawy360/edu-por-3.git
    cd edu-por-3
    ```
 
-2. **Initialize Environment**
+2. **Install Dependencies**
    ```bash
    npm install
    ```
 
-3. **Launch Development Suite**
+3. **Launch Dev Environment**
    ```bash
    npm run dev
    ```
 
 ---
 
-## 📄 License & Legal
-
-Distributed under the **MIT License**. Created with a passion for student-led innovation.
+## 📄 License
+Distributed under the **MIT License**. Created with a passion for academic innovation.
 
 <p align="center">
   <strong>Built with ❤️ for the Global Student Community</strong>
