@@ -59,28 +59,30 @@ Designed to foster student growth and professional visibility.
 - **🤖 AI Innovation Coach**: A persistent, context-aware AI assistant providing real-time feedback on project innovation, technical feasibility, and pitch deck quality.
 - **👥 Anonymous Peer Review**: A fair, rubric-based evaluation system where students review peer projects, promoting critical thinking and community feedback.
 - **🌟 Professional Portfolios**: Automated, sharable profiles showcasing skills, project history, and verifiable digital accolades.
+- **🧐 Granular Judge Feedback**: Once results are published, students can view detailed breakdowns of their scores across multiple rubric criteria, alongside personalized judge comments.
 - **🤝 Team Forge**: Advanced collaboration tools for forming teams, recruiting members, and managing group dynamics.
 - **💬 Synergy Chat**: Real-time communication channel integrated directly into the team workflow.
 
 ### ⚖️ 2. Judge Portal (The Evaluator)
 A streamlined, high-focus interface for objective assessment.
 - **🔒 Phase-Locked Evaluation**: Judging panels only activate when the competition enters the 'Evaluation' phase, ensuring data integrity.
-- **📋 Master Rubrics**: Interactive scoring sheets with criteria-specific weights and real-time total calculation.
+- **📋 Master Rubrics**: Interactive scoring sheets dynamically assigned by admins (Standard, Science, Coding) with criteria-specific weights and real-time total calculation.
 - **🚩 Conflict Flagging**: Integrated system for judges to report conflicts of interest, triggering automated admin reassignment.
 - **💬 Qualitative Feedback**: Dedicated channels for providing detailed constructive criticism alongside quantitative scores.
 
 ### 🛡️ 3. Admin Center (The Orchestrator)
 The mission control for complex educational initiatives.
-- **🧙‍♂️ Competition Wizard**: A guided, multi-step engine for managing the entire lifecycle—from draft to archival.
-- **⚖️ Conflict Resolution Console**: Centralized hub for reviewing judge-flagged conflicts and rerouting evaluators.
-- **📊 Rank Engine**: Automated, real-time leaderboard generation based on complex scoring models and judge consensus.
-- **📢 Broadcast Network**: Targeted announcement system for reaching specific competition cohorts or the entire student body.
-- **📜 Certificate Mint**: Bulk generation of verifiable digital certificates for winners and participants.
+- **🧙‍♂️ Competition Wizard**: A guided, multi-step engine for managing the entire lifecycle—from draft to archival. Includes granular settings for team sizes and rubric assignment.
+- **📊 Rank Engine & Analytics**: Real-time leaderboard generation based on complex scoring models. Includes visual summaries for Total Registrations, Submission Rates, and Average Scores.
+- **⚖️ Conflict Resolution Console**: Centralized hub for reviewing judge-flagged conflicts and securely re-assigning evaluators to maintain fairness.
+- **📢 Broadcast Network**: Global notification system equipped with real-time unread badges, targeted alerts (e.g., student accepted, results published), and a mark-as-read drawer.
+- **📜 Print-Optimized Certificate Mint**: Generation of professional, verifiable digital certificates explicitly optimized for perfect high-resolution printing.
+- **🏁 Result Finalization**: A secure bridging action linking disparate judicial scores into official competition results to conclude the event.
 
 ---
 
 ## 🏆 Competition Lifecycle
-The platform enforces a professional, 6-stage lifecycle to ensure fairness and structure:
+The platform enforces a professional, 6-stage lifecycle to ensure fairness and strict phase control. Global Phase Banners provide real-time status across all user dashboards:
 
 ```mermaid
 graph LR
@@ -92,32 +94,32 @@ graph LR
     F --> G[Archived]
 ```
 
-1.  **Draft**: Rules, rubrics, and demographics are configured.
-2.  **Registration**: Competitions appear on student dashboards; teams enroll and submit initial documents.
-3.  **Evaluation (Judging)**: Expert panels review projects using professional rubrics.
-4.  **Peer Review**: Finalists evaluate each other's work to broaden perspective and fairness.
-5.  **Results Ready**: Admin verifies top rankings and audits score consistency.
-6.  **Results Published**: Results go live; student banners appear; certificates are minted for export.
+1.  **Draft**: Rules, admin-selected rubrics (e.g., Science vs. Coding), and entry demographics are configured.
+2.  **Registration**: Competitions appear on student dashboards; teams enroll and submit initial documents. Lifecycle guards prevent submissions after this phase.
+3.  **Evaluation (Judging)**: Expert panels review projects using their assigned professional rubrics.
+4.  **Peer Review**: Finalists evaluate each other's work to broaden perspective.
+5.  **Results Ready**: Admin verifies top rankings, audits score consistency, and triggers the `finalizeCompetitionResults` action.
+6.  **Results Published**: Results go live globally; detailed judge feedback unlocking for students; certificates are minted and ready for print.
 
 ---
 
 ## 🧠 Technical Architecture
 
-### 🛡️ 6-Context Strategic State
-EduComp utilizes a sophisticated **6-Context Architecture** to maintain high performance and prevent unnecessary re-renders:
+### 🛡️ State Management & Context Architecture
+EduComp utilizes a sophisticated **6-Context Architecture** to maintain high performance and prevent unnecessary cascading re-renders across concurrent workflows:
 - **AuthContext**: Manages secure identity, role-based routing (`student`, `judge`, `admin`), and session persistence.
-- **AppContext**: The primary source of truth for competition data, lifecycle phases, and global configurations.
+- **AppContext**: The primary source of truth for competition data, lifecycle phases, and global configurations (Phase Guards).
 - **TeamContext**: Handles complex many-to-many relationships between students, teams, and registrations.
-- **ChatContext**: Manages real-time message streams and unread notifications.
-- **JudgeContext**: Orchestrates specific evaluation data, assignments, and conflict flagging logic.
-- **NotificationContext**: A system-wide broadcast service for targeted alerts and unread counts.
+- **ChatContext**: Manages real-time message streams.
+- **JudgeContext**: Orchestrates evaluation data, rubric assignments, and manages `flaggedSubmissions` / `unflagConflict` logic.
+- **NotificationContext**: A robust broadcast service for targeted alerts, interactive badging, and action-triggered global messages.
 
 ### 🎨 Visual & Performance Engineering
-- **Logic**: [React 19](https://react.dev/) — Leveraging the latest concurrent features and optimized rendering patterns.
+- **Logic**: [React 19](https://react.dev/) — Leveraging the latest concurrent features, optimized rendering patterns, and Fast Refresh compatibility.
 - **Build**: [Vite 7](https://vitejs.dev/) — Lighting-fast HMR and optimized production bundles.
-- **Design**: [Tailwind CSS](https://tailwindcss.com/) — A premium glassmorphism-inspired design system.
+- **Design System**: [Tailwind CSS](https://tailwindcss.com/) — A premium glassmorphism-inspired design system with complex dynamic class generation using `clsx` and `tailwind-merge`.
 - **Icons**: [Lucide-React](https://lucide.dev/) — Professional, consistent iconography.
-- **Animations**: [Framer Motion](https://www.framer.com/motion/) — Smooth, hardware-accelerated micro-interactions.
+- **Animations**: [Framer Motion](https://www.framer.com/motion/) — Smooth, hardware-accelerated micro-interactions for elevated UX.
 
 ---
 
@@ -154,3 +156,4 @@ This project is licensed under the **MIT License**.
 <p align="center">
   <strong>Built with ❤️ for the Global Student Community</strong>
 </p>
+
