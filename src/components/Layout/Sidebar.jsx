@@ -4,7 +4,9 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTeam } from '../../context/TeamContext';
 import { useChat } from '../../context/ChatContext';
-import { LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun, Sparkles, Gavel, ClipboardList, CheckCircle2 } from 'lucide-react';
+import { useNotification } from '../../context/NotificationContext';
+import NotificationDrawer from '../ui/NotificationDrawer';
+import { Bell, LayoutDashboard, LogOut, FileText, Settings, Award, Users, Target, Upload, Trophy, Medal, Lightbulb, Shield, ChevronDown, ChevronRight, MessageCircle, Moon, Sun, Sparkles, Gavel, ClipboardList, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 import { ThemeToggle } from '../ThemeToggle';
@@ -14,8 +16,10 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { userTeams, getMyTeamRequests } = useTeam();
   const { getUnreadCount } = useChat();
   const { isDemoMode, toggleDemoMode } = useApp();
+  const { unreadCount } = useNotification();
   const navigate = useNavigate();
   const [teamsExpanded, setTeamsExpanded] = useState(true);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const teamRequests = getMyTeamRequests();
   const unreadMessages = getUnreadCount();
@@ -76,6 +80,17 @@ const Sidebar = ({ isOpen, onClose }) => {
             </span>
           </div>
           <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setIsNotificationOpen(true)}
+              className="relative h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mr-1"
+            >
+              <Bell className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[8px] font-bold text-white shadow-sm">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
             <ThemeToggle />
             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden" onClick={onClose}>
               <LogOut className="h-4 w-4 rotate-180" />
@@ -224,6 +239,11 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
       </aside>
+
+      <NotificationDrawer 
+        isOpen={isNotificationOpen} 
+        onClose={() => setIsNotificationOpen(false)} 
+      />
     </>
   );
 };

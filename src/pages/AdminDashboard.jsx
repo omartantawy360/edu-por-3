@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+// ... (rest of imports)
 import { Card, CardTitle, CardContent, CardHeader } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -16,6 +17,7 @@ import CompetitionPhaseSteps from '../components/ui/CompetitionPhaseSteps';
 import { useTeam } from '../context/TeamContext';
 import { COMPETITION_PHASES, RESULTS_VISIBILITY, LEADERBOARD_STATUS } from '../context/AppContext';
 import CompetitionWizard from '../components/admin/CompetitionWizard';
+import AdminAnalytics from '../components/admin/AdminAnalytics';
 
 const JudgingPanel = ({ student, competition }) => {
     const { getStudentScore, addScore } = useApp();
@@ -111,15 +113,15 @@ const TabButton = ({ id, label, icon: iconProp, activeTab, setActiveTab }) => {
 
 const AdminDashboard = () => {
     const { 
-        students, competitions, submissions, notifications, removeNotification, 
+        students, competitions, submissions, 
         updateStudentStatus, updateStudentStage, setStudentResult, setStudentFeedback,
-        updateCompetitionPhase, updateCompetitionVisibility, updateLeaderboardStatus
+        updateCompetitionPhase, updateCompetitionVisibility, updateLeaderboardStatus,
+        generatePeerAssignments
     } = useApp();
     const { teams } = useTeam();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [showNotifications, setShowNotifications] = useState(false);
 
     // Feedback State
     const [feedback, setFeedback] = useState('');
@@ -146,12 +148,6 @@ const AdminDashboard = () => {
         );
     });
 
-    const stats = [
-        { title: 'Registered Teams', value: teams.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { title: 'Accepted Teams', value: teams.filter(t => t.status === 'Accepted').length, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { title: 'Active submissions', value: submissions.length, icon: FileText, color: 'text-violet-600', bg: 'bg-violet-50' },
-        { title: 'Live Competitions', value: competitions.filter(c => c.phase !== COMPETITION_PHASES.DRAFT && c.phase !== COMPETITION_PHASES.ARCHIVED).length, icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-50' },
-    ];
 
     const handleSendFeedback = () => {
         if (!feedback.trim()) return;
@@ -226,71 +222,7 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Notifications */}
-                        <div className="relative shrink-0">
-                            <button
-                                className={cn(
-                                    "p-2.5 rounded-full relative transition-all duration-200",
-                                    showNotifications
-                                        ? "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
-                                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-700"
-                                )}
-                                onClick={() => setShowNotifications(!showNotifications)}
-                            >
-                                <Bell className="h-5 w-5" />
-                                {notifications.length > 0 && (
-                                    <span className="absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-                                )}
-                            </button>
-
-                            {showNotifications && (
-                                <>
-                                    <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none" onClick={() => setShowNotifications(false)}></div>
-                                    <div className="fixed top-20 left-4 right-4 z-[10000] lg:absolute lg:top-12 lg:right-0 lg:left-auto lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-top-2 lg:slide-in-from-top-1 ring-1 ring-black/5">
-                                        <div className="p-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 font-semibold text-sm text-slate-900 dark:text-slate-100 flex justify-between items-center">
-                                            <span>Notifications</span>
-                                            {notifications.length > 0 && (
-                                                <Badge variant="secondary" className="ml-2 text-xs">
-                                                    {notifications.length} New
-                                                </Badge>
-                                            )}
-                                            <button onClick={() => setShowNotifications(false)} className="lg:hidden p-1 hover:bg-slate-200 rounded-full">
-                                                <X className="h-4 w-4 text-slate-500" />
-                                            </button>
-                                        </div>
-                                        <div className="max-h-[60vh] lg:max-h-[400px] overflow-y-auto sidebar-scroll">
-                                            {notifications.length === 0 ? (
-                                                <div className="p-8 text-center flex flex-col items-center gap-3">
-                                                    <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                                        <Bell className="h-6 w-6 text-slate-400" />
-                                                    </div>
-                                                    <p className="text-sm text-slate-500">No new notifications</p>
-                                                </div>
-                                            ) : (
-                                                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                    {notifications.map(n => (
-                                                        <div key={n.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-start gap-3 group relative">
-                                                            <div className="mt-1 h-2 w-2 rounded-full bg-violet-500 shrink-0"></div>
-                                                            <div className="flex-1 min-w-0 space-y-1">
-                                                                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{n.text}</p>
-                                                                <p className="text-xs text-slate-400 dark:text-slate-500">{n.date}</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); removeNotification(n.id); }}
-                                                                className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-all text-slate-400 hover:text-slate-600"
-                                                                title="Remove"
-                                                            >
-                                                                <X className="h-3.5 w-3.5" />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                        {/* Summary cards or header actions can go here if needed */}
                     </div>
                 </div>
 
@@ -304,67 +236,8 @@ const AdminDashboard = () => {
 
             {/* Overview Tab */}
             {activeTab === 'overview' && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {stats.map((stat, i) => (
-                            <button 
-                                key={i} 
-                                onClick={() => setActiveTab('manage')}
-                                className="text-left border-0 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden group bg-white dark:bg-slate-900 rounded-3xl"
-                            >
-                                <CardContent className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className={cn("p-3 rounded-xl transition-all duration-300 group-hover:scale-110", stat.bg, stat.color)}>
-                                            <stat.icon className="h-6 w-6" />
-                                        </div>
-                                        <div className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400")}>
-                                            Manage <ArrowRight size={10} className="inline ml-1" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{stat.value}</p>
-                                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{stat.title}</p>
-                                    </div>
-                                </CardContent>
-                                <div className={cn("h-1.5 w-full", stat.color.replace('text-', 'bg-'))}></div>
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Quick Actions / New Features */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                         <Link to="/admin/announcements" className="group">
-                             <div className="glass-card p-8 rounded-[2.5rem] border-white/10 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 text-white">
-                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-                                 <div className="relative z-10 flex items-center gap-6">
-                                     <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20">
-                                         <Megaphone size={32} />
-                                     </div>
-                                     <div>
-                                         <h3 className="text-xl font-bold mb-1 tracking-tight">Broadcast Center</h3>
-                                         <p className="text-white/70 text-sm">Send smart announcements to all students.</p>
-                                     </div>
-                                     <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
-                                 </div>
-                             </div>
-                         </Link>
-
-                         <Link to="/admin/create-competition" className="group">
-                             <div className="glass-card p-8 rounded-[2.5rem] border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden bg-white dark:bg-slate-900">
-                                 <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                                 <div className="relative z-10 flex items-center gap-6">
-                                     <div className="h-16 w-16 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
-                                         <Trophy size={32} />
-                                     </div>
-                                     <div>
-                                         <h3 className="text-xl font-bold mb-1 tracking-tight text-slate-900 dark:text-slate-100">New Competition</h3>
-                                         <p className="text-slate-500 text-sm">Launch a new innovation cycle.</p>
-                                     </div>
-                                     <ArrowRight className="ml-auto text-violet-600 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
-                                 </div>
-                             </div>
-                         </Link>
-                    </div>
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <AdminAnalytics />
                 </div>
             )}
 
@@ -600,6 +473,30 @@ const AdminDashboard = () => {
                                                                 }}
                                                             >
                                                                 Publish Results
+                                                            </Button>
+                                                        )}
+                                                        {comp.phase === COMPETITION_PHASES.EVALUATION && (
+                                                            <Button 
+                                                                size="xs" 
+                                                                className="h-8 text-[10px] font-bold px-3 bg-indigo-600 hover:bg-indigo-700"
+                                                                onClick={() => {
+                                                                    setConfirmDialog({
+                                                                        isOpen: true,
+                                                                        title: 'Initiate Peer Review?',
+                                                                        message: 'This will randomly assign teams to review each other. This action is irreversible for this phase.',
+                                                                        type: 'warning',
+                                                                        onConfirm: () => {
+                                                                            const res = generatePeerAssignments(comp.id);
+                                                                            if (res.success) {
+                                                                                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                                                                            } else {
+                                                                                alert(res.error);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }}
+                                                            >
+                                                                Initiate Peer Review
                                                             </Button>
                                                         )}
                                                     </div>

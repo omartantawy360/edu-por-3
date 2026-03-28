@@ -10,14 +10,22 @@ import StudentJourneyTimeline from '../components/ui/StudentJourneyTimeline';
 import { Link } from 'react-router-dom';
 import { useTeam } from '../context/TeamContext';
 import CompetitionPhaseSteps from '../components/ui/CompetitionPhaseSteps';
+import PeerReviewPanel from '../components/ui/PeerReviewPanel';
+import { Modal } from '../components/ui/Modal';
 
 const StudentDashboard = () => {
+    const context = useApp();
     const { 
-        students, notifications, removeNotification, competitions, 
-        getStudentSubmissions, getStudentCertificates, scores
-    } = useApp();
-    const { user } = useAuth();
+        students = [], notifications = [], removeNotification = () => {}, competitions = [], 
+        getStudentSubmissions = () => [], getStudentCertificates = () => [], scores = [],
+        getMyPeerAssignments = () => []
+    } = context || {};
+    const { user, loading: authLoading } = useAuth();
     const { userTeams } = useTeam();
+    const [selectedAssignment, setSelectedAssignment] = React.useState(null);
+
+    if (authLoading) return <div className="h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 font-medium text-slate-500">Loading Dashboard...</div>;
+    if (!user) return <div className="h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 font-medium text-slate-500">Please log in to view your dashboard.</div>;
 
     // Use logged-in user name from auth context
     const currentUserName = user?.name || "Omar Tantawy";
@@ -41,6 +49,9 @@ const StudentDashboard = () => {
     // Get Science and Engineering Fair deadline
     const scienceAndEngineeringFair = competitions.find(c => c.name === 'Science and Engineering Fair');
     const submissionDeadline = scienceAndEngineeringFair?.endDate;
+
+    const myAssignments = typeof getMyPeerAssignments === 'function' ? getMyPeerAssignments(studentId) : [];
+    const pendingAssignments = Array.isArray(myAssignments) ? myAssignments.filter(a => a.status === 'pending') : [];
 
     const stats = [
         {
@@ -146,6 +157,54 @@ const StudentDashboard = () => {
                     </Card>
                 ))}
             </div>
+
+            {/* PEER REVIEW TASKS (NEW) */}
+            {pendingAssignments.length > 0 && (
+                <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-200/50 dark:border-emerald-900/30 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Star className="h-32 w-32 text-emerald-500 -mr-16 -mt-16" />
+                        </div>
+                        
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                                        <AlertTriangle size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 italic uppercase tracking-tight">Peer Review Phase</h2>
+                                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest">Action Required: {pendingAssignments.length} Pending reviews</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {pendingAssignments.map(assignment => (
+                                    <button
+                                        key={assignment.id}
+                                        onClick={() => setSelectedAssignment(assignment)}
+                                        className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900/50 shadow-sm hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all text-left group/item"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/item:text-emerald-500 transition-colors">
+                                                <FileText size={24} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Assigned Project</p>
+                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Review Project #{assignment.targetSubmissionId.slice(-4).toUpperCase()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="h-8 w-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover/item:bg-emerald-500 group-hover/item:text-white group-hover/item:border-emerald-500 transition-all">
+                                            <ArrowRight size={14} />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Notifications Section */}
@@ -421,6 +480,21 @@ const StudentDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Peer Review Modal */}
+            <Modal
+                isOpen={!!selectedAssignment}
+                onClose={() => setSelectedAssignment(null)}
+                title="Peer Review"
+                maxWidth="2xl"
+            >
+                {selectedAssignment && (
+                    <PeerReviewPanel 
+                        assignmentId={selectedAssignment.id} 
+                        onClose={() => setSelectedAssignment(null)} 
+                    />
+                )}
+            </Modal>
         </div>
     );
 };

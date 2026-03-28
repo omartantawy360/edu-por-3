@@ -12,7 +12,8 @@ const EvaluationPanel = () => {
     const { submissions, competitions } = useApp();
     const {
         getRubric, getEvaluation, submitEvaluation, isLocked: checkLocked,
-        getAnonymousSubmission, getAssignedSubmissions, getSubmissionEvaluations
+        getAnonymousSubmission, getAssignedSubmissions, getSubmissionEvaluations,
+        flagConflict
     } = useJudge();
 
     const judgeId = user?.id;
@@ -38,6 +39,8 @@ const EvaluationPanel = () => {
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showConflictConfirm, setShowConflictConfirm] = useState(false);
+    const [conflictReason, setConflictReason] = useState('');
 
     const total = useMemo(() => {
         return rubric.reduce((sum, c) => {
@@ -102,6 +105,18 @@ const EvaluationPanel = () => {
         }, 2000);
     }, [scores, comments, rubric, judgeId, submissionId, submission, submitEvaluation, navigate]);
 
+    const handleFlagConflict = useCallback(() => {
+        if (!conflictReason.trim()) return;
+        
+        const result = flagConflict(judgeId, submissionId, conflictReason);
+        if (result.success) {
+            navigate('/judge');
+        } else {
+            setSubmitError(result.error);
+            setShowConflictConfirm(false);
+        }
+    }, [flagConflict, judgeId, submissionId, conflictReason, navigate, setShowConflictConfirm]);
+
     if (!submission) {
         return (
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -128,7 +143,8 @@ const EvaluationPanel = () => {
     }
 
     return (
-        <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <>
+            <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button
@@ -141,6 +157,15 @@ const EvaluationPanel = () => {
                     <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">Evaluation Panel</h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{competition?.name}</p>
                 </div>
+                {!locked && (
+                    <button
+                        onClick={() => setShowConflictConfirm(true)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-400 hover:bg-amber-100 transition-colors"
+                    >
+                        <AlertTriangle size={14} />
+                        <span className="text-xs font-bold">Flag Conflict</span>
+                    </button>
+                )}
                 {locked && (
                     <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50">
                         <Lock size={14} className="text-green-600 dark:text-green-400" />
@@ -332,6 +357,45 @@ const EvaluationPanel = () => {
                 </div>
             )}
         </div>
+
+        {/* Conflict Confirmation Modal */}
+        {showConflictConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 p-8 space-y-6">
+                    <div className="h-14 w-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 mx-auto">
+                        <AlertTriangle size={28} />
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Flag Conflict of Interest?</h3>
+                        <p className="text-sm text-slate-500">Flagging this project will remove it from your evaluation queue. Please provide a brief reason for the administrator.</p>
+                    </div>
+                    
+                    <textarea
+                        className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-amber-500 outline-none min-h-[100px] resize-none"
+                        placeholder="Reason (e.g., student is a relative, previous mentor...)"
+                        value={conflictReason}
+                        onChange={(e) => setConflictReason(e.target.value)}
+                    />
+
+                    <div className="flex gap-3 pt-2">
+                        <button
+                            onClick={() => setShowConflictConfirm(false)}
+                            className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleFlagConflict}
+                            disabled={!conflictReason.trim()}
+                            className="flex-1 px-4 py-3 rounded-xl bg-amber-500 text-white text-sm font-bold shadow-lg shadow-amber-500/20 hover:bg-amber-600 disabled:opacity-50 transition-all"
+                        >
+                            Flag & Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 

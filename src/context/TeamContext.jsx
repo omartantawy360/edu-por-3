@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { useApp } from './AppContext';
+import { useNotification } from './NotificationContext';
 
 const TeamContext = createContext(null);
 
@@ -14,7 +14,7 @@ export const useTeam = () => {
 
 export const TeamProvider = ({ children }) => {
     const { user } = useAuth();
-    const { addNotification } = useApp();
+    const { addNotification } = useNotification();
 
     // All available teams in the platform
     const [teams, setTeams] = useState([
@@ -251,13 +251,30 @@ export const TeamProvider = ({ children }) => {
         setJoinRequests(prev => prev.map(req =>
             req.id === requestId ? { ...req, status: 'approved' } : req
         ));
+
+        addNotification({
+          title: 'Join Request Approved',
+          message: `${request.userName} has joined ${request.teamName}.`,
+          type: 'success',
+          userId: request.userId // Notify the student
+        });
     };
 
     // Reject join request
     const rejectJoinRequest = (requestId) => {
+        const request = joinRequests.find(req => req.id === requestId);
         setJoinRequests(prev => prev.map(req =>
             req.id === requestId ? { ...req, status: 'rejected' } : req
         ));
+        
+        if (request) {
+          addNotification({
+            title: 'Join Request Rejected',
+            message: `Your request to join ${request.teamName} was declined.`,
+            type: 'error',
+            userId: request.userId
+          });
+        }
     };
 
     // Create a new team
@@ -286,7 +303,11 @@ export const TeamProvider = ({ children }) => {
         };
 
         setTeams(prev => [...prev, newTeam]);
-        addNotification(`Team ${newTeam.name} created and is pending approval`, "success");
+        addNotification({
+          title: 'Team Created',
+          message: `Team ${newTeam.name} created and is pending approval`,
+          type: 'info'
+        });
         setTeamMessages(prev => ({ ...prev, [newTeam.id]: [] }));
         setTeamResources(prev => ({ ...prev, [newTeam.id]: [] }));
 
@@ -294,10 +315,15 @@ export const TeamProvider = ({ children }) => {
     };
 
     const updateTeamStatus = (teamId, status) => {
-        setTeams(prev => prev.map(team => 
-            team.id === teamId ? { ...team, status } : team
+        const team = teams.find(t => t.id === teamId);
+        setTeams(prev => prev.map(t => 
+            t.id === teamId ? { ...t, status } : t
         ));
-        addNotification(`Team status updated to ${status}`, "success");
+        addNotification({
+          title: 'Team Status Updated',
+          message: `Team ${team?.name || teamId} status is now ${status}.`,
+          type: status === 'Accepted' ? 'success' : 'warning'
+        });
     };
 
     // Leave a team
@@ -390,7 +416,11 @@ export const TeamProvider = ({ children }) => {
             }
             return team;
         }));
-        addNotification(`Member role updated to ${role}`, "success");
+        addNotification({
+          title: 'Member Role Updated',
+          message: `Role updated to ${role} for member.`,
+          type: 'info'
+        });
     };
 
     return (

@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+const uuidv4 = () => Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+import { useNotification } from './NotificationContext';
 
 /**
  * ─────────────────────────────────────────────────────────
@@ -147,6 +149,7 @@ export const COMPETITION_PHASES = {
   REGISTRATION_OPEN: 'Registration Open',
   REGISTRATION_CLOSED: 'Registration Closed',
   EVALUATION: 'Evaluation',
+  PEER_REVIEW: 'Peer Review',
   RESULTS_READY: 'Results Ready',
   RESULTS_PUBLISHED: 'Results Published',
   ARCHIVED: 'Archived'
@@ -207,14 +210,18 @@ export const AppProvider = ({ children }) => {
       ...data
     };
     setAnnouncements(prev => [newAnn, ...prev]);
-    addNotification(`New announcement: ${data.title}`, "success");
+    addNotification({
+      title: 'New Announcement',
+      message: `Announcement: ${data.title}`,
+      type: 'success'
+    });
     return newAnn;
   };
 
   // ── Post CRUD helpers ──────────────────────────────────
   const addPost = (competitionId, postData) => {
     const newPost = {
-      id: `p-${competitionId}-${Date.now()}`,
+      id: `p-${competitionId}-${uuidv4().slice(0, 8)}`,
       date: new Date().toISOString().split('T')[0],
       status: 'published',
       isPinned: false,
@@ -224,7 +231,11 @@ export const AppProvider = ({ children }) => {
       ...prev,
       [competitionId]: [...(prev[competitionId] || []), newPost],
     }));
-    addNotification(`New post added to competition timeline`, 'success');
+    addNotification({
+      title: 'Timeline Updated',
+      message: 'New post added to competition timeline',
+      type: 'success'
+    });
     return newPost;
   };
 
@@ -242,7 +253,11 @@ export const AppProvider = ({ children }) => {
       ...prev,
       [competitionId]: (prev[competitionId] || []).filter(p => p.id !== postId),
     }));
-    addNotification('Post removed from timeline', 'info');
+    addNotification({
+      title: 'Post Removed',
+      message: 'Post removed from timeline',
+      type: 'info'
+    });
   };
 
   const getCompetitionPosts = (competitionId) => {
@@ -442,35 +457,38 @@ export const AppProvider = ({ children }) => {
   const [scores, setScores] = useState([
     { id: 'score-001', studentId: 'ST-001', competitionId: 'c2', innovation: 9, design: 8, presentation: 10, technical: 9, total: 36 }
   ]);
+  
+  // NEW: Peer Review management
+  const [peerReviews, setPeerReviews] = useState([]);
+  const [peerAssignments, setPeerAssignments] = useState([]);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "New registration guidelines for the 2026 Robotics Olympiad are now available.", type: "info", date: "2026-02-01", studentId: "ST-001" },
-    { id: 2, text: "System maintenance is scheduled for the end of this week.", type: "warning", date: "2026-01-28" },
-    { id: 3, text: 'Welcome to the competitions platform!', type: 'info', date: '2026-02-01', studentId: 'ST-001' },
-    { id: 4, text: 'Your abstract for the Science and Engineering Fair has been reviewed.', type: 'success', date: '2026-02-02', studentId: 'ST-001' },
-  ]);
-
-  const addNotification = (text, type = "info", studentId = null) => {
-      setNotifications(prev => [{ id: Date.now(), text, type, date: new Date().toISOString().split('T')[0], studentId }, ...prev]);
-  };
-
-  const removeNotification = (notificationId) => {
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
-  };
+  const { addNotification } = useNotification();
 
   const updateCompetitionPhase = (id, phase) => {
     setCompetitions(prev => prev.map(c => c.id === id ? { ...c, phase } : c));
-    addNotification(`Competition phase updated to ${phase}`, "info");
+    addNotification({
+      title: 'Competition Phase Updated',
+      message: `The phase for ${competitions.find(c => c.id === id)?.name || id} has been changed to ${phase}.`,
+      type: 'info'
+    });
   };
 
   const updateCompetitionVisibility = (id, visibility) => {
     setCompetitions(prev => prev.map(c => c.id === id ? { ...c, resultsVisibility: visibility } : c));
-    addNotification(`Results visibility set to ${visibility}`, "info");
+    addNotification({
+      title: 'Results Visibility Updated',
+      message: `Results visibility for ${competitions.find(c => c.id === id)?.name || id} is now ${visibility}.`,
+      type: 'info'
+    });
   };
 
   const updateLeaderboardStatus = (id, status) => {
     setCompetitions(prev => prev.map(c => c.id === id ? { ...c, leaderboardStatus: status } : c));
-    addNotification(`Leaderboard status updated to ${status}`, "info");
+    addNotification({
+      title: 'Leaderboard Status Updated',
+      message: `Leaderboard for ${competitions.find(c => c.id === id)?.name || id} is now ${status}.`,
+      type: 'info'
+    });
   };
 
   const updateCompetitionStages = (id, stages) => {
@@ -492,7 +510,11 @@ export const AppProvider = ({ children }) => {
           ...data
       };
       setCompetitions(prev => [...prev, newCompetition]);
-      addNotification(`New competition added: ${data.name}`, "success");
+      addNotification({
+        title: 'Competition Added',
+        message: `New competition added: ${data.name}`,
+        type: 'success'
+      });
   };
 
   const registerStudent = (data) => {
@@ -509,7 +531,11 @@ export const AppProvider = ({ children }) => {
       members: Array.isArray(data.members) ? data.members : (typeof data.members === 'string' && data.members.trim() ? data.members.split(',').map((name, idx) => ({ id: `new-m-${idx}-${Date.now()}`, name: name.trim() })) : data.members)
     };
     setStudents((prev) => [...prev, newStudent]);
-    addNotification(`New student registration: ${data.name}`, "info");
+    addNotification({
+      title: 'New Registration',
+      message: `New student registration: ${data.name}`,
+      type: 'info'
+    });
     return newStudent;
   };
 
@@ -530,7 +556,12 @@ export const AppProvider = ({ children }) => {
         ? `Your registration for ${student.competition} has been rejected. Please contact admin for details.`
         : `Your registration for ${student.competition} is pending review.`;
       
-      addNotification(statusMessage, status === 'Approved' ? 'success' : status === 'Rejected' ? 'error' : 'info', id);
+      addNotification({
+        title: 'Registration Status Updated',
+        message: statusMessage,
+        type: status === 'Approved' ? 'success' : status === 'Rejected' ? 'error' : 'info',
+        studentId: id
+      });
     }
   };
 
@@ -540,7 +571,12 @@ export const AppProvider = ({ children }) => {
     
     // Notify student of stage change
     if (student) {
-      addNotification(`You have progressed to ${stage} stage in ${student.competition}! 🚀`, 'info', id);
+      addNotification({
+        title: 'Phase Progressed',
+        message: `You have progressed to ${stage} stage in ${student.competition}! 🚀`,
+        type: 'info',
+        studentId: id
+      });
     }
   };
 
@@ -554,7 +590,12 @@ export const AppProvider = ({ children }) => {
         ? `Congratulations! You have passed ${student.competition}! 🎉🏆`
         : `Unfortunately, you did not pass ${student.competition}. Keep trying! 💪`;
       
-      addNotification(resultMessage, result === 'Passed' ? 'success' : 'error', id);
+      addNotification({
+        title: 'Competition Result',
+        message: resultMessage,
+        type: result === 'Passed' ? 'success' : 'error',
+        studentId: id
+      });
     }
   };
 
@@ -564,7 +605,12 @@ export const AppProvider = ({ children }) => {
       
       // Notify student of new feedback
       if (student) {
-        addNotification(`You have received new feedback for ${student.competition} 💬`, 'info', id);
+        addNotification({
+          title: 'New Feedback',
+          message: `You have received new feedback for ${student.competition} 💬`,
+          type: 'info',
+          studentId: id
+        });
       }
   };
 
@@ -578,7 +624,11 @@ export const AppProvider = ({ children }) => {
       ...submission
     };
     setSubmissions(prev => [...prev, newSubmission]);
-    addNotification(`New submission: ${submission.title}`, "info");
+    addNotification({
+      title: 'Submission Received',
+      message: `New submission: ${submission.title}`,
+      type: 'info'
+    });
     return newSubmission;
   };
 
@@ -593,7 +643,11 @@ export const AppProvider = ({ children }) => {
     setSubmissions(prev => prev.map(sub => 
       sub.id === id ? { ...sub, ...updatedData } : sub
     ));
-    addNotification(`Submission updated: ${updatedData.title}`, "success");
+    addNotification({
+      title: 'Submission Updated',
+      message: `Submission updated: ${updatedData.title}`,
+      type: 'success'
+    });
   };
 
   const getStudentSubmissions = (studentId, teamIds = []) => {
@@ -615,7 +669,11 @@ export const AppProvider = ({ children }) => {
       ...certificateData
     };
     setCertificates(prev => [...prev, newCertificate]);
-    addNotification(`Certificate issued: ${certificateData.certificateTitle}`, "success");
+    addNotification({
+      title: 'Certificate Issued',
+      message: `Certificate issued: ${certificateData.certificateTitle}`,
+      type: 'success'
+    });
     return newCertificate;
   };
 
@@ -635,7 +693,11 @@ export const AppProvider = ({ children }) => {
       ...achievementData
     };
     setAchievements(prev => [...prev, newAchievement]);
-    addNotification(`Achievement awarded to student`, 'success');
+    addNotification({
+      title: 'Achievement Awarded',
+      message: `Badge earned: ${achievementData.badge}`,
+      type: 'success'
+    });
   };
 
   const getStudentAchievements = (studentId) => {
@@ -644,6 +706,68 @@ export const AppProvider = ({ children }) => {
 
   const removeAchievement = (achievementId) => {
     setAchievements(prev => prev.filter(ach => ach.id !== achievementId));
+  };
+
+  // ── Peer Review Helpers ─────────────────────────────────
+  const generatePeerAssignments = (competitionId) => {
+    const compSubs = submissions.filter(s => s.competitionId === competitionId && s.status === 'approved');
+    const studentIds = compSubs.map(s => s.studentId);
+    
+    if (studentIds.length < 3) return { success: false, error: 'At least 3 submissions required for peer review' };
+
+    const assignments = [];
+    studentIds.forEach((id) => {
+        // Assign 2 reviews per student
+        const others = studentIds.filter(otherId => otherId !== id);
+        // Fisher-Yates or simple random
+        const shuffled = [...others].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 2);
+        
+        selected.forEach(targetId => {
+            assignments.push({
+                id: `pa-${id}-${targetId}-${Date.now()}`,
+                competitionId,
+                reviewerId: id,
+                targetSubmissionId: compSubs.find(s => s.studentId === targetId).id,
+                status: 'pending'
+            });
+        });
+    });
+
+    setPeerAssignments(prev => [...prev, ...assignments]);
+    updateCompetitionPhase(competitionId, COMPETITION_PHASES.PEER_REVIEW);
+    return { success: true };
+  };
+
+  const submitPeerReview = (assignmentId, scores, comments) => {
+    const assignment = peerAssignments.find(a => a.id === assignmentId);
+    if (!assignment) return { success: false, error: 'Assignment not found' };
+
+    const newReview = {
+        id: `pr-${Date.now()}`,
+        assignmentId,
+        reviewerId: assignment.reviewerId,
+        targetSubmissionId: assignment.targetSubmissionId,
+        scores,
+        comments,
+        submittedAt: new Date().toISOString()
+    };
+
+    setPeerReviews(prev => [...prev, newReview]);
+    setPeerAssignments(prev => prev.map(a => a.id === assignmentId ? { ...a, status: 'completed' } : a));
+    
+    addNotification({
+        title: 'Peer Review Submitted',
+        message: 'Your peer review has been recorded. Thank you!',
+        type: 'success',
+        studentId: assignment.reviewerId
+    });
+
+    return { success: true };
+  };
+
+  const getMyPeerAssignments = (studentId) => {
+    return peerAssignments.filter(a => a.reviewerId === studentId);
   };
 
   // NEW: Score management functions
@@ -664,7 +788,11 @@ export const AppProvider = ({ children }) => {
       }
       return [...prev, newScore];
     });
-    addNotification(`Scores saved for student`, 'success');
+    addNotification({
+      title: 'Scores Saved',
+      message: 'Scores saved for student successfully.',
+      type: 'success'
+    });
   };
 
   const getStudentsBySchool = (schoolName) => {
@@ -690,7 +818,12 @@ export const AppProvider = ({ children }) => {
       const msg = result === 'Passed'
         ? `Congratulations! You have passed ${s.competition}! 🎉🏆`
         : `Unfortunately, you did not pass ${s.competition}. Keep trying! 💪`;
-      addNotification(msg, result === 'Passed' ? 'success' : 'error', s.id);
+      addNotification({
+        title: 'Competition Result',
+        message: msg,
+        type: result === 'Passed' ? 'success' : 'error',
+        studentId: s.id
+      });
       return { ...s, result };
     }));
   };
@@ -895,7 +1028,11 @@ export const AppProvider = ({ children }) => {
           { id: 'ann-demo2', title: 'Science Fair Winners Announced', content: 'Congratulations to the top 3 winners of the Science Fair 2026! Certificates have been issued to your profiles.', target: 'Competition', competitionId: 'c2', date: '2026-03-01', type: 'success' },
           { id: 'ann-demo3', title: 'Upcoming Workshop: Web Dev Basics', content: 'Join us next Monday for a specialized workshop on React and Tailwind CSS.', target: 'All', date: '2026-03-25', type: 'info' }
         ]);
-        addNotification('Demo Mode Activated! Mock data loaded across all screens.', 'success');
+        addNotification({
+          title: 'Demo Mode Activated',
+          message: 'Demo Mode Activated! Mock data loaded across all screens.',
+          type: 'success'
+        });
       } else {
         // Clear demo data
         setStudents([]);
@@ -905,7 +1042,11 @@ export const AppProvider = ({ children }) => {
         setCertificates([]);
         setCompetitionPosts({});
         setAnnouncements([]);
-        addNotification('Demo Mode Deactivated. Returning to blank state.', 'info');
+        addNotification({
+          title: 'Demo Mode Deactivated',
+          message: 'Demo Mode Deactivated. Returning to blank state.',
+          type: 'info'
+        });
       }
       return next;
     });
@@ -919,7 +1060,6 @@ export const AppProvider = ({ children }) => {
       toggleDemoMode,
       students,
       competitions,
-      notifications,
       submissions,
       certificates,
       addCompetition,
@@ -927,8 +1067,6 @@ export const AppProvider = ({ children }) => {
       updateStudentStatus,
       updateStudentStage,
       setStudentResult,
-      addNotification,
-      removeNotification,
       setStudentFeedback,
       addSubmission,
       updateSubmissionStatus,
@@ -958,6 +1096,11 @@ export const AppProvider = ({ children }) => {
       updateCompetitionStages,
       getCompetitionStudents,
       bulkSetResults,
+      peerReviews,
+      peerAssignments,
+      generatePeerAssignments,
+      submitPeerReview,
+      getMyPeerAssignments,
     }}>
       {children}
     </AppContext.Provider>

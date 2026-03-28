@@ -143,20 +143,24 @@ const ThemedApp = () => {
   );
 };
 
+import { NotificationProvider } from './context/NotificationContext';
+
 export default function App() {
   return (
     <AuthProvider>
-      <AppProvider>
-        <JudgeProvider>
-          <TeamProvider>
-            <ChatProvider>
-              <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                <ThemedApp />
-              </ThemeProvider>
-            </ChatProvider>
-          </TeamProvider>
-        </JudgeProvider>
-      </AppProvider>
+      <NotificationProvider>
+        <AppProvider>
+          <JudgeProvider>
+            <TeamProvider>
+              <ChatProvider>
+                <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                  <ThemedApp />
+                </ThemeProvider>
+              </ChatProvider>
+            </TeamProvider>
+          </JudgeProvider>
+        </AppProvider>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

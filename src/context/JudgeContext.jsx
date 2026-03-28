@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useApp } from './AppContext';
+import { useNotification } from './NotificationContext';
 
 const JudgeContext = createContext(null);
 
@@ -19,6 +20,7 @@ const DEFAULT_RUBRIC = [
 ];
 
 export const JudgeProvider = ({ children }) => {
+    const uuidv4 = () => Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
     // --- State ---
     const [judges, setJudges] = useState([
         { id: 'JUDGE-001', name: 'Dr. Sarah Mitchell', specialization: 'AI & Machine Learning', avatar: 'SM' },
@@ -29,9 +31,11 @@ export const JudgeProvider = ({ children }) => {
     const [assignments, setAssignments] = useState([]);
     const [evaluations, setEvaluations] = useState([]);
     const [rubrics, setRubrics] = useState({});
+    const [flaggedSubmissions, setFlaggedSubmissions] = useState([]); // { judgeId, submissionId, reason }
 
     // Access AppContext for demo mode synchronization
     const { isDemoMode } = useApp();
+    const { addNotification } = useNotification();
 
     // --- Rubric Management ---
     const getRubric = useCallback((competitionId) => {
@@ -45,7 +49,7 @@ export const JudgeProvider = ({ children }) => {
     // --- Judge Management ---
     const addJudge = useCallback((judgeData) => {
         const newJudge = {
-            id: `JUDGE-${Date.now()}`,
+            id: `JUDGE-${uuidv4().slice(0, 8)}`,
             avatar: judgeData.name.split(' ').map(n => n[0]).join('').toUpperCase(),
             ...judgeData,
         };
@@ -71,13 +75,20 @@ export const JudgeProvider = ({ children }) => {
             ));
         } else {
             setAssignments(prev => [...prev, {
-                id: `assign-${Date.now()}`,
+                id: `assign-${uuidv4().slice(0, 8)}`,
                 judgeId,
                 competitionId,
                 submissionIds,
             }]);
         }
-    }, [assignments]);
+
+                addNotification({
+          title: 'New Judging Assignment',
+          message: `You have been assigned to evaluate projects in the competition.`,
+          type: 'info',
+          userId: judgeId // Targeted notification
+        });
+    }, [assignments, addNotification]);
 
     const unassignJudge = useCallback((judgeId, competitionId) => {
         setAssignments(prev => prev.filter(
@@ -157,7 +168,7 @@ export const JudgeProvider = ({ children }) => {
         const maxTotal = rubric.reduce((sum, c) => sum + c.maxScore, 0);
 
         const evaluation = {
-            id: existingEval?.id || `eval-${Date.now()}`,
+            id: existingEval?.id || `eval-${uuidv4().slice(0, 8)}`,
             judgeId,
             submissionId,
             competitionId,
@@ -212,16 +223,36 @@ export const JudgeProvider = ({ children }) => {
     // --- Judge Progress ---
     const getJudgeProgress = useCallback((judgeId, allSubmissions) => {
         const assigned = getAssignedSubmissions(judgeId, allSubmissions);
-        const completed = assigned.filter(sub =>
+        // Filter out flagged submissions from progress/queue
+        const filteredAssigned = assigned.filter(sub => 
+          !flaggedSubmissions.some(f => f.judgeId === judgeId && f.submissionId === sub.id)
+        );
+        const completed = filteredAssigned.filter(sub =>
             evaluations.some(e => e.judgeId === judgeId && e.submissionId === sub.id && e.locked)
         );
         return {
-            total: assigned.length,
+            total: filteredAssigned.length,
             completed: completed.length,
-            remaining: assigned.length - completed.length,
-            percentage: assigned.length > 0 ? Math.round((completed.length / assigned.length) * 100) : 0,
+            remaining: filteredAssigned.length - completed.length,
+            percentage: filteredAssigned.length > 0 ? Math.round((completed.length / filteredAssigned.length) * 100) : 0,
         };
-    }, [evaluations, getAssignedSubmissions]);
+    }, [evaluations, getAssignedSubmissions, flaggedSubmissions]);
+
+    // --- Conflict Management ---
+    const flagConflict = useCallback((judgeId, submissionId, reason = 'Conflict of Interest') => {
+      setFlaggedSubmissions(prev => [...prev, { judgeId, submissionId, reason, date: new Date().toISOString() }]);
+      addNotification({
+        title: 'Conflict Flagged',
+        message: `Judge has flagged a conflict for Submission #${submissionId.slice(-4)}.`,
+        type: 'warning'
+      });
+    }, [addNotification]);
+
+    const unflagConflict = useCallback((judgeId, submissionId) => {
+      setFlaggedSubmissions(prev => prev.filter(f => !(f.judgeId === judgeId && f.submissionId === submissionId)));
+    }, []);
+
+    const getFlaggedSubmissions = useCallback(() => flaggedSubmissions, [flaggedSubmissions]);
 
     // --- Demo Data ---
     const loadDemoData = useCallback(() => {
@@ -308,11 +339,15 @@ export const JudgeProvider = ({ children }) => {
     useEffect(() => {
         if (prevDemoRef.current !== isDemoMode) {
             prevDemoRef.current = isDemoMode;
-            if (isDemoMode) {
-                loadDemoData();
-            } else {
-                clearDemoData();
-            }
+            // Use a slight delay or queue to avoid synchronous state update in effect body
+            const timer = setTimeout(() => {
+              if (isDemoMode) {
+                  loadDemoData();
+              } else {
+                  clearDemoData();
+              }
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [isDemoMode, loadDemoData, clearDemoData]);
 
@@ -343,8 +378,12 @@ export const JudgeProvider = ({ children }) => {
             // Rubrics
             getRubric,
             saveRubric,
-            // Progress
             getJudgeProgress,
+            // Conflict
+            flagConflict,
+            unflagConflict,
+            getFlaggedSubmissions,
+            flaggedSubmissions,
             // Demo
             loadDemoData,
             clearDemoData,
