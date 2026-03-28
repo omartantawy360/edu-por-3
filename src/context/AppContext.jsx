@@ -616,6 +616,20 @@ export const AppProvider = ({ children }) => {
 
   // NEW: Submission management functions
   const addSubmission = (submission) => {
+    const competition = competitions.find(c => c.id === submission.competitionId);
+    
+    // Phase Guard: Only allow submissions during active registration or evaluation phases (staging)
+    if (competition && 
+        (competition.phase === COMPETITION_PHASES.RESULTS_PUBLISHED || 
+         competition.phase === COMPETITION_PHASES.ARCHIVED)) {
+      addNotification({
+        title: 'Submission Failed',
+        message: 'The submission window for this competition has closed.',
+        type: 'error'
+      });
+      return { success: false, error: 'Registration closed.' };
+    }
+
     const newSubmission = {
       id: `sub-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
@@ -629,7 +643,7 @@ export const AppProvider = ({ children }) => {
       message: `New submission: ${submission.title}`,
       type: 'info'
     });
-    return newSubmission;
+    return { success: true, submission: newSubmission };
   };
 
   const updateSubmissionStatus = (id, status, feedback = null) => {
@@ -826,6 +840,29 @@ export const AppProvider = ({ children }) => {
       });
       return { ...s, result };
     }));
+  };
+
+  const finalizeCompetitionResults = (competitionId) => {
+    // This is meant to be called after Judge Evaluations are complete
+    // Bridge judicial averages into winners
+    setSubmissions(prev => prev.map(sub => {
+      if (sub.competitionId !== competitionId) return sub;
+      
+      // Look for a score in the local scores state
+      const score = scores.find(sc => sc.studentId === sub.studentId && sc.competitionId === competitionId);
+      
+      // Logical check for winner: if score exists and total > 30 (arbitrary high bar)
+      if (score && score.total >= 30) {
+        return { ...sub, isWinner: true, rank: 1 };
+      }
+      return sub;
+    }));
+
+    addNotification({
+      title: 'Results Finalized',
+      message: 'Winners have been identified based on the top scoring data.',
+      type: 'success'
+    });
   };
 
   // Handle Demo Mode Toggle
@@ -1096,6 +1133,7 @@ export const AppProvider = ({ children }) => {
       updateCompetitionStages,
       getCompetitionStudents,
       bulkSetResults,
+      finalizeCompetitionResults,
       peerReviews,
       peerAssignments,
       generatePeerAssignments,

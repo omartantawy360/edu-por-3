@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
+import { useJudge } from '../../context/JudgeContext';
 import {
   Trophy, Users, FileText, CheckCircle, XCircle, ChevronRight, ChevronLeft,
   Send, Eye, Star, Gavel, BarChart3, Lock, AlertCircle, Globe, Rocket,
@@ -81,7 +82,7 @@ function StatusBadge({ status }) {
 /* ─────────────────────────────────────────── */
 /*  STEP 1 — SELECT COMPETITION & STAGE       */
 /* ─────────────────────────────────────────── */
-function Step1({ competitions, selectedComp, setSelectedComp, selectedStage, setSelectedStage }) {
+function Step1({ competitions, selectedComp, setSelectedComp, selectedStage, setSelectedStage, selectedRubric, onRubricSelect }) {
   const comp = competitions.find(c => c.id === selectedComp);
 
   return (
@@ -164,6 +165,38 @@ function Step1({ competitions, selectedComp, setSelectedComp, selectedStage, set
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Rubric Selection - NEW */}
+      {comp && (
+        <div className="max-w-xl mx-auto space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+           <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Judging Rubric</label>
+              <Badge variant="outline" className="text-[10px] font-bold">Step 1b</Badge>
+           </div>
+           
+           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { id: 'standard', name: 'Standard', desc: 'Balanced 40pt' },
+                { id: 'science',  name: 'Science',  desc: 'Research 40pt' },
+                { id: 'coding',   name: 'Coding',   desc: 'Technical 40pt' }
+              ].map(r => (
+                <button
+                  key={r.id}
+                  onClick={() => onRubricSelect(r.id)}
+                  className={cn(
+                    "p-4 rounded-xl border-2 text-left transition-all",
+                    selectedRubric === r.id 
+                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20" 
+                      : "border-slate-100 dark:border-slate-800 hover:border-indigo-300 bg-white dark:bg-slate-900"
+                  )}
+                >
+                  <p className="font-bold text-sm text-slate-900 dark:text-slate-100">{r.name}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{r.desc}</p>
+                </button>
+              ))}
+           </div>
         </div>
       )}
     </div>
@@ -306,6 +339,7 @@ function Step2({ compStudents, updateStudentStatus, updateStudentStage, selected
 /*  STEP 3 — SUBMISSIONS & SCORING             */
 /* ─────────────────────────────────────────── */
 function Step3({ compStudents, selectedCompId, setStudentResult, addScore, getCompetitionSubmissions, scores }) {
+  const { getAverageScore } = useJudge();
   const approved = compStudents.filter(s => s.status === 'Approved');
   const submissions = getCompetitionSubmissions(selectedCompId);
   const [expandedId, setExpandedId] = useState(null);
@@ -377,10 +411,23 @@ function Step3({ compStudents, selectedCompId, setStudentResult, addScore, getCo
                   </div>
 
                   {/* Score pill */}
-                  <div className="text-right shrink-0">
-                    <div className="text-xl font-black text-violet-600 dark:text-violet-400">{total}<span className="text-xs font-normal text-slate-400">/40</span></div>
-                    <div className="h-1.5 w-16 rounded-full bg-slate-200 dark:bg-slate-700 mt-1 overflow-hidden">
-                      <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${(total / 40) * 100}%` }} />
+                  <div className="text-right shrink-0 flex items-center gap-4">
+                    {/* Judge Score Badge */}
+                    {(() => {
+                      const judgeData = getAverageScore(sub?.id);
+                      if (!judgeData) return null;
+                      return (
+                        <div className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-center">
+                          <p className="text-[8px] font-black text-indigo-500 uppercase tracking-tighter">Judge Avg</p>
+                          <p className="text-sm font-bold text-indigo-700 dark:text-indigo-400">{judgeData.averageTotal}</p>
+                        </div>
+                      );
+                    })()}
+                    <div>
+                      <div className="text-xl font-black text-violet-600 dark:text-violet-400">{total}<span className="text-xs font-normal text-slate-400">/40</span></div>
+                      <div className="h-1.5 w-16 rounded-full bg-slate-200 dark:bg-slate-700 mt-1 overflow-hidden">
+                        <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${(total / 40) * 100}%` }} />
+                      </div>
                     </div>
                   </div>
 
@@ -484,7 +531,7 @@ function Step3({ compStudents, selectedCompId, setStudentResult, addScore, getCo
 /* ─────────────────────────────────────────── */
 /*  STEP 4 — PREVIEW & PUBLISH                 */
 /* ─────────────────────────────────────────── */
-function Step4({ compStudents, selectedCompId, selectedComp, selectedStage, updateCompetitionPhase, updateCompetitionVisibility, updateLeaderboardStatus, scores, onPublishDone }) {
+function Step4({ compStudents, selectedCompId, selectedComp, selectedStage, updateCompetitionPhase, updateCompetitionVisibility, updateLeaderboardStatus, finalizeCompetitionResults, scores, onPublishDone }) {
   const approved = compStudents.filter(s => s.status === 'Approved');
   const pendingResult = approved.filter(s => !s.result || s.result === '-');
   const canPublish = pendingResult.length === 0 && approved.length > 0;
@@ -600,6 +647,19 @@ function Step4({ compStudents, selectedCompId, selectedComp, selectedStage, upda
         </table>
       </div>
 
+      {/* Finalize Results Action */}
+      {!published && !ranked.some(s => s.isWinner) && (
+        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 border-dashed text-center space-y-3">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Winning projects have not been identified for this competition yet.</p>
+          <Button 
+            onClick={() => finalizeCompetitionResults(selectedCompId)}
+            className="bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
+          >
+            Identify Winners & Finalize
+          </Button>
+        </div>
+      )}
+
       {/* Publish button */}
       <div className="flex justify-end pt-2">
         <button
@@ -637,14 +697,41 @@ export default function CompetitionWizard() {
     updateCompetitionPhase,
     updateCompetitionVisibility,
     updateLeaderboardStatus,
+    finalizeCompetitionResults,
   } = useApp();
+
+  const { saveRubric } = useJudge();
 
   const [step, setStep] = useState(1);
   const [selectedComp, setSelectedComp] = useState('');
   const [selectedStage, setSelectedStage] = useState('');
+  const [selectedRubric, setSelectedRubric] = useState('standard');
 
   const compObj = competitions.find(c => c.id === selectedComp);
   const compStudents = selectedComp ? getCompetitionStudents(selectedComp) : [];
+
+  const handleRubricChange = (rubricId) => {
+    setSelectedRubric(rubricId);
+    const criteriaMap = {
+      standard: [
+        { id: 'innovation',   name: 'Innovation',         maxScore: 10 },
+        { id: 'design',       name: 'Design',              maxScore: 10 },
+        { id: 'presentation', name: 'Presentation',        maxScore: 10 },
+        { id: 'technical',    name: 'Technical Quality',   maxScore: 10 },
+      ],
+      science: [
+        { id: 'research',     name: 'Research Depth',      maxScore: 15 },
+        { id: 'methodology',  name: 'Methodology',         maxScore: 15 },
+        { id: 'accuracy',     name: 'Scientific Accuracy', maxScore: 10 },
+      ],
+      coding: [
+        { id: 'algorithm',    name: 'Algorithm Efficiency',maxScore: 20 },
+        { id: 'docs',         name: 'Code Documentation',  maxScore: 10 },
+        { id: 'ui',           name: 'User Interface',      maxScore: 10 },
+      ],
+    };
+    if (selectedComp) saveRubric(selectedComp, criteriaMap[rubricId] || criteriaMap.standard);
+  };
 
   const canGoNext = () => {
     if (step === 1) return !!selectedComp && !!selectedStage;
@@ -653,7 +740,7 @@ export default function CompetitionWizard() {
     return false;
   };
 
-  const reset = () => { setStep(1); setSelectedComp(''); setSelectedStage(''); };
+  const reset = () => { setStep(1); setSelectedComp(''); setSelectedStage(''); setSelectedRubric('standard'); };
 
   return (
     <div className="space-y-6">
@@ -682,6 +769,8 @@ export default function CompetitionWizard() {
               setSelectedComp={setSelectedComp}
               selectedStage={selectedStage}
               setSelectedStage={setSelectedStage}
+              selectedRubric={selectedRubric}
+              onRubricSelect={handleRubricChange}
             />
           )}
           {step === 2 && (
@@ -711,6 +800,7 @@ export default function CompetitionWizard() {
               updateCompetitionPhase={updateCompetitionPhase}
               updateCompetitionVisibility={updateCompetitionVisibility}
               updateLeaderboardStatus={updateLeaderboardStatus}
+              finalizeCompetitionResults={finalizeCompetitionResults}
               scores={scores}
               onPublishDone={reset}
             />

@@ -81,7 +81,9 @@ const CompetitionDetailPage = () => {
                   <div className="h-8 w-8 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 flex items-center justify-center text-xs font-black">
                     {i + 1}
                   </div>
-                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400 text-center whitespace-nowrap">{stage}</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400 text-center whitespace-nowrap">
+                    {typeof stage === 'string' ? stage : (stage?.name || 'Stage')}
+                  </span>
                 </div>
                 {i < competition.stages.length - 1 && (
                   <div className="h-0.5 w-6 bg-slate-200 dark:bg-slate-700 shrink-0" />

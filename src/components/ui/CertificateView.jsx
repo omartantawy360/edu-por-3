@@ -87,6 +87,24 @@ const CertificateView = () => {
 
     return (
         <div className="space-y-8 animate-fade-in pb-12">
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    body * { visibility: hidden; }
+                    .print-section, .print-section * { visibility: visible; }
+                    .print-section { 
+                        position: absolute; 
+                        left: 0; 
+                        top: 0; 
+                        width: 100% !important; 
+                        height: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    .no-print { display: none !important; }
+                }
+            `}} />
+
             {/* Capture Layer - For Print/Image Export */}
             <div className="print-container" style={{ position: 'fixed', left: '-5000px', top: 0, opacity: 0, pointerEvents: 'none' }} aria-hidden="true">
                 {certificates.map(cert => (
@@ -164,9 +182,9 @@ const CertificateView = () => {
             </div>
 
             {/* Display Layer (What the user sees) */}
-            <div className="grid grid-cols-1 gap-8">
+            <div className="grid grid-cols-1 gap-8 no-print">
                 {certificates.map((cert) => (
-                    <div key={cert.id} className="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+                    <div key={cert.id} className="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg print-section">
                         {/* Certificate Design Container for UI display only */}
                         <div 
                             ref={el => certificateRefs.current[cert.id] = el}
@@ -278,7 +296,7 @@ const CertificateView = () => {
                             </div>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-slate-950/50 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="bg-slate-50 dark:bg-slate-950/50 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
                             <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                                 <Sparkles size={14} className="text-amber-500" />
                                 <span>High-Resolution Digital Credential</span>

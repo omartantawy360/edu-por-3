@@ -297,11 +297,14 @@ const Register = () => {
 
                                     <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
                                         <div className="flex flex-wrap gap-2">
-                                            {selectedComp.stages.map((stage, i) => (
-                                                <span key={i} className="px-2 py-1 bg-white/10 rounded text-xs text-white">
-                                                    {stage}
-                                                </span>
-                                            ))}
+                                            {(selectedComp.stages || []).map((stage, i) => {
+                                                const stageName = typeof stage === 'string' ? stage : (stage?.name || 'Stage');
+                                                return (
+                                                    <span key={i} className="px-2 py-1 bg-white/10 rounded text-xs text-white">
+                                                        {stageName}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                         
                                         <Link 

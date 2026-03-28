@@ -12,6 +12,7 @@ import { useTeam } from '../context/TeamContext';
 import CompetitionPhaseSteps from '../components/ui/CompetitionPhaseSteps';
 import PeerReviewPanel from '../components/ui/PeerReviewPanel';
 import { Modal } from '../components/ui/Modal';
+import { useJudge } from '../context/JudgeContext';
 
 const StudentDashboard = () => {
     const context = useApp();
@@ -22,6 +23,7 @@ const StudentDashboard = () => {
     } = context || {};
     const { user, loading: authLoading } = useAuth();
     const { userTeams } = useTeam();
+    const { getSubmissionEvaluations, DEFAULT_RUBRIC } = useJudge();
     const [selectedAssignment, setSelectedAssignment] = React.useState(null);
 
     if (authLoading) return <div className="h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 font-medium text-slate-500">Loading Dashboard...</div>;
@@ -206,75 +208,54 @@ const StudentDashboard = () => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Notifications Section */}
-                <div className="lg:col-span-1 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                            <Bell className="h-5 w-5 text-violet-500" />
+            {/* Notifications strip */}
+            {myNotifications.length > 0 && (
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border shadow-sm p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                            <Bell className="h-4 w-4 text-violet-500" />
                             Notifications
-                        </h2>
-                        {myNotifications.length > 0 && (
-                            <Badge variant="secondary" className="bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300">
-                                {myNotifications.length} New
+                            <Badge variant="secondary" className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                {myNotifications.length}
                             </Badge>
-                        )}
+                        </h2>
                     </div>
-
-                    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border shadow-sm p-4 h-full max-h-[500px] overflow-y-auto sidebar-scroll">
-                        {myNotifications.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground">
-                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-3">
-                                    <Bell className="h-6 w-6 text-slate-400" />
+                    <div className="flex flex-col sm:flex-row gap-3 overflow-x-auto pb-1">
+                        {myNotifications.slice(0, 3).map((n) => (
+                            <div key={n.id} className={cn(
+                                "relative group flex items-start gap-3 p-3 rounded-xl border flex-1 min-w-[200px] transition-all duration-200 hover:shadow-md",
+                                n.type === 'success' ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900' :
+                                    n.type === 'warning' ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900' :
+                                        'bg-white/80 dark:bg-slate-800/80 border-slate-100 dark:border-slate-700'
+                            )}>
+                                <div className={cn(
+                                    "p-1.5 rounded-full h-7 w-7 flex items-center justify-center shrink-0",
+                                    n.type === 'success' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' :
+                                        n.type === 'warning' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400' :
+                                            'bg-violet-100 text-violet-600 dark:bg-violet-900 dark:text-violet-400'
+                                )}>
+                                    {n.type === 'success' ? <CheckCircle className="h-3.5 w-3.5" /> : <Bell className="h-3.5 w-3.5" />}
                                 </div>
-                                <p className="text-sm">You're all caught up!</p>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight">{n.text}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">{n.date}</p>
+                                </div>
+                                <button
+                                    onClick={() => removeNotification(n.id)}
+                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 rounded-full transition-all shrink-0"
+                                >
+                                    <X className="h-3 w-3 text-slate-400" />
+                                </button>
                             </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {myNotifications.slice(0, 5).map((n) => (
-                                    <div key={n.id} className={cn(
-                                        "relative group p-4 rounded-xl border transition-all duration-300 hover:shadow-md",
-                                        n.type === 'success' ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900' :
-                                            n.type === 'warning' ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900' :
-                                                'bg-white/80 dark:bg-slate-800/80 border-slate-100 dark:border-slate-700'
-                                    )}>
-                                        <div className="flex gap-3">
-                                            <div className={cn(
-                                                "mt-1 p-2 rounded-full h-8 w-8 flex items-center justify-center shrink-0 shadow-sm",
-                                                n.type === 'success' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400' :
-                                                    n.type === 'warning' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400' :
-                                                        'bg-violet-100 text-violet-600 dark:bg-violet-900 dark:text-violet-400'
-                                            )}>
-                                                {n.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className={cn(
-                                                    "text-sm font-semibold mb-0.5",
-                                                    n.type === 'success' ? 'text-emerald-900 dark:text-emerald-100' :
-                                                        n.type === 'warning' ? 'text-amber-900 dark:text-amber-100' :
-                                                            'text-slate-900 dark:text-slate-100'
-                                                )}>{n.text}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{n.date}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => removeNotification(n.id)}
-                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 rounded-full transition-all"
-                                                title="Dismiss"
-                                            >
-                                                <X className="h-3.5 w-3.5 text-slate-400" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        ))}
                     </div>
                 </div>
+            )}
 
-                {/* My Competitions List */}
-                <div className="lg:col-span-2 space-y-8">
-                    
-                    {/* JOURNEY SECTION (NEW) */}
+            {/* My Competitions — full width */}
+            <div className="space-y-8">
+
+                {/* JOURNEY SECTION */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                             <Sparkles className="h-5 w-5 text-violet-500" />
@@ -318,7 +299,7 @@ const StudentDashboard = () => {
                                 {myRegistrations.map((reg) => {
                                     const comp = competitions.find(c => c.name === reg.competition);
                                     return (
-                                        <div key={reg.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-900 transition-all duration-300 overflow-hidden">
+                                        <div key={reg.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-900 transition-all duration-300">
                                             <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Badge variant="outline" className="bg-white/80 backdrop-blur-sm shadow-sm">{reg.type}</Badge>
                                             </div>
@@ -433,6 +414,33 @@ const StudentDashboard = () => {
                                                                         </div>
                                                                     );
                                                                 })()}
+
+                                                                {/* Granular Judge Feedback */}
+                                                                {(() => {
+                                                                    const submission = getStudentSubmissions(studentId).find(s => s.competitionId === comp.id);
+                                                                    if (!submission) return null;
+                                                                    const evals = getSubmissionEvaluations(submission.id);
+                                                                    if (evals.length === 0) return null;
+
+                                                                    return (
+                                                                        <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-4">
+                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                                                <MessageSquare size={12} /> Expert Judge Feedback
+                                                                            </p>
+                                                                            <div className="space-y-3">
+                                                                                {evals.map((e, idx) => (
+                                                                                    <div key={idx} className="p-3 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                                                                        <div className="flex justify-between items-start mb-2">
+                                                                                            <span className="text-[10px] font-bold text-violet-500 uppercase">Judge #{idx + 1}</span>
+                                                                                            <Badge variant="outline" className="text-[10px] py-0">{e.percentage}% Qualify</Badge>
+                                                                                        </div>
+                                                                                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">"{e.comments || 'No comments provided.'}"</p>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })()}
                                                             </div>
                                                         )}
 
@@ -479,8 +487,6 @@ const StudentDashboard = () => {
                         )}
                     </div>
                 </div>
-            </div>
-
             {/* Peer Review Modal */}
             <Modal
                 isOpen={!!selectedAssignment}
