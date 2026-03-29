@@ -630,6 +630,29 @@ export const AppProvider = ({ children }) => {
       return { success: false, error: 'Registration closed.' };
     }
 
+    // Team Status Guard
+    if (submission.isTeamSubmission && submission.teamStatus !== 'Accepted') {
+      addNotification({
+        title: 'Team Not Accepted',
+        message: 'Your team must be Accepted by an admin before you can submit a project.',
+        type: 'error'
+      });
+      return { success: false, error: 'Team not accepted.' };
+    }
+
+    // Deadline Guard
+    if (competition && competition.stages && competition.stages.length > 0) {
+        const activeStage = competition.stages.find(s => s.status !== 'Completed') || competition.stages[competition.stages.length - 1];
+        if (activeStage && activeStage.endDate && new Date() > new Date(`${activeStage.endDate}T23:59:59`)) {
+            addNotification({
+              title: 'Deadline Passed',
+              message: `The deadline for ${activeStage.name} has passed. Submissions are locked.`,
+              type: 'error'
+            });
+            return { success: false, error: 'Deadline passed.' };
+        }
+    }
+
     const newSubmission = {
       id: `sub-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
@@ -641,7 +664,7 @@ export const AppProvider = ({ children }) => {
     addNotification({
       title: 'Submission Received',
       message: `New submission: ${submission.title}`,
-      type: 'info'
+      type: 'success'
     });
     return { success: true, submission: newSubmission };
   };
@@ -650,10 +673,25 @@ export const AppProvider = ({ children }) => {
     setSubmissions(prev => prev.map(sub => 
       sub.id === id ? { ...sub, status, feedback } : sub
     ));
-    addNotification(`Submission ${id} ${status}`, "success");
+    addNotification({ title: `Submission ${status}`, message: `Status updated successfully.`, type: 'success' });
   };
 
   const editSubmission = (id, updatedData) => {
+    // Stage validations similar to addSubmission
+    const competition = competitions.find(c => c.id === updatedData.competitionId);
+
+    if (competition && competition.stages && competition.stages.length > 0) {
+        const activeStage = competition.stages.find(s => s.status !== 'Completed') || competition.stages[competition.stages.length - 1];
+        if (activeStage && activeStage.endDate && new Date() > new Date(`${activeStage.endDate}T23:59:59`)) {
+            addNotification({
+              title: 'Editing Locked',
+              message: `The deadline for ${activeStage.name} has passed. You can no longer edit this submission.`,
+              type: 'error'
+            });
+            return { success: false, error: 'Deadline passed.' };
+        }
+    }
+
     setSubmissions(prev => prev.map(sub => 
       sub.id === id ? { ...sub, ...updatedData } : sub
     ));

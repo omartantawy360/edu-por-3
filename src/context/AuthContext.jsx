@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // { name: string, role: 'admin' | 'student' | 'judge', id: string }
   const [loading, setLoading] = useState(false); 
 
-  const login = (role) => {
+  const login = (role, customUserId = null) => {
     setLoading(true);
     // Simulate API delay
     return new Promise((resolve) => {
@@ -33,9 +33,21 @@ export const AuthProvider = ({ children }) => {
             });
           } else {
             // Default student is Omar Tantawy
+            const students = {
+              'ST-001': 'Omar Tantawy',
+              'ST-002': 'Alice Smith',
+              'ST-003': 'Bob Johnson',
+              'ST-004': 'Charlie Brown',
+              'ST-005': 'Diana Prince',
+              'ST-006': 'Evan Wright',
+              'ST-007': 'Fiona Gallagher',
+              'ST-008': 'George Costanza',
+              'ST-009': 'Hannah Abbott',
+            };
+            const studentId = customUserId && students[customUserId] ? customUserId : 'ST-001';
             setUser({
-              id: 'ST-001',
-              name: 'Omar Tantawy',
+              id: studentId,
+              name: students[studentId],
               role: 'student',
             });
           }

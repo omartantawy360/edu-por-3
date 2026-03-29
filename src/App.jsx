@@ -37,6 +37,7 @@ import CompetitionDetailPage from './pages/CompetitionDetailPage';
 import VirtualExpoPage from './pages/VirtualExpoPage';
 import ProjectShowcasePage from './pages/ProjectShowcasePage';
 import StudentProfilePage from './pages/StudentProfilePage';
+import QASimulator from './components/QA/QASimulator';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -139,6 +140,7 @@ const ThemedApp = () => {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AppRoutes />
+      <QASimulator />
     </BrowserRouter>
   );
 };

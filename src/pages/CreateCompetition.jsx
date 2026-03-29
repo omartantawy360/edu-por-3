@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useJudge } from '../context/JudgeContext';
 import {
     Trophy, Calendar, Users, FileText, Sparkles, Plus, Image,
     CheckCircle, ChevronLeft, X, ChevronRight, BookOpen,
-    ClipboardList, Layers, Eye
+    ClipboardList, Layers, Eye, ShieldCheck
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { cn } from '../utils/cn';
@@ -32,6 +33,7 @@ const EMPTY_STAGE = { title: '', description: '', startDate: '', endDate: '' };
 
 const CreateCompetition = () => {
     const { addCompetition, addPost } = useApp();
+    const { saveRubric } = useJudge();
     const navigate = useNavigate();
 
     // ── Wizard step ─────────────────────────────────────────
@@ -61,6 +63,14 @@ const CreateCompetition = () => {
     // ── Step 3: Stages ──────────────────────────────────────
     const [stages, setStages] = useState([{ ...EMPTY_STAGE }]);
 
+    // ── Step 4: Judging Rubric ──────────────────────────────
+    const [rubrics, setRubrics] = useState([
+        { id: '1', name: 'Innovation & Originality', maxScore: 10 },
+        { id: '2', name: 'Technical Execution', maxScore: 10 },
+        { id: '3', name: 'Presentation', maxScore: 10 },
+        { id: '4', name: 'Real-world Impact', maxScore: 10 }
+    ]);
+
     // ── Handlers ────────────────────────────────────────────
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,9 +96,20 @@ const CreateCompetition = () => {
 
     const canProceedStep1 = formData.name.trim() && formData.description.trim() && formData.startDate && formData.endDate;
 
+    const addRubric = () => setRubrics(prev => [...prev, { id: Date.now().toString(), name: '', maxScore: 10 }]);
+    const removeRubric = (i) => setRubrics(prev => prev.filter((_, idx) => idx !== i));
+    const updateRubric = (i, field, value) => setRubrics(prev => prev.map((r, idx) => idx === i ? { ...r, [field]: value } : r));
+
     const handlePublish = () => {
         // Create competition
-        const stagesLabels = stages.filter(s => s.title.trim()).map(s => s.title);
+        const stagesList = stages.filter(s => s.title.trim()).map(s => ({
+            name: s.title,
+            startDate: s.startDate || formData.startDate,
+            endDate: s.endDate || formData.endDate,
+            maxTeams: parseInt(formData.maxParticipants) || 100,
+            status: 'Upcoming'
+        }));
+
         const competition = {
             name: formData.name,
             description: formData.description,
@@ -96,7 +117,7 @@ const CreateCompetition = () => {
             startDate: formData.startDate,
             endDate: formData.endDate,
             maxParticipants: parseInt(formData.maxParticipants) || 0,
-            stages: stagesLabels,
+            stages: stagesList,
             categories,
             coverImage: formData.coverImage,
             prize: formData.prize,
@@ -106,6 +127,17 @@ const CreateCompetition = () => {
         // addCompetition returns void — we need the id ourselves
         const tempId = Math.random().toString(36).substr(2, 9);
         addCompetition({ ...competition, id: tempId });
+
+        // Save Custom Rubric to JudgeContext
+        const finalRubrics = rubrics.filter(r => r.name.trim()).map((r, i) => ({
+            id: `c-${i}`,
+            name: r.name,
+            maxScore: parseInt(r.maxScore) || 10
+        }));
+        saveRubric(tempId, finalRubrics.length > 0 ? finalRubrics : [
+            { id: 'innovation', name: 'Innovation', maxScore: 10 },
+            { id: 'technical', name: 'Technical Quality', maxScore: 10 }
+        ]);
 
         // Auto-generate posts
         // 1. Introduction Post
@@ -157,6 +189,7 @@ const CreateCompetition = () => {
         { number: 1, label: 'Basic Info', icon: Trophy },
         { number: 2, label: 'Intro & Registration', icon: BookOpen },
         { number: 3, label: 'Stages', icon: Layers },
+        { number: 4, label: 'Judging Rubric', icon: ShieldCheck },
     ];
 
     return (
@@ -471,6 +504,50 @@ const CreateCompetition = () => {
                 </div>
             )}
 
+            {/* ── STEP 4: Judging Rubric ─────────────────────────── */}
+            {currentStep === 4 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
+                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
+                        <ShieldCheck size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200">Custom Evaluation Rubric</p>
+                            <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">Define custom criteria that judges will use to score team submissions in this competition.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                        {rubrics.map((r, i) => (
+                            <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Criterion {i + 1}</span>
+                                    </div>
+                                    {rubrics.length > 1 && (
+                                        <button onClick={() => removeRubric(i)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Trait Name</label>
+                                        <input type="text" value={r.name} onChange={e => updateRubric(i, 'name', e.target.value)} className={inputCls + ' text-sm'} placeholder="e.g. Code Quality" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Max Points</label>
+                                        <input type="number" min="1" max="100" value={r.maxScore} onChange={e => updateRubric(i, 'maxScore', e.target.value)} className={inputCls + ' text-sm'} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button onClick={addRubric} className="w-full py-3 rounded-2xl border-2 border-dashed border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all flex items-center justify-center gap-2">
+                            <Plus size={16} /> Add Criterion
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Navigation Footer */}
             <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
                 <button
@@ -481,7 +558,7 @@ const CreateCompetition = () => {
                 </button>
 
                 <div className="flex items-center gap-3">
-                    {currentStep < 3 ? (
+                    {currentStep < 4 ? (
                         <button
                             onClick={() => setCurrentStep(s => s + 1)}
                             disabled={currentStep === 1 && !canProceedStep1}

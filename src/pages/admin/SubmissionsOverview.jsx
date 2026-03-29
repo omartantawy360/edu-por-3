@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Link, useLocation } from 'react-router-dom';
+import { useTeam } from '../../context/TeamContext';
+import { useJudge } from '../../context/JudgeContext';
 import { 
     CheckCircle, XCircle, Clock, Github, ExternalLink, MessageSquare, 
-    FileText, Paperclip, Video, Image as ImageIcon, FileCode, Search, Trophy, User, Globe
+    FileText, Paperclip, Video, Image as ImageIcon, FileCode, Search, Trophy, User, Target, ChevronRight
 } from 'lucide-react';
 
 const SubmissionsOverview = () => {
-    const { submissions, students, competitions, updateSubmissionStatus } = useApp();
+    const { submissions, students, competitions, updateSubmissionStatus, addPost, editSubmission } = useApp();
+    const { teams, updateTeamStatus } = useTeam();
+    const { getAverageScore } = useJudge();
+    
     const location = useLocation();
     const [filter, setFilter] = useState('all');
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [feedbackText, setFeedbackText] = useState('');
+
+    // Stage Promotion Modal State
+    const [showPromotionModal, setShowPromotionModal] = useState(false);
+    const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+    const [actionCompId, setActionCompId] = useState('');
+    const [selectedQualifiers, setSelectedQualifiers] = useState({});
 
     const filteredSubmissions = submissions.filter(sub => {
         if (filter === 'all') return true;
@@ -33,6 +44,83 @@ const SubmissionsOverview = () => {
         setFeedbackText('');
     };
 
+    const toggleQualifier = (teamId) => {
+        setSelectedQualifiers(prev => ({ ...prev, [teamId]: !prev[teamId] }));
+    };
+
+    const handleExecutePromotion = () => {
+        const comp = getCompetition(actionCompId);
+        if (!comp) return;
+
+        // Eliminate non-selected teams
+        const compTeams = teams.filter(t => t.competitionId === actionCompId && t.status !== 'Eliminated');
+        let promotedCount = 0;
+        
+        compTeams.forEach(team => {
+            if (!selectedQualifiers[team.id]) {
+                updateTeamStatus(team.id, 'Eliminated');
+            } else {
+                promotedCount++;
+            }
+        });
+
+        // Announce
+        const activeStage = comp.stages.find(s => s.status !== 'Completed') || comp.stages[0];
+        addPost(actionCompId, {
+            type: 'Stage',
+            title: `Stage Results: ${activeStage.name} Concluded!`,
+            description: `Congratulations to the ${promotedCount} top teams that qualified and advanced to the next phase of the competition! Teams that did not advance have been notified. Keep innovating!`,
+            date: new Date().toISOString().split('T')[0],
+            status: 'published'
+        });
+
+        alert(`Successfully promoted ${promotedCount} teams!`);
+        setShowPromotionModal(false);
+        setActionCompId('');
+        setSelectedQualifiers({});
+    };
+
+    const handleFinalizeWinners = () => {
+        const comp = getCompetition(actionCompId);
+        if (!comp) return;
+
+        const compTeams = teams.filter(t => t.competitionId === actionCompId && t.status !== 'Eliminated');
+        
+        // Sort teams by Judge score descending
+        const scoredTeams = compTeams.map(team => {
+            const sub = submissions.find(s => s.teamId === team.id && s.competitionId === actionCompId);
+            const score = sub ? getAverageScore(sub.id) : 0;
+            return { team, sub, score };
+        }).sort((a, b) => b.score - a.score);
+
+        // Assign Rank 1, 2, 3
+        scoredTeams.forEach((item, index) => {
+            if (item.sub) {
+                const rank = index + 1;
+                const isWinner = rank <= 3;
+                editSubmission(item.sub.id, {
+                    isWinner: isWinner,
+                    rank: isWinner ? rank : null
+                });
+                if (isWinner) {
+                    updateTeamStatus(item.team.id, `Winner (Rank ${rank})`);
+                }
+            }
+        });
+
+        addPost(actionCompId, {
+            type: 'Result',
+            title: `🏆 FINAL RESULTS: ${comp.name} Winners Announced!`,
+            description: `The moment we've all been waiting for! The final results are in. Head over to the Leaderboard and Virtual Expo to see the winning projects. Congratulations to all participants!`,
+            date: new Date().toISOString().split('T')[0],
+            status: 'published'
+        });
+
+        alert(`Successfully finalized the Top 3 winners for ${comp.name}!`);
+        setShowFinalizeModal(false);
+        setActionCompId('');
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <div>
@@ -40,9 +128,9 @@ const SubmissionsOverview = () => {
                 <p className="text-slate-500 dark:text-slate-400 mt-1">Review and manage student submissions</p>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-                <div className="flex gap-2">
+            {/* Filter Tabs & Actions */}
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 flex flex-col sm:flex-row justify-between gap-4">
+                <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -82,6 +170,21 @@ const SubmissionsOverview = () => {
                         }`}
                     >
                         Rejected ({submissions.filter(s => s.status === 'rejected').length})
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-800 pt-4 sm:pt-0 sm:pl-4">
+                    <button
+                        onClick={() => { setShowPromotionModal(true); setActionCompId(''); }}
+                        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                    >
+                        <Target size={18} /> Advance Stage
+                    </button>
+                    <button
+                        onClick={() => { setShowFinalizeModal(true); setActionCompId(''); }}
+                        className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                    >
+                        <Trophy size={18} /> Finalize Winners
                     </button>
                 </div>
             </div>
@@ -298,6 +401,133 @@ const SubmissionsOverview = () => {
                                     Close without changes
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Advance Stage / Promotion Modal */}
+            {showPromotionModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-0 ring-1 ring-white/10 sidebar-scroll p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-xl font-bold flex items-center gap-2"><Target size={24} className="text-violet-500"/> Team Promotion</h3>
+                                <p className="text-sm text-slate-500 mt-1">Select teams to skip elimination and advance to the next competition stage.</p>
+                            </div>
+                            <button onClick={() => setShowPromotionModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"><XCircle size={24} className="text-slate-400" /></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <select 
+                                value={actionCompId} 
+                                onChange={(e) => {
+                                    setActionCompId(e.target.value);
+                                    setSelectedQualifiers({});
+                                }}
+                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-violet-500 bg-slate-50 dark:bg-slate-800 font-bold"
+                            >
+                                <option value="">-- Choose Competition to Conclude Phase --</option>
+                                {competitions.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+
+                            {actionCompId && (
+                                <div className="space-y-3 mt-4">
+                                    <p className="text-sm font-bold text-slate-500 uppercase">Qualifying Teams</p>
+                                    {teams.filter(t => t.competitionId === actionCompId && t.status !== 'Eliminated').map(team => {
+                                        const sub = submissions.find(s => s.teamId === team.id && s.competitionId === actionCompId);
+                                        const score = sub ? getAverageScore(sub.id) : 0;
+                                        const isSelected = !!selectedQualifiers[team.id];
+                                        return (
+                                            <div key={team.id} className={`p-4 rounded-xl border-2 flex items-center gap-4 cursor-pointer transition-all ${isSelected ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' : 'border-slate-200 dark:border-slate-800 hover:border-violet-300'}`} onClick={() => toggleQualifier(team.id)}>
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${isSelected ? 'bg-violet-500 border-violet-500' : 'border-slate-300 dark:border-slate-600'}`}>
+                                                    {isSelected && <CheckCircle size={14} className="text-white" />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-slate-800 dark:text-slate-100">{team.name}</h4>
+                                                    <p className="text-xs text-slate-500">Judges Average: {score}/100</p>
+                                                </div>
+                                                <div className={`px-3 py-1 bg-white dark:bg-slate-800 shadow-sm rounded-lg font-mono font-bold ${score >= 75 ? 'text-emerald-600' : 'text-slate-600'}`}>
+                                                    {score} pts
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {teams.filter(t => t.competitionId === actionCompId && t.status !== 'Eliminated').length === 0 && (
+                                        <p className="text-red-500 text-sm">No active teams remaining.</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end mt-8 border-t border-slate-100 dark:border-slate-800 pt-6">
+                            <button 
+                                disabled={!actionCompId}
+                                onClick={handleExecutePromotion}
+                                className="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl flex items-center gap-2 disabled:opacity-50"
+                            >
+                                <ChevronRight size={18} /> Execute Elimination & Promote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Finalize Winners Modal */}
+            {showFinalizeModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border-0 ring-1 ring-white/10">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-xl font-bold flex items-center gap-2"><Trophy size={24} className="text-amber-500"/> Finalize Winners</h3>
+                                <p className="text-sm text-slate-500 mt-1">Automatically assign Rank 1, 2, 3 to the teams with the highest Judge scores.</p>
+                            </div>
+                            <button onClick={() => setShowFinalizeModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"><XCircle size={24} className="text-slate-400" /></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <select 
+                                value={actionCompId} 
+                                onChange={(e) => setActionCompId(e.target.value)}
+                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-violet-500 bg-slate-50 dark:bg-slate-800 font-bold"
+                            >
+                                <option value="">-- Choose Competition to Finalize --</option>
+                                {competitions.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+
+                            {actionCompId && (
+                                <div className="space-y-3 mt-4">
+                                    <p className="text-sm font-bold text-slate-500 uppercase">Top 3 Leaderboard Preview</p>
+                                    {teams.filter(t => t.competitionId === actionCompId && t.status !== 'Eliminated').map(team => {
+                                        const sub = submissions.find(s => s.teamId === team.id && s.competitionId === actionCompId);
+                                        return { team, sub, score: sub ? getAverageScore(sub.id) : 0 };
+                                    }).sort((a,b) => b.score - a.score).slice(0, 3).map((item, index) => (
+                                        <div key={item.team.id} className="p-4 rounded-xl border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 flex items-center gap-4">
+                                            <div className="w-8 h-8 rounded-full bg-amber-400 text-white font-black flex items-center justify-center">
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-amber-900 dark:text-amber-100">{item.team.name}</h4>
+                                                <p className="text-xs text-amber-700/70 dark:text-amber-300">Score: {item.score}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end mt-8 border-t border-slate-100 dark:border-slate-800 pt-6">
+                            <button 
+                                disabled={!actionCompId}
+                                onClick={handleFinalizeWinners}
+                                className="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 hover:shadow-lg hover:shadow-amber-500/30 text-white font-bold rounded-xl flex items-center gap-2 disabled:opacity-50"
+                            >
+                                <Trophy size={18} /> Confirm Winners & Publish
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -103,6 +103,7 @@ const SubmissionTracker = () => {
             isTeamSubmission: !!teamForComp,
             teamId: teamForComp ? teamForComp.id : null,
             teamName: teamForComp ? teamForComp.name : null,
+            teamStatus: teamForComp ? teamForComp.status : null,
             files: files.map(f => f.name ? f.name : f)
         };
 
@@ -144,6 +145,14 @@ const SubmissionTracker = () => {
     const getCompetitionName = (competitionId) => {
         const comp = competitions.find(c => c.id === competitionId);
         return comp?.name || 'Unknown';
+    };
+
+    const isDeadlinePassed = (competitionId) => {
+        const comp = competitions.find(c => c.id === competitionId);
+        if (!comp || !comp.stages || comp.stages.length === 0) return false;
+        const activeStage = comp.stages.find(s => s.status !== 'Completed') || comp.stages[comp.stages.length - 1];
+        if (activeStage && activeStage.endDate && new Date() > new Date(`${activeStage.endDate}T23:59:59`)) return true;
+        return false;
     };
 
 
@@ -600,7 +609,7 @@ const SubmissionTracker = () => {
                                         )}
                                     </div>
 
-                                        {submission.status === 'pending' && (
+                                        {submission.status === 'pending' && !isDeadlinePassed(submission.competitionId) && (
                                             <div className="flex items-center gap-2 lg:ml-auto">
                                                 <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
                                                 <button 
@@ -610,6 +619,13 @@ const SubmissionTracker = () => {
                                                     <Edit2 size={14} />
                                                     Edit
                                                 </button>
+                                            </div>
+                                        )}
+                                        {isDeadlinePassed(submission.competitionId) && (
+                                            <div className="flex items-center gap-2 lg:ml-auto">
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50">
+                                                    Locked
+                                                </span>
                                             </div>
                                         )}
                                     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -9,6 +9,8 @@ const Login = () => {
   const { login, loading, user } = useAuth();
   const navigate = useNavigate();
 
+  const [selectedStudent, setSelectedStudent] = useState('ST-001');
+
   useEffect(() => {
     if (user) {
       if (user.role === 'admin') navigate('/admin', { replace: true });
@@ -18,7 +20,7 @@ const Login = () => {
   }, [user, navigate]);
 
   const handleLogin = async (role) => {
-    await login(role);
+    await login(role, role === 'student' ? selectedStudent : null);
   };
 
   return (
@@ -65,8 +67,22 @@ const Login = () => {
               </div>
               <div className="text-center sm:text-left flex flex-col justify-center sm:justify-start">
                 <div className="font-bold text-foreground text-base transition-colors duration-200">Student</div>
-                <div className="text-xs sm:text-sm text-muted-foreground font-normal mt-0.5 hidden sm:block transition-colors duration-200">
-                  Access your dashboard and results
+                <div className="text-xs sm:text-sm text-muted-foreground font-normal mt-0.5 hidden sm:block transition-colors duration-200" onClick={(e) => e.stopPropagation()}>
+                  <select 
+                    value={selectedStudent} 
+                    onChange={(e) => setSelectedStudent(e.target.value)}
+                    className="mt-1 bg-background border border-border rounded text-xs p-1"
+                  >
+                    <option value="ST-001">ST-001 (Omar)</option>
+                    <option value="ST-002">ST-002 (Alice)</option>
+                    <option value="ST-003">ST-003 (Bob)</option>
+                    <option value="ST-004">ST-004 (Charlie)</option>
+                    <option value="ST-005">ST-005 (Diana)</option>
+                    <option value="ST-006">ST-006 (Evan)</option>
+                    <option value="ST-007">ST-007 (Fiona)</option>
+                    <option value="ST-008">ST-008 (George)</option>
+                    <option value="ST-009">ST-009 (Hannah)</option>
+                  </select>
                 </div>
               </div>
             </button>
