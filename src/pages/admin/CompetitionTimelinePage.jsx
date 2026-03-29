@@ -113,14 +113,17 @@ const CompetitionTimelinePage = () => {
       {competition.stages && competition.stages.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stages:</span>
-          {competition.stages.map((stage, i) => (
-            <span
-              key={i}
-              className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-100 dark:border-violet-800"
-            >
-              {stage}
-            </span>
-          ))}
+          {competition.stages.map((stage, i) => {
+            const stageName = typeof stage === 'string' ? stage : stage.name;
+            return (
+              <span
+                key={i}
+                className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-100 dark:border-violet-800"
+              >
+                {stageName}
+              </span>
+            );
+          })}
         </div>
       )}
 
